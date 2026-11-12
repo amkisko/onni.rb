@@ -99,7 +99,7 @@ ActiveAdmin.register_page "Features" do
     div class: "scopes mb-4", role: "toolbar" do
       div class: "index-button-group", role: "group" do
         Onni::Admin::FlagsQuery::SCOPES.each do |scope_id|
-          label = scope_id == "all" ? "All" : scope_id.capitalize
+          label = (scope_id == "all") ? "All" : scope_id.capitalize
           classes = ["index-button"]
           classes << "index-button-selected" if query.scope == scope_id
           a href: helpers.admin_features_path(tab_params.merge(scope: (scope_id == "all") ? nil : scope_id).compact),
