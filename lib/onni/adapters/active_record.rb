@@ -108,7 +108,10 @@ module Onni
         period_start = Time.current.utc.beginning_of_hour
         now = Time.current
         column = enabled ? "enabled_hits" : "disabled_hits"
-        # Intent: column conflict target matches index_onni_feature_stats_unique (SQLite + PostgreSQL ON CONFLICT).
+        table = ::Onni::StatBucket.table_name
+        # Intent: unique_by matches index_onni_feature_stats_unique. Qualify the existing-row
+        # column on the RHS; bare names are ambiguous with excluded on PostgreSQL ON CONFLICT.
+        # SET targets stay bare (PostgreSQL rejects table-qualified assignment targets).
         ::Onni::StatBucket.upsert(
           {
             feature_key: key.to_s,
@@ -120,7 +123,9 @@ module Onni
             updated_at: now
           },
           unique_by: %i[feature_key period period_start],
-          on_duplicate: ::Arel.sql("#{column} = #{column} + #{weight}, updated_at = excluded.updated_at")
+          on_duplicate: ::Arel.sql(
+            "#{column} = #{table}.#{column} + #{weight}, updated_at = excluded.updated_at"
+          )
         )
       end
     end

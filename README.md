@@ -202,7 +202,7 @@ Host tips:
 
 ### Other ActiveRecord dialects
 
-PostgreSQL uses the same `excluded.*` upsert form. If a host dialect rejects `excluded.*`, override `Adapters::ActiveRecord#record_stat` / `#record_stats_batch` or patch the `on_duplicate` fragment for that adapter.
+PostgreSQL uses the same `excluded.*` upsert form. The conflict `SET` keeps a bare assignment target and qualifies the existing-row hit column on the RHS (`enabled_hits = onni_feature_stat_buckets.enabled_hits + ...`) so PostgreSQL does not treat the bare name as ambiguous with `excluded`. If a host dialect rejects `excluded.*`, override `Adapters::ActiveRecord#record_stat` / `#record_stats_batch` or patch the `on_duplicate` fragment for that adapter.
 
 ## ActiveAdmin dashboard access
 

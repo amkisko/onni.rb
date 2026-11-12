@@ -28,8 +28,12 @@ RSpec.describe "Onni SQLite ActiveRecord support", type: :request do
       ActiveSupport::Notifications.unsubscribe(subscription)
     end
 
-    expect(sqls.join("\n")).to match(/ON CONFLICT/i)
-    expect(sqls.join("\n")).to include("excluded.updated_at")
+    joined = sqls.join("\n")
+    expect(joined).to match(/ON CONFLICT/i)
+    expect(joined).to include("excluded.updated_at")
+    # PostgreSQL rejects bare RHS column names when excluded.* is also in SET (PG::AmbiguousColumn).
+    expect(joined).to include("enabled_hits = onni_feature_stat_buckets.enabled_hits +")
+    expect(joined).to include("disabled_hits = onni_feature_stat_buckets.disabled_hits +")
     bucket = Onni::StatBucket.find_by!(feature_key: "sqlite_upsert")
     expect(bucket.enabled_hits).to eq(5)
     expect(bucket.disabled_hits).to eq(1)

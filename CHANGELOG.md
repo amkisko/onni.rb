@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.1.1 (2026-11-12)
+
+- Fix PostgreSQL hit stats upsert so `enabled_hits` / `disabled_hits` record again (ambiguous column with `excluded`)
+
 ## 0.1.0 (2026-11-12)
 
 - Add feature evaluation charts with 24-hour, 7-day, and 30-day history, enabled share, expandable counts, and replaceable views
