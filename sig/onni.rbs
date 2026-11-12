@@ -1,0 +1,210 @@
+module Onni
+  VERSION: String
+
+  def self.configuration: () -> Configuration
+  def self.configure: () { (Configuration) -> void } -> void
+  def self.adapter: () -> untyped
+  def self.adapter=: (untyped) -> untyped
+  def self.reset_adapter!: () -> void
+  def self.enabled?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
+  def self.disabled?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
+  def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool) -> untyped
+  def self.enable: (untyped name, ?untyped? actor) -> true
+  def self.disable: (untyped name, ?untyped? actor) -> true
+  def self.enable_group: (untyped name, untyped group_name) -> true
+  def self.disable_group: (untyped name, untyped group_name) -> true
+  def self.enable_percentage_of_actors: (untyped name, untyped percentage) -> true
+  def self.set_variants: (untyped name, untyped variants) -> true
+  def self.add: (untyped name) -> untyped
+  def self.exist?: (untyped name) -> bool
+  def self.features: () -> Array[Flag]
+  def self.[]: (untyped name) -> Flag
+  def self.register_group: (untyped name) { (untyped, untyped) -> bool } -> void
+  def self.migrate!: (untyped source) -> Hash[Symbol, Integer]
+  def self.sync_registry!: () -> void
+  def self.purge_stats!: (**untyped) -> Hash[Symbol, untyped]
+  def self.stats_overview: () -> Hash[Symbol, untyped]
+  def self.preload!: (*untyped) -> Integer
+  def self.flush_stats!: () -> Integer
+  def self.reset_request!: () -> void
+
+  class Configuration
+    attr_accessor features_path: untyped
+    attr_accessor cache: untyped
+    attr_accessor cache_ttl: untyped
+    attr_accessor stats_enabled: bool
+    attr_reader stats_sample_rate: Float
+    def stats_sample_rate=: (untyped) -> Float
+    attr_accessor stats_retention: untyped
+    attr_accessor stats_sampler: untyped
+    attr_accessor stats_ignore: untyped
+    attr_accessor stats_scale_sampled_hits: bool
+    attr_accessor stats_buffer: bool
+    attr_accessor adapter: untyped
+    attr_accessor admin_authorized: untyped
+    attr_reader concurrency: Symbol
+    def concurrency=: (untyped) -> Symbol
+  end
+
+  module RequestStore
+    def self.gates: () -> untyped
+    def self.gates=: (untyped) -> untyped
+    def self.stats_buffer: () -> untyped
+    def self.stats_buffer=: (untyped) -> untyped
+    def self.clear!: () -> void
+  end
+
+  module Sync
+    class NullLock
+      def synchronize: () { () -> untyped } -> untyped
+    end
+
+    def self.new_lock: () -> untyped
+    def self.synchronize: () { () -> untyped } -> untyped
+    def self.reset!: () -> void
+  end
+
+  module Instrumenter
+    def self.instrument: (untyped name, ?Hash[Symbol, untyped] payload) ?{ (Hash[Symbol, untyped]) -> untyped } -> untyped
+  end
+
+  class Flag
+    attr_reader name: String
+    def initialize: (untyped name) -> void
+    def exist?: () -> bool
+    def enabled?: (?untyped? actor, ?record_stats: bool) -> bool
+    def gates: () -> Array[Hash[String, untyped]]
+    def definition: () -> Hash[String, untyped]
+    def description: () -> untyped
+    def expires_at: () -> untyped
+    def variants: () -> Hash[String, Integer]
+  end
+
+  class HitChart
+    WINDOWS: Hash[String, Integer]
+    attr_reader range: String
+    attr_reader from: untyped
+    attr_reader to: untyped
+    attr_reader rows: Array[Hash[String, untyped]]
+    attr_reader enabled_hits: Integer
+    attr_reader disabled_hits: Integer
+    def initialize: (untyped name, ?range: String) -> void
+    def hourly?: () -> bool
+    def enabled_percentage: () -> Float?
+    def maximum: () -> Integer
+    def points: (String column) -> String
+  end
+
+  module Store
+    def self.enabled?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
+    def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool) -> untyped
+    def self.bust_cache!: (untyped name) -> untyped
+  end
+
+  module Registry
+    def self.config: () -> Hash[String, untyped]
+    def self.reload!: () -> Hash[String, untyped]
+    def self.known?: (untyped name) -> bool
+    def self.definition: (untyped name) -> untyped
+    def self.require_definition!: (untyped name) -> untyped
+  end
+
+  module Group
+    def self.register: (untyped name) { (untyped, untyped) -> bool } -> void
+    def self.clear!: () -> void
+    def self.names: () -> Array[Symbol]
+    def self.known?: (untyped name) -> bool
+    def self.member?: (untyped name, untyped actor) -> bool
+  end
+
+  module Actor
+    def self.id: (untyped? actor) -> untyped
+    def self.percentage_value: (untyped actor, untyped feature_key) -> Integer
+    def self.variant_for: (untyped? actor, untyped feature_key, untyped variants) -> untyped
+  end
+
+  module Conditions
+    def self.met?: (untyped name, untyped? actor, ?definition: untyped) -> bool
+  end
+
+  module Stats
+    def self.record: (untyped name, enabled: bool) -> untyped
+    def self.for: (untyped name, ?period: String, ?from: untyped, ?to: untyped) -> Array[Hash[String, untyped]]
+    def self.purge!: (**untyped) -> Hash[Symbol, untyped]
+    def self.overview: () -> Hash[Symbol, untyped]
+
+    class Purge
+      def self.call: (**untyped) -> Hash[Symbol, untyped]
+      def initialize: (**untyped) -> void
+      def call: () -> Hash[Symbol, untyped]
+    end
+
+    module Sampler
+      MAX_WEIGHT: Integer
+      def self.decide: (name: untyped, enabled: bool) -> (:skip | Hash[Symbol, untyped])
+      def self.coerce_rate: (untyped) -> Float
+      def self.weight_for: (Float) -> Integer
+    end
+
+    module Buffer
+      def self.add: (untyped name, enabled: bool, weight: untyped) -> void
+      def self.flush!: () -> Integer
+    end
+
+    module Overview
+      ROW_WARNING: Integer
+      def self.call: () -> Hash[Symbol, untyped]
+    end
+  end
+
+  module Adapters
+    class Memory
+      def initialize: (?lock: untyped) -> void
+      def clear!: () -> void
+      def add: (untyped key) -> untyped
+      def exist?: (untyped key) -> bool
+      def feature_keys: () -> Array[String]
+      def gates_for: (untyped key) -> Array[Hash[String, untyped]]
+      def gates_for_many: (untyped keys) -> Hash[String, Array[Hash[String, untyped]]]
+      def replace_gates: (untyped key, untyped gates) -> untyped
+      def add_gate: (untyped key, untyped gate_key, untyped value) -> untyped
+      def remove_gate: (untyped key, untyped gate_key, ?untyped? value) -> untyped
+      def clear_gates: (untyped key) -> untyped
+      def record_stat: (untyped key, enabled: bool, ?weight: untyped) -> untyped
+      def record_stats_batch: (untyped buckets) -> Integer
+      def stats_for: (untyped key, ?period: String, ?from: untyped, ?to: untyped) -> Array[Hash[String, untyped]]
+      def purge_stats_batch: (older_than: untyped, batch_size: untyped, after_id: untyped) -> Hash[Symbol, untyped]
+      def stats_overview: () -> Hash[Symbol, untyped]
+    end
+
+    class ActiveRecord
+      def add: (untyped key) -> untyped
+      def exist?: (untyped key) -> bool
+      def feature_keys: () -> Array[String]
+      def gates_for: (untyped key) -> Array[Hash[String, untyped]]
+      def gates_for_many: (untyped keys) -> Hash[String, Array[Hash[String, untyped]]]
+      def replace_gates: (untyped key, untyped gates) -> untyped
+      def add_gate: (untyped key, untyped gate_key, untyped value) -> untyped
+      def remove_gate: (untyped key, untyped gate_key, ?untyped? value) -> untyped
+      def clear_gates: (untyped key) -> untyped
+      def record_stat: (untyped key, enabled: bool, ?weight: untyped) -> untyped
+      def record_stats_batch: (untyped buckets) -> Integer
+      def stats_for: (untyped key, ?period: String, ?from: untyped, ?to: untyped) -> Array[Hash[String, untyped]]
+      def purge_stats_batch: (older_than: untyped, batch_size: untyped, after_id: untyped) -> Hash[Symbol, untyped]
+      def stats_overview: () -> Hash[Symbol, untyped]
+    end
+  end
+
+  module Migrator
+    class Importer
+      def initialize: (untyped source) -> void
+      def call: () -> Hash[Symbol, Integer]
+    end
+
+    class Snapshot
+      attr_reader feature_keys: Array[untyped]
+      attr_reader gates: Array[untyped]
+      def initialize: (feature_keys: untyped, gates: untyped) -> void
+    end
+  end
+end

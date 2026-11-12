@@ -1,0 +1,41 @@
+# frozen_string_literal: true
+
+Onni.configure do |config|
+  config.features_path = Rails.root.join("config/features.yml")
+  config.cache = Rails.cache
+  config.cache_ttl = 15.minutes
+  config.stats_enabled = true
+  config.stats_sample_rate = 1.0 # float 0.0..1.0 (clamped); 1.0 skips Random
+  config.stats_scale_sampled_hits = true # kept samples increment by ~1/rate
+  # config.stats_buffer = true # coalesce hits until Onni.reset_request! / flush_stats!
+  # config.stats_ignore = %w[health_probe_flag]
+  # config.stats_sampler = ->(ctx) { ctx[:name] == "busy_flag" ? 0.01 : nil }
+  config.stats_retention = 90.days
+  # Per request: Onni.preload! then Onni.reset_request! in middleware / around_action
+  # :mutex (default) is safe across threads and fibers on Ruby 3.4+; :none skips locks.
+  config.concurrency = :mutex
+  config.adapter = Rails.env.test? ? :memory : :active_record
+  # Who may open the Onni ActiveAdmin dashboard (not app authorization):
+  # config.admin_authorized = -> { current_admin_user&.can_manage_experiments? }
+end
+
+# Hit-bucket cleanup (install job with: bin/rails generate onni:stats_cleanup)
+# Schedule daily, e.g. OnniPurgeStatsJob.perform_later
+# Or drain in console: Onni.purge_stats!(older_than: 90.days.ago)
+
+# Audience targeting for rollouts — not access control.
+Onni.register_group(:beta_testers) do |actor, _|
+  actor.respond_to?(:beta_tester?) && actor.beta_tester?
+end
+
+# One-time import from another feature-flag library (safe to re-run; skips unknown YAML keys
+# and unsupported gates). Pass any source with #feature_keys and #gates, e.g. Migrator::Snapshot:
+# Onni.migrate!(Onni::Migrator::Snapshot.new(feature_keys: [...], gates: [...]))
+
+# Optional explicit ActiveAdmin support:
+# require "onni/active_admin"
+
+# Optional ops subscribe (ActiveSupport::Notifications):
+# ActiveSupport::Notifications.subscribe(/\.onni$/) do |event|
+#   Rails.logger.info([event.name, event.payload].inspect)
+# end

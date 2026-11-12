@@ -1,0 +1,26 @@
+# frozen_string_literal: true
+
+# Deletes Onni hourly hit buckets older than config.stats_retention (or older_than).
+# Schedule daily. Console drain without a queue: Onni.purge_stats!(older_than: 90.days.ago)
+class OnniPurgeStatsJob < ApplicationJob
+  queue_as :low
+
+  def perform(older_than: nil, batch_size: 1_000, after_id: 0, processed_count: 0)
+    cutoff = older_than.present? ? Time.iso8601(older_than) : nil
+
+    Onni::Stats::Purge.call(
+      older_than: cutoff,
+      batch_size: batch_size,
+      after_id: after_id,
+      processed_count: processed_count,
+      enqueue: ->(**kwargs) {
+        self.class.perform_later(
+          older_than: kwargs[:older_than].iso8601,
+          batch_size: kwargs[:batch_size],
+          after_id: kwargs[:after_id],
+          processed_count: kwargs[:processed_count]
+        )
+      }
+    )
+  end
+end

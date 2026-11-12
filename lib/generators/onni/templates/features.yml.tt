@@ -1,0 +1,9 @@
+---
+# new_checkout:
+#   expires_at: "2027-01-01"
+#   description: "Checkout redesign experiment"
+#   variants:
+#     control: 50
+#     treatment: 50
+#
+# Do not use Onni flags as authorization. Keep access control in your policy layer.

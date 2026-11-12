@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+class AddOnniStatsPeriodStartIndex < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    add_index :onni_feature_stat_buckets, :period_start,
+      name: "index_onni_feature_stats_on_period_start",
+      if_not_exists: true
+  end
+end

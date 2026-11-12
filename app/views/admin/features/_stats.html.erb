@@ -1,0 +1,49 @@
+<section aria-labelledby="onni-hit-history" class="mb-6">
+  <h3 id="onni-hit-history" class="font-semibold mb-2">Hits</h3>
+  <%= form_with url: admin_features_feature_path, method: :get, local: true, class: "mb-4" do %>
+    <%= hidden_field_tag :key, flag.name %>
+    <%= label_tag :range, "History" %>
+    <%= select_tag :range, options_for_select([["Last 24 hours", "24h"], ["Last 7 days", "7d"], ["Last 30 days", "30d"]], chart.range) %>
+    <%= submit_tag "Show history", name: nil, class: "button" %>
+  <% end %>
+
+  <dl class="mb-4">
+    <dt>Enabled evaluations</dt>
+    <dd data-onni-enabled-hits><%= number_with_delimiter(chart.enabled_hits) %></dd>
+    <dt>Disabled evaluations</dt>
+    <dd data-onni-disabled-hits><%= number_with_delimiter(chart.disabled_hits) %></dd>
+    <dt>Enabled share</dt>
+    <dd data-onni-enabled-percentage><%= chart.enabled_percentage ? number_to_percentage(chart.enabled_percentage, precision: 1) : "No data" %></dd>
+  </dl>
+  <p>Counts reflect feature evaluations, not unique users. Sampling can affect these counts: they may include estimates or only sampled evaluations.</p>
+
+  <% if chart.enabled_percentage.nil? %>
+    <p role="status" class="my-4">No recorded evaluations in this window. Choose a longer window or check whether statistics collection is enabled.</p>
+  <% else %>
+    <%= render partial: "admin/features/chart", locals: { chart: chart } %>
+  <% end %>
+
+  <p>Times are UTC. The current <%= chart.hourly? ? "hour" : "day" %> is incomplete. Periods without recorded evaluations are shown as zero; older history may have been removed.</p>
+  <details class="mt-4">
+    <summary>View evaluation counts</summary>
+    <table>
+      <caption>Recorded evaluations by <%= chart.hourly? ? "hour" : "day" %> (UTC)</caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= chart.hourly? ? "Hour" : "Day" %> (UTC)</th>
+          <th scope="col">Enabled</th>
+          <th scope="col">Disabled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% chart.rows.each do |row| %>
+          <tr>
+            <th scope="row"><%= l(chart.hourly? ? row.fetch("period_start") : row.fetch("period_start").to_date, format: :short) %></th>
+            <td><%= number_with_delimiter(row.fetch("enabled_hits")) %></td>
+            <td><%= number_with_delimiter(row.fetch("disabled_hits")) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </details>
+</section>

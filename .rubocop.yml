@@ -1,0 +1,188 @@
+inherit_mode:
+  merge:
+    - Exclude
+
+require:
+  - standard
+
+plugins:
+  - standard-custom
+  - standard-performance
+  - rubocop-performance
+  - rubocop-rspec
+  - rubocop-thread_safety
+
+inherit_gem:
+  standard: config/base.yml
+  standard-performance: config/base.yml
+  standard-custom: config/base.yml
+
+AllCops:
+  SuggestExtensions: false
+  TargetRubyVersion: 3.2
+  NewCops: enable
+  Exclude:
+    - gemfiles/**/*
+    - bin/**/*
+    - db/**/*
+    - vendor/**/*
+    - tmp/**/*
+    - log/**/*
+    - storage/**/*
+    - coverage/**/*
+    - uploads/**/*
+    - .git/**/*
+    - node_modules/**/*
+    - public/packs/**/*
+    - public/packs-test/**/*
+    - usr/**/*
+    - benchmarks/**/*
+    - spec/dummy/**/*
+
+RSpec/ExampleLength:
+  Max: 80
+
+RSpec/SpecFilePathFormat:
+  Enabled: false
+  Exclude:
+    - spec/**/*
+
+RSpec/HooksBeforeExamples:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 16
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/RepeatedExample:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/DescribedClass:
+  Enabled: false
+
+RSpec/InstanceVariable:
+  Enabled: false
+
+RSpec/LeakyLocalVariable:
+  Enabled: false
+
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/NamedSubject:
+  Enabled: false
+
+RSpec/NoExpectationExample:
+  Enabled: false
+
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/MultipleDescribes:
+  Enabled: false
+
+RSpec/RepeatedExampleGroupDescription:
+  Enabled: false
+
+RSpec/RepeatedDescription:
+  Enabled: false
+
+RSpec/StubbedMock:
+  Enabled: false
+
+RSpec/ExpectActual:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+Style/AccessModifierDeclarations:
+  EnforcedStyle: inline
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Lint/UselessAssignment:
+  Enabled: false
+
+ThreadSafety/ClassAndModuleAttributes:
+  Enabled: false
+
+ThreadSafety/ClassInstanceVariable:
+  Enabled: false
+
+ThreadSafety/MutableClassInstanceVariable:
+  Exclude:
+    - lib/onni/group.rb
+
+ThreadSafety/NewThread:
+  Exclude:
+    - spec/onni/sync_spec.rb
+    - spec/onni/group_concurrency_spec.rb
+    - spec/requests/sqlite_support_spec.rb
+
+ThreadSafety/DirChdir:
+  Exclude:
+    - "*.gemspec"
+
+Lint/Debugger:
+  Enabled: true
+  Exclude: []
+
+RSpec/Focus:
+  Enabled: true
+  Exclude: []
+
+RSpec/LeakyConstantDeclaration:
+  Exclude:
+    - spec/**/*
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - spec/**/*
+
+Metrics/ClassLength:
+  Enabled: true
+  CountAsOne: [array, hash, heredoc, method_call]
+  Max: 150
+  Exclude:
+
+Metrics/ModuleLength:
+  Enabled: true
+  CountAsOne: [array, hash, heredoc, method_call]
+  Max: 150
+
+Metrics/AbcSize:
+  Enabled: true
+  Max: 15
+  CountRepeatedAttributes: false
+  Exclude:
+    - lib/onni.rb
+    - lib/onni/store.rb
+    - lib/onni/registry.rb
+    - lib/onni/adapters/memory.rb
+    - lib/onni/adapters/active_record.rb
+    - lib/onni/migrator/importer.rb
+    - lib/onni/stats.rb
+    - lib/onni/stats/buffer.rb
+    - spec/**/*
+
+Metrics/CyclomaticComplexity:
+  Enabled: true
+  Max: 10
+  Exclude:
+    - lib/onni/store.rb
+
+Metrics/PerceivedComplexity:
+  Enabled: true
+  Max: 10
+  Exclude:
+    - lib/onni/store.rb

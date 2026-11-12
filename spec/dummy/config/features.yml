@@ -1,0 +1,11 @@
+---
+demo:
+  expires_at: "2099-01-01"
+  description: "Integration demo flag"
+  variants:
+    control: 50
+    treatment: 50
+
+search_v2:
+  expires_at: "2099-01-01"
+  description: "Second flag for registry sync"

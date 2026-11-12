@@ -1,0 +1,60 @@
+<% flag = @flag %>
+<% variants = flag.variants %>
+<div class="p-4">
+  <h2 class="text-xl font-semibold mb-2"><%= flag.name %></h2>
+  <p class="mb-4"><%= flag.description %></p>
+  <p class="mb-4">Expires: <%= flag.expires_at || "—" %></p>
+  <p class="mb-4">
+    Hit sample rate:
+    <% if !Onni.configuration.stats_enabled %>
+      off
+    <% elsif Array(Onni.configuration.stats_ignore).any? { |key| key.to_s == flag.name } %>
+      ignored
+    <% else %>
+      <%= Onni.configuration.stats_sample_rate %>
+      <% if Onni.configuration.stats_sampler %>
+        (global default; per-flag sampler may override)
+      <% end %>
+    <% end %>
+  </p>
+
+  <h3 class="font-semibold mb-2">Gates</h3>
+  <ul class="mb-4 list-disc pl-5">
+    <% flag.gates.each do |gate| %>
+      <li><code><%= gate["key"] %></code> = <code><%= gate["value"] %></code></li>
+    <% end %>
+    <% if flag.gates.empty? %>
+      <li>No gates (disabled)</li>
+    <% end %>
+  </ul>
+
+  <%= form_with url: admin_features_update_feature_path(key: flag.name), method: :post, local: true, class: "mb-6 space-y-3" do %>
+    <div>
+      <label>Percentage of actors (0-100)</label>
+      <%= number_field_tag :percentage, flag.gates.find { |gate| gate["key"] == "percentage_of_actors" }&.fetch("value", nil), min: 0, max: 100 %>
+    </div>
+    <div>
+      <label>Enable group</label>
+      <%= select_tag :group_name, options_for_select(Onni::Group.names), include_blank: true %>
+      <%= select_tag :group_action, options_for_select([%w[Enable enable], %w[Disable disable]]), include_blank: "Group action" %>
+    </div>
+    <div>
+      <label>A/B variants (name and weight)</label>
+      <div class="flex gap-2 items-end">
+        <div>
+          <label for="variant_control">control</label>
+          <%= number_field_tag "variants[control]", variants["control"], min: 0, max: 100, id: "variant_control" %>
+        </div>
+        <div>
+          <label for="variant_treatment">treatment</label>
+          <%= number_field_tag "variants[treatment]", variants["treatment"], min: 0, max: 100, id: "variant_treatment" %>
+        </div>
+      </div>
+    </div>
+    <%= submit_tag "Save", class: "button" %>
+  <% end %>
+
+  <%= render partial: "admin/features/stats", locals: { chart: @hit_chart, flag: flag } %>
+
+  <p class="mt-4"><%= link_to "Back to features", admin_features_path %></p>
+</div>
