@@ -49,7 +49,7 @@ ActiveAdmin.register_page "Features" do
       column("Expires") do |flag|
         summary = flag.expires_summary
         if summary
-          span summary, title: flag.expires_full, "data-onni-expires" => true
+          span summary, title: flag.expires_full, "data-onni-expires": true
         else
           span "—"
         end

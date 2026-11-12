@@ -38,7 +38,7 @@ module Onni
       return if expires_at.blank?
 
       Date.parse(expires_at.to_s)
-    rescue Date::Error, ArgumentError, TypeError
+    rescue ArgumentError, TypeError
       nil
     end
 
