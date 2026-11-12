@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.1.2 (2026-11-12)
+
+- ActiveAdmin Features index: one Enable or Disable action per flag, relative expiry with full date hint, compact hit metrics, no explainer panels
+- ActiveAdmin feature show: denser metrics, shorter hit copy, relative expiry
+
 ## 0.1.1 (2026-11-12)
 
 - Fix PostgreSQL hit stats upsert so `enabled_hits` / `disabled_hits` record again (ambiguous column with `excluded`)

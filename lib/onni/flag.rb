@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "date"
+
 module Onni
   class Flag
     attr_reader :name
@@ -32,6 +34,36 @@ module Onni
       definition["expires_at"]
     end
 
+    def expires_on
+      return if expires_at.blank?
+
+      Date.parse(expires_at.to_s)
+    rescue Date::Error, ArgumentError, TypeError
+      nil
+    end
+
+    def expires_full
+      date = expires_on
+      return expires_at.to_s if date.nil? && expires_at.present?
+
+      date&.iso8601
+    end
+
+    def expires_summary(now: Time.now.utc)
+      date = expires_on
+      return if date.nil?
+
+      days = (date - now.to_date).to_i
+      if days.zero?
+        "today"
+      elsif days.abs >= 365
+        years = (days / 365.0).round
+        relative_count(years, "year")
+      else
+        relative_count(days, "day")
+      end
+    end
+
     def variants
       raw = definition["variants"] || gates_variants
       return {} if raw.blank?
@@ -40,6 +72,16 @@ module Onni
     end
 
     private
+
+    def relative_count(count, unit)
+      absolute = count.abs
+      label = (absolute == 1) ? unit : "#{unit}s"
+      if count.positive?
+        "in #{absolute} #{label}"
+      else
+        "#{absolute} #{label} ago"
+      end
+    end
 
     def gates_variants
       gate = gates.find { |entry| entry["key"] == "variants" }

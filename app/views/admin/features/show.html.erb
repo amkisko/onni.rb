@@ -1,32 +1,60 @@
 <% flag = @flag %>
 <% variants = flag.variants %>
-<div class="p-4">
+<% enabled = flag.enabled?(record_stats: false) %>
+<div>
   <h2 class="text-xl font-semibold mb-2"><%= flag.name %></h2>
-  <p class="mb-4"><%= flag.description %></p>
-  <p class="mb-4">Expires: <%= flag.expires_at || "—" %></p>
-  <p class="mb-4">
-    Hit sample rate:
-    <% if !Onni.configuration.stats_enabled %>
-      off
-    <% elsif Array(Onni.configuration.stats_ignore).any? { |key| key.to_s == flag.name } %>
-      ignored
-    <% else %>
-      <%= Onni.configuration.stats_sample_rate %>
-      <% if Onni.configuration.stats_sampler %>
-        (global default; per-flag sampler may override)
-      <% end %>
-    <% end %>
-  </p>
+  <% if flag.description.present? %>
+    <p class="mb-3"><%= flag.description %></p>
+  <% end %>
+
+  <table class="mb-4">
+    <tbody>
+      <tr>
+        <th scope="row">Status</th>
+        <td><%= enabled ? "Enabled" : "Disabled" %></td>
+        <th scope="row">Expires</th>
+        <td>
+          <% if flag.expires_summary %>
+            <span title="<%= flag.expires_full %>" data-onni-expires><%= flag.expires_summary %></span>
+          <% else %>
+            —
+          <% end %>
+        </td>
+        <th scope="row">Sample rate</th>
+        <td>
+          <% if !Onni.configuration.stats_enabled %>
+            off
+          <% elsif Array(Onni.configuration.stats_ignore).any? { |key| key.to_s == flag.name } %>
+            ignored
+          <% else %>
+            <%= Onni.configuration.stats_sample_rate %>
+          <% end %>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
   <h3 class="font-semibold mb-2">Gates</h3>
-  <ul class="mb-4 list-disc pl-5">
-    <% flag.gates.each do |gate| %>
-      <li><code><%= gate["key"] %></code> = <code><%= gate["value"] %></code></li>
-    <% end %>
-    <% if flag.gates.empty? %>
-      <li>No gates (disabled)</li>
-    <% end %>
-  </ul>
+  <% if flag.gates.empty? %>
+    <p class="mb-4">None</p>
+  <% else %>
+    <table class="mb-4">
+      <thead>
+        <tr>
+          <th scope="col">Key</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% flag.gates.each do |gate| %>
+          <tr>
+            <td><code><%= gate["key"] %></code></td>
+            <td><code><%= gate["value"] %></code></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
 
   <%= form_with url: admin_features_update_feature_path(key: flag.name), method: :post, local: true, class: "mb-6 space-y-3" do %>
     <div>
@@ -34,9 +62,9 @@
       <%= number_field_tag :percentage, flag.gates.find { |gate| gate["key"] == "percentage_of_actors" }&.fetch("value", nil), min: 0, max: 100 %>
     </div>
     <div>
-      <label>Enable group</label>
+      <label>Group</label>
       <%= select_tag :group_name, options_for_select(Onni::Group.names), include_blank: true %>
-      <%= select_tag :group_action, options_for_select([%w[Enable enable], %w[Disable disable]]), include_blank: "Group action" %>
+      <%= select_tag :group_action, options_for_select([%w[Enable enable], %w[Disable disable]]), include_blank: "Action" %>
     </div>
     <div>
       <label>A/B variants (name and weight)</label>

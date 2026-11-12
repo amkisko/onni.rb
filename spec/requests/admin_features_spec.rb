@@ -9,7 +9,8 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("demo")
     expect(response.body).to include("search_v2")
-    expect(response.body).to include("not an authorization system")
+    expect(response.body).not_to include("not an authorization system")
+    expect(response.body).not_to include("Enable Disable")
   end
 
   it "does not record hit stats when rendering the index" do
@@ -43,7 +44,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("demo")
     expect(response.body).to include("Hits")
-    expect(response.body).to include("Hit sample rate")
+    expect(response.body).to include("Sample rate")
     expect(response.body).to include(Onni.configuration.stats_sample_rate.to_s)
   end
 
@@ -93,5 +94,22 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     )
 
     expect(Onni.adapter.gates_for("demo")).not_to include(hash_including("key" => "groups", "value" => "staff"))
+  end
+
+  it "shows one enable or disable action per flag and relative expiry" do
+    Onni.enable(:demo)
+
+    get admin_features_path
+
+    document = Nokogiri::HTML(response.body)
+    expect(response).to have_http_status(:ok)
+    demo_row = document.at_css("a[href*=\"key=demo\"]")&.ancestors("tr")&.first
+    search_row = document.at_css("a[href*=\"key=search_v2\"]")&.ancestors("tr")&.first
+    expect(demo_row.at_css("button[type=submit]").text).to eq("Disable")
+    expect(demo_row.at_css("button[type=submit]").text).not_to eq("Enable")
+    expect(search_row.at_css("button[type=submit]").text).to eq("Enable")
+    expires = demo_row.at_css("[data-onni-expires]")
+    expect(expires["title"]).to eq("2099-01-01")
+    expect(expires.text).to match(/\d+ years?/)
   end
 end

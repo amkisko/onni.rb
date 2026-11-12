@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
-  it "shows hit storage overview and cleanup guidance on the features index" do
+  it "shows compact hit storage metrics on the features index" do
     Onni::StatBucket.create!(
       feature_key: "demo",
       period: "hour",
@@ -17,14 +17,17 @@ RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Hit storage")
     expect(response.body).to include("Buckets")
-    expect(response.body).to include("cleanup")
+    expect(response.body).not_to include("Keep cleanup scheduled")
+    expect(response.body).not_to include("No hit buckets yet")
   end
 
-  it "prompts to schedule cleanup when there are no hit buckets" do
+  it "omits cleanup guidance when there are no hit buckets" do
     get admin_features_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("No hit buckets yet")
+    expect(response.body).to include("Buckets")
+    expect(response.body).not_to include("No hit buckets yet")
+    expect(response.body).not_to include("schedule daily cleanup")
   end
 
   it "warns when oldest hit history is past retention" do
@@ -40,7 +43,7 @@ RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
 
     get admin_features_path
 
-    expect(response.body).to include("past retention")
+    expect(response.body).to include("Past Retention")
   ensure
     Onni.configuration.stats_retention = previous
   end
@@ -53,6 +56,6 @@ RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
 
     get admin_features_path
 
-    expect(response.body).to include("Hit storage is large")
+    expect(response.body).to include("Large Table")
   end
 end

@@ -19,41 +19,51 @@ ActiveAdmin.register_page "Features" do
   content title: "Features" do
     flags = Onni::Registry.config.keys.sort.map { |key| Onni::Flag.new(key) }
     overview = Onni.stats_overview
+    retention = overview[:retention]
 
-    panel "Dashboard" do
-      para "Experiments and feature flags: actor/group targeting, percentage rollout, A/B variants, conditions, and hit stats for analysis."
-      para "Onni is not an authorization system. Protect privileged actions in your host policy layer."
-      para "Import from another feature-flag library with Onni.migrate!(source), then use the controls below."
+    h3 "Hit storage"
+    table class: "onni-hit-storage mb-4" do
+      tr do
+        th "Buckets"
+        th "Oldest hour"
+        th "Retention"
+        th "Sample rate"
+        th "Alerts"
+      end
+      tr do
+        td overview[:bucket_count]
+        td(overview[:oldest_period_start] || "—")
+        td(retention ? "#{(retention / 1.day).to_i} days" : "not set")
+        td overview[:sample_rate]
+        td do
+          status_tag("Past retention") if overview[:past_retention]
+          status_tag("Large table") if overview[:large_table]
+          text_node "—" unless overview[:past_retention] || overview[:large_table]
+        end
+      end
     end
 
-    panel "Hit storage" do
-      para "Buckets: #{overview[:bucket_count]}"
-      para "Oldest hour: #{overview[:oldest_period_start] || "—"}"
-      retention = overview[:retention]
-      para "Retention: #{retention ? "#{(retention / 1.day).to_i} days" : "not set"}"
-      para "Sample rate: #{overview[:sample_rate]}"
-      if overview[:past_retention]
-        para "Oldest hit history is past retention. Run scheduled cleanup."
+    table_for flags do
+      column("Key") { |flag| link_to flag.name, admin_features_feature_path(key: flag.name) }
+      column("Description", &:description)
+      column("Expires") do |flag|
+        summary = flag.expires_summary
+        if summary
+          span summary, title: flag.expires_full, "data-onni-expires" => true
+        else
+          span "—"
+        end
       end
-      if overview[:large_table]
-        para "Hit storage is large. Confirm daily cleanup is scheduled."
-      elsif overview[:bucket_count].positive?
-        para "Keep cleanup scheduled daily so hit history does not grow without bound."
-      else
-        para "No hit buckets yet. After traffic starts, schedule daily cleanup."
+      column("Enabled globally") { |flag| status_tag(flag.enabled?(record_stats: false)) }
+      column("Gates") do |flag|
+        names = flag.gates.map { |gate| gate["key"] }
+        names.presence&.join(", ") || "—"
       end
-    end
-
-    panel "Flags" do
-      table_for flags do
-        column("Key") { |flag| link_to flag.name, admin_features_feature_path(key: flag.name) }
-        column("Description", &:description)
-        column("Expires") { |flag| flag.expires_at }
-        column("Enabled globally") { |flag| status_tag(flag.enabled?(record_stats: false)) }
-        column("Gates") { |flag| flag.gates.map { |gate| "#{gate["key"]}=#{gate["value"]}" }.join(", ").presence || "—" }
-        column("Actions") do |flag|
-          span button_to("Enable", admin_features_enable_path(key: flag.name), method: :post)
-          span button_to("Disable", admin_features_disable_path(key: flag.name), method: :post)
+      column("Actions") do |flag|
+        if flag.enabled?(record_stats: false)
+          button_to "Disable", admin_features_disable_path(key: flag.name), method: :post
+        else
+          button_to "Enable", admin_features_enable_path(key: flag.name), method: :post
         end
       end
     end
