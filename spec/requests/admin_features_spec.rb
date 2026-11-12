@@ -3,14 +3,27 @@
 require "rails_helper"
 
 RSpec.describe "Onni ActiveAdmin Features page", type: :request do
-  it "renders the features index with YAML-known flags" do
+  it "renders the Flags index with YAML-known flags, scopes, and filters" do
     get admin_features_path
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("demo")
     expect(response.body).to include("search_v2")
+    expect(response.body).to include("Flags")
+    expect(response.body).to include("filters-form")
+    expect(response.body).to include("index-button-selected")
+    expect(response.body).to include("scopes-count")
+    expect(response.body).to include("paginated-collection")
     expect(response.body).not_to include("not an authorization system")
     expect(response.body).not_to include("Enable Disable")
+    expect(response.body).not_to include("matching ·")
+  end
+
+  it "filters flags by search and disabled scope" do
+    get admin_features_path, params: {q: "demo", scope: "disabled"}
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("demo")
   end
 
   it "does not record hit stats when rendering the index" do
@@ -39,20 +52,24 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     Onni.disable(:demo)
     Onni.enabled?(:demo)
 
-    get admin_features_feature_path(key: "demo")
+    get admin_feature_path("demo")
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("demo")
     expect(response.body).to include("Hits")
     expect(response.body).to include("Sample rate")
     expect(response.body).to include(Onni.configuration.stats_sample_rate.to_s)
+    expect(response.body).to include("main-content-container")
+    expect(response.body).to include("formtastic")
   end
 
   it "forbids page actions when admin_authorized fails" do
     Onni.configuration.admin_authorized = -> { false }
 
     get admin_features_path
+    expect(response).to have_http_status(:forbidden)
 
+    get admin_features_stats_path
     expect(response).to have_http_status(:forbidden)
   ensure
     Onni.configuration.admin_authorized = -> { true }
@@ -78,7 +95,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
       group_action: "enable"
     )
 
-    expect(response).to redirect_to(admin_features_feature_path(key: "demo"))
+    expect(response).to redirect_to(admin_feature_path("demo"))
     gates = Onni.adapter.gates_for("demo")
     expect(gates).to include(
       hash_including("key" => "percentage_of_actors", "value" => "40"),
@@ -103,8 +120,8 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
 
     document = Nokogiri::HTML(response.body)
     expect(response).to have_http_status(:ok)
-    demo_row = document.at_css("a[href*=\"key=demo\"]")&.ancestors("tr")&.first
-    search_row = document.at_css("a[href*=\"key=search_v2\"]")&.ancestors("tr")&.first
+    demo_row = document.at_css("a[href$=\"/admin/features/demo\"]")&.ancestors("tr")&.first
+    search_row = document.at_css("a[href$=\"/admin/features/search_v2\"]")&.ancestors("tr")&.first
     expect(demo_row.at_css("button[type=submit]").text).to eq("Disable")
     expect(demo_row.at_css("button[type=submit]").text).not_to eq("Enable")
     expect(search_row.at_css("button[type=submit]").text).to eq("Enable")

@@ -1,0 +1,49 @@
+overview = assigns.fetch(:overview)
+retention = overview[:retention]
+record = Onni::Flag.new("stats_storage")
+
+div class: "main-content-container" do
+  div class: "space-y-10" do
+    para class: "text-gray-700 dark:text-gray-200" do
+      text_node "Storage used for feature evaluation hit stats. Retention and sampling come from Onni configuration."
+    end
+
+    div do
+      h2 "Overview", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+      attributes_table_for(record) do
+        row("Buckets") { overview[:bucket_count] }
+        row("Oldest hour") { overview[:oldest_period_start] || "—" }
+        row("Retention") { retention ? "#{(retention / 1.day).to_i} days" : "not set" }
+        row("Sample rate") { overview[:sample_rate] }
+        row("Scale sampled hits") { overview[:scale_sampled_hits] ? "yes" : "no" }
+        row("Past retention") { status_tag(overview[:past_retention] ? "Yes" : "No") }
+        row("Large table") { status_tag(overview[:large_table] ? "Yes" : "No") }
+      end
+    end
+
+    div do
+      h2 "Alerts", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+      if overview[:past_retention] || overview[:large_table]
+        div class: "paginated-collection" do
+          div class: "paginated-collection-contents" do
+            div class: "index-as-table" do
+              table_for [
+                ({"alert" => "Past retention", "detail" => "Oldest bucket is older than configured retention"} if overview[:past_retention]),
+                ({"alert" => "Large table", "detail" => "Bucket count is at or above #{Onni::Stats::Overview::ROW_WARNING}"} if overview[:large_table])
+              ].compact do
+                column("Alert") { |row| row.fetch("alert") }
+                column("Detail") { |row| row.fetch("detail") }
+              end
+            end
+          end
+        end
+      else
+        para { text_node "No storage alerts." }
+      end
+    end
+
+    para do
+      text_node helpers.link_to("Back to flags", helpers.admin_features_path, class: "action-item-button")
+    end
+  end
+end

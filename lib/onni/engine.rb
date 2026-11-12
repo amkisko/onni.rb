@@ -2,6 +2,9 @@
 
 return unless defined?(Rails::Engine)
 
+require "onni/active_admin_routes"
+require "onni/admin/flags_query"
+
 module Onni
   class Engine < ::Rails::Engine
     engine_name "onni"
@@ -22,6 +25,8 @@ module Onni
 
     initializer "onni.load_active_admin" do
       next unless defined?(ActiveAdmin)
+
+      require "onni/active_admin_routes"
 
       path = root.join("app/admin").to_s
       ActiveSupport.on_load(:after_initialize) do

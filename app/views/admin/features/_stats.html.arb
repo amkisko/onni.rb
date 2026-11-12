@@ -1,0 +1,71 @@
+feature_path ||= helpers.onni_feature_path(flag.name)
+range_form = Onni::HistoryForm.new(range: chart.range)
+
+div do
+  h2 "Hits", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4", id: "onni-hit-history"
+
+  active_admin_form_for(
+    range_form,
+    url: feature_path,
+    method: :get
+  ) do |f|
+    f.inputs do
+      f.input :range,
+        as: :select,
+        label: "History",
+        collection: [["Last 24 hours", "24h"], ["Last 7 days", "7d"], ["Last 30 days", "30d"]],
+        include_blank: false,
+        input_html: {name: "range", id: "range"}
+    end
+    f.actions do
+      f.action :submit, label: "Show"
+    end
+  end
+
+  totals = [
+    {
+      "enabled" => helpers.number_with_delimiter(chart.enabled_hits),
+      "disabled" => helpers.number_with_delimiter(chart.disabled_hits),
+      "share" => chart.enabled_percentage ? helpers.number_to_percentage(chart.enabled_percentage, precision: 1) : "No data"
+    }
+  ]
+  div class: "paginated-collection mb-4" do
+    div class: "paginated-collection-contents" do
+      div class: "index-as-table" do
+        table_for totals do
+          column("Enabled") { |row| span row.fetch("enabled"), "data-onni-enabled-hits": true }
+          column("Disabled") { |row| span row.fetch("disabled"), "data-onni-disabled-hits": true }
+          column("Enabled share") { |row| span row.fetch("share"), "data-onni-enabled-percentage": true }
+        end
+      end
+    end
+  end
+
+  if chart.enabled_percentage.nil?
+    para role: "status", class: "my-4" do
+      text_node "No recorded evaluations in this window."
+    end
+  else
+    text_node helpers.render(partial: "admin/features/chart", locals: {chart: chart})
+  end
+
+  details class: "mt-4" do
+    summary "Counts by #{chart.hourly? ? "hour" : "day"} (UTC)"
+    div class: "paginated-collection mt-4" do
+      div class: "paginated-collection-contents" do
+        div class: "index-as-table" do
+          table_for chart.rows do
+            column(chart.hourly? ? "Hour" : "Day") do |row|
+              helpers.l(
+                chart.hourly? ? row.fetch("period_start") : row.fetch("period_start").to_date,
+                format: :short
+              )
+            end
+            column("Enabled") { |row| helpers.number_with_delimiter(row.fetch("enabled_hits")) }
+            column("Disabled") { |row| helpers.number_with_delimiter(row.fetch("disabled_hits")) }
+          end
+        end
+      end
+    end
+  end
+end

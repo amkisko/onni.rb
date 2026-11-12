@@ -1,0 +1,110 @@
+flag = assigns.fetch(:flag)
+chart = assigns.fetch(:hit_chart)
+variants = flag.variants
+enabled = flag.enabled?(record_stats: false)
+feature_path = helpers.onni_feature_path(flag.name)
+percentage = flag.gates.find { |gate| gate["key"] == "percentage_of_actors" }&.fetch("value", nil)
+rollout_form = Onni::RolloutForm.new(
+  percentage: percentage,
+  group_name: nil,
+  group_action: nil,
+  control: variants["control"],
+  treatment: variants["treatment"]
+)
+
+div class: "main-content-container" do
+  div class: "space-y-10" do
+    if flag.description.present?
+      para do
+        text_node flag.description
+      end
+    end
+
+    div do
+      h2 "Overview", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+      attributes_table_for(flag) do
+        row("Status") { status_tag(enabled ? "Enabled" : "Disabled") }
+        row("Expires") do
+          if flag.expires_summary
+            span flag.expires_summary, title: flag.expires_full, "data-onni-expires": true
+          else
+            span "—"
+          end
+        end
+        row("Sample rate") do
+          if !Onni.configuration.stats_enabled
+            text_node "off"
+          elsif Array(Onni.configuration.stats_ignore).any? { |key| key.to_s == flag.name }
+            text_node "ignored"
+          else
+            text_node Onni.configuration.stats_sample_rate
+          end
+        end
+      end
+    end
+
+    div do
+      h2 "Gates", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+      if flag.gates.empty?
+        para { text_node "None" }
+      else
+        div class: "paginated-collection" do
+          div class: "paginated-collection-contents" do
+            div class: "index-as-table" do
+              table_for flag.gates do
+                column("Key") { |gate| code gate["key"] }
+                column("Value") { |gate| code gate["value"] }
+              end
+            end
+          end
+        end
+      end
+    end
+
+    div do
+      h2 "Rollout", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+      active_admin_form_for(
+        rollout_form,
+        url: helpers.admin_features_update_feature_path(key: flag.name),
+        method: :post
+      ) do |f|
+        f.inputs do
+          f.input :percentage,
+            as: :number,
+            label: "Percentage of actors (0-100)",
+            input_html: {min: 0, max: 100, name: "percentage", id: "percentage"}
+          f.input :group_name,
+            as: :select,
+            collection: Onni::Group.names,
+            include_blank: true,
+            input_html: {name: "group_name", id: "group_name"}
+          f.input :group_action,
+            as: :select,
+            collection: [%w[Enable enable], %w[Disable disable]],
+            include_blank: "Action",
+            input_html: {name: "group_action", id: "group_action"}
+          f.input :control,
+            as: :number,
+            label: "Variant control",
+            input_html: {min: 0, max: 100, name: "variants[control]", id: "variant_control"}
+          f.input :treatment,
+            as: :number,
+            label: "Variant treatment",
+            input_html: {min: 0, max: 100, name: "variants[treatment]", id: "variant_treatment"}
+        end
+        f.actions do
+          f.action :submit, label: "Save"
+        end
+      end
+    end
+
+    text_node helpers.render(
+      partial: "admin/features/stats",
+      locals: {chart: chart, flag: flag, feature_path: feature_path}
+    )
+
+    para do
+      text_node helpers.link_to("Back to features", helpers.admin_features_path, class: "action-item-button")
+    end
+  end
+end

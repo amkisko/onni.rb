@@ -2,8 +2,8 @@
 
 require "rails_helper"
 
-RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
-  it "shows compact hit storage metrics on the features index" do
+RSpec.describe "Onni ActiveAdmin stats storage", type: :request do
+  it "shows stats storage on its own page" do
     Onni::StatBucket.create!(
       feature_key: "demo",
       period: "hour",
@@ -12,22 +12,22 @@ RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
       disabled_hits: 0
     )
 
-    get admin_features_path
+    get admin_features_stats_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Hit storage")
+    expect(response.body).to include("Stats storage")
     expect(response.body).to include("Buckets")
+    expect(response.body).to include("main-content-container")
     expect(response.body).not_to include("Keep cleanup scheduled")
     expect(response.body).not_to include("No hit buckets yet")
   end
 
-  it "omits cleanup guidance when there are no hit buckets" do
+  it "omits hit storage from the Flags index" do
     get admin_features_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Buckets")
-    expect(response.body).not_to include("No hit buckets yet")
-    expect(response.body).not_to include("schedule daily cleanup")
+    expect(response.body).not_to include("Hit storage")
+    expect(response.body).to include("Stats storage")
   end
 
   it "warns when oldest hit history is past retention" do
@@ -41,9 +41,9 @@ RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
       disabled_hits: 0
     )
 
-    get admin_features_path
+    get admin_features_stats_path
 
-    expect(response.body).to include("Past Retention")
+    expect(response.body).to include("Past retention")
   ensure
     Onni.configuration.stats_retention = previous
   end
@@ -54,8 +54,8 @@ RSpec.describe "Onni ActiveAdmin stats overview", type: :request do
       oldest_period_start: 1.day.ago
     )
 
-    get admin_features_path
+    get admin_features_stats_path
 
-    expect(response.body).to include("Large Table")
+    expect(response.body).to include("Large table")
   end
 end

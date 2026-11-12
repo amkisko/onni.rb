@@ -57,6 +57,18 @@ ActiveAdmin dashboard loads automatically when ActiveAdmin is present. You can a
 require "onni/active_admin"
 ```
 
+After `ActiveAdmin.routes(self)`, draw the feature show path (`/admin/features/:key`):
+
+```ruby
+ActiveAdmin.routes(self)
+Onni::ActiveAdminRoutes.draw(self)
+```
+
+`/admin/features` is the Flags index (search, filters, pagination, All/Enabled/Disabled scopes).
+Stats storage is at `/admin/features/stats`. The older `/admin/features/feature?key=` page action remains available.
+
+Host apps that authorize ActiveAdmin page actions by name need a `stats?` rule for the Features page (alongside `enable?`, `disable?`, `feature?`, and `update_feature?` when those are checked).
+
 ## YAML registry
 
 Every flag must be listed in `config/features.yml`:

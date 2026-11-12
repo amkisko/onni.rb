@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 0.1.3 (2026-11-12)
+
+- ActiveAdmin Features index is Flags: search, expiry filters, pagination, All/Enabled/Disabled scope tabs with counts
+- Flags filters sit in the ActiveAdmin sidebar (`filters-form`)
+- Stats storage is a separate page (`/admin/features/stats`)
+- Optional `/admin/features/:key` show path via `Onni::ActiveAdminRoutes.draw`
+- Feature show uses ActiveAdmin layout wrappers and paginated table chrome
+- Colored Enable (orange) and Disable (red) actions on the Flags index
+
 ## 0.1.2 (2026-11-12)
 
 - ActiveAdmin Features index: one Enable or Disable action per flag, relative expiry with full date hint, compact hit metrics, no explainer panels

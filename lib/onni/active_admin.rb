@@ -7,6 +7,7 @@
 #   require "onni/active_admin"
 #
 require "onni"
+require "onni/active_admin_routes"
 
 raise LoadError, "ActiveAdmin is required for onni/active_admin" unless defined?(ActiveAdmin)
 

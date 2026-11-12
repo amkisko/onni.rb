@@ -2,4 +2,5 @@
 
 Rails.application.routes.draw do
   ActiveAdmin.routes(self)
+  Onni::ActiveAdminRoutes.draw(self)
 end
