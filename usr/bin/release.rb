@@ -83,6 +83,28 @@ notes_path = File.join("tmp", "gh-release-#{version}.md")
 File.write(notes_path, "#{changelog_notes}\n")
 
 execute_command("gem push #{gem_file}")
-execute_command("git tag #{version}")
-execute_command("git push origin HEAD \"refs/tags/#{version}\"")
-execute_command("gh release create #{version} --title #{version} --notes-file #{notes_path}")
+
+if system("git", "rev-parse", "--verify", "refs/tags/#{version}", out: File::NULL, err: File::NULL)
+  puts "git tag #{version} already exists"
+else
+  execute_command("git tag #{version}")
+end
+
+push_command = "git push origin HEAD \"refs/tags/#{version}\""
+puts "\033[0;32m#{push_command}\033[0m"
+push_ok = system("bash", "-c", push_command)
+remote_tag_present = ReleaseVersionCheck.remote_has_tag?(version)
+unless ReleaseVersionCheck.continue_after_tag_push?(push_ok: push_ok, remote_tag_present: remote_tag_present)
+  puts "\033[1;31mCommand failed: #{push_command}\033[0m"
+  puts "\033[1;31mGitHub-facing tag #{version} is missing on origin fetch remote\033[0m"
+  exit 1
+end
+unless push_ok
+  puts "\033[1;33mgit push reported failure; tag #{version} is present on the GitHub-facing remote, continuing to gh release\033[0m"
+end
+
+if ReleaseVersionCheck.github_release_exists?(version)
+  puts "GitHub release #{version} already exists"
+else
+  execute_command("gh release create #{version} --title #{version} --notes-file #{notes_path}")
+end

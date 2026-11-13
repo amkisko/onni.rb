@@ -2,6 +2,7 @@
 
 require "json"
 require "net/http"
+require "shellwords"
 require "uri"
 
 module ReleaseVersionCheck
@@ -10,6 +11,31 @@ module ReleaseVersionCheck
   NC = "\033[0m"
 
   module_function
+
+  # origin may have several push URLs; fetch URL is the GitHub-facing check.
+  def ls_remote_has_tag?(output, version)
+    needle = "refs/tags/#{version}"
+    output.to_s.each_line.any? do |line|
+      ref = line.split("\t", 2).last&.strip
+      ref == needle || ref == "#{needle}^{}"
+    end
+  end
+
+  def remote_has_tag?(version, remote: "origin")
+    command = "git ls-remote --tags #{Shellwords.escape(remote)} #{Shellwords.escape("refs/tags/#{version}")}"
+    output = `#{command} 2>/dev/null`
+    return false unless $?.success?
+
+    ls_remote_has_tag?(output, version)
+  end
+
+  def continue_after_tag_push?(push_ok:, remote_tag_present:)
+    push_ok || remote_tag_present
+  end
+
+  def github_release_exists?(version)
+    system("gh", "release", "view", version.to_s, out: File::NULL, err: File::NULL)
+  end
 
   def warn_if_already_released(version:, package_name:, registry: :rubygems)
     warnings = []
