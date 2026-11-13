@@ -59,7 +59,9 @@ directory. Definitions remain required for every mutation.
 
 Extensions ship in the same gem. Install their external dependencies in the
 host application and load the extension explicitly. An installed framework
-does not change the behavior of `require "onni"`.
+does not change the behavior of `require "onni"`. There is no GraphQL-ruby
+extension; wire `visible?`, `Onni::Flag`, and the registry from the host schema
+([cookbook](docs/plans/20261113184244_graphql-ruby-no-first-class-extension.md)).
 
 For Rails with ActiveRecord, load both integrations before application initialization:
 
