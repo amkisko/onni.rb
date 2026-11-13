@@ -9,15 +9,17 @@ module Onni
   module Stats
     module_function
 
-    def record(name, enabled:)
-      decision = Sampler.decide(name: name, enabled: enabled)
+    def record(name, shown:)
+      return unless Onni.configuration.stats_enabled
+
+      decision = Sampler.decide(name: name, shown: shown)
       return if decision == :skip
 
-      Instrumenter.instrument("stats.record", name: name.to_s, enabled: enabled, weight: decision[:weight]) do
+      Instrumenter.instrument("stats.record", name: name.to_s, shown: shown, weight: decision[:weight]) do
         if Onni.configuration.stats_buffer
-          Buffer.add(name, enabled: enabled, weight: decision[:weight])
+          Buffer.add(name, shown: shown, weight: decision[:weight])
         else
-          Onni.adapter.record_stat(name, enabled: enabled, weight: decision[:weight])
+          Onni.adapter.record_stat(name, shown: shown, weight: decision[:weight])
         end
       end
     rescue => error

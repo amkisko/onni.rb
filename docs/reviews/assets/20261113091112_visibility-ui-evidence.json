@@ -1,0 +1,238 @@
+{
+  "scope": "Follow-up for missing ActiveAdmin test-host assets and chart terminology; previous pressure evidence remains historical",
+  "git_base_commit": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+  "provenance": "Working snapshots identified by product source digests; no branch reset or index changes. Temporary cache paths redacted in commands.",
+  "commands": [
+    {
+      "command": "bundle exec rspec spec/onni/visibility_chart_spec.rb spec/requests/admin_assets_spec.rb",
+      "observed": "before implementation: VisibilityChart constant missing; loading error"
+    },
+    {
+      "command": "bundle exec rspec spec/requests/admin_assets_spec.rb",
+      "observed": "before implementation: 1 example, 1 failure; no stylesheet link"
+    },
+    {
+      "command": "bundle exec rspec spec/onni/visibility_chart_spec.rb spec/requests/visibility_charts_admin_spec.rb",
+      "observed": "17 examples, 0 failures after rename"
+    },
+    {
+      "command": "npm_config_offline=true npm_config_cache=<temporary npm cache> make admin-assets",
+      "observed": "npm ci succeeded from downloaded cache; ActiveAdmin Tailwind 4.3.5 build succeeded"
+    },
+    {
+      "command": "bundle exec rspec spec/requests/admin_features_spec.rb spec/requests/visibility_charts_admin_spec.rb spec/requests/admin_assets_spec.rb",
+      "observed": "26 examples, 0 failures"
+    },
+    {
+      "command": "bundle exec rspec",
+      "observed": "211 examples, 0 failures"
+    },
+    {
+      "command": "POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures",
+      "observed": "5 workers exited 0; merged 5 coverage fragments"
+    },
+    {
+      "command": "bundle exec polyrun report-coverage -i coverage/merged.json -o coverage --basename coverage --format json,cobertura",
+      "observed": "1229/1262 repository executable lines covered"
+    },
+    {
+      "command": "RUBOCOP_CACHE_ROOT=<temporary RuboCop cache> make lint",
+      "observed": "91 files, no offenses; RBS valid; en locale parity 2 keys; LOC warnings for app/admin/features.rb (212) and lib/onni.rb (163)"
+    },
+    {
+      "command": "bundle exec rubocop --cache false usr/scripts/build_admin_assets.rb",
+      "observed": "1 file, no offenses"
+    },
+    {
+      "command": "npm --prefix spec/dummy audit --json --cache <temporary npm cache> --fetch-retries=0 --fetch-timeout=15000",
+      "observed": "0 known vulnerabilities"
+    },
+    {
+      "command": "node tmp/visibility-ui/preview.cjs",
+      "observed": {
+        "narrowPowerCommands": "passed",
+        "themeToggle": "passed",
+        "narrowMenu": "passed",
+        "powerCommands": "passed",
+        "history": "passed",
+        "levelSave": "passed",
+        "groupActions": "passed",
+        "emptyState": "passed",
+        "viewports": [
+          1280,
+          390
+        ],
+        "hostStyles": "ActiveAdmin Tailwind stylesheet built locally and loaded before screenshots",
+        "appearance": {
+          "font": "-apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", \"Noto Sans\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+          "sheets": 1
+        },
+        "narrowWidth": {
+          "viewport": 390,
+          "document": 390
+        },
+        "narrowHistoryWidth": {
+          "viewport": 390,
+          "document": 390
+        },
+        "errors": [],
+        "redirects": "Rack responses followed inside bridge; native redirect status covered by request specs"
+      }
+    },
+    {
+      "command": "python3 tmp/visibility-ui/compare_resources.py",
+      "observed": "3 alternating boot-plus-admin-GET CPU/RSS samples per source snapshot; isolated checkouts; no performance improvement claimed"
+    }
+  ],
+  "visual": {
+    "narrowPowerCommands": "passed",
+    "themeToggle": "passed",
+    "narrowMenu": "passed",
+    "powerCommands": "passed",
+    "history": "passed",
+    "levelSave": "passed",
+    "groupActions": "passed",
+    "emptyState": "passed",
+    "viewports": [
+      1280,
+      390
+    ],
+    "hostStyles": "ActiveAdmin Tailwind stylesheet built locally and loaded before screenshots",
+    "appearance": {
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", \"Noto Sans\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+      "sheets": 1
+    },
+    "narrowWidth": {
+      "viewport": 390,
+      "document": 390
+    },
+    "narrowHistoryWidth": {
+      "viewport": 390,
+      "document": 390
+    },
+    "errors": [],
+    "redirects": "Rack responses followed inside bridge; native redirect status covered by request specs"
+  },
+  "resources": {
+    "started_at": "2026-11-13T10:02:25.425146+00:00",
+    "machine": "arm64",
+    "ruby": "ruby 4.0.2 (2026-03-17 revision d3da9fec82) +PRISM [arm64-darwin24]",
+    "base": {
+      "description": "working source snapshot after chart rename, before asset integration",
+      "product_digest": "8e05945a2da9e203141c38d3b75c1b46529e37e1eeba98c2e6cadf8bb1ef23ba",
+      "product_source_bytes": 94917,
+      "npm_storage_bytes": 0,
+      "gem_compressed_bytes": 43520,
+      "cpu_median_seconds": 1.000191,
+      "maximum_rss_median_bytes": 158203904,
+      "npm_allocated_storage_bytes": 0
+    },
+    "head": {
+      "description": "working source snapshot with asset integration and UI copy",
+      "product_digest": "d56fd007f6311e6d5db6ffa302a493ccf6834d8d7f011eb4a11775e34df66d70",
+      "product_source_bytes": 95216,
+      "npm_storage_bytes": 23726028,
+      "gem_compressed_bytes": 44032,
+      "cpu_median_seconds": 0.9965640000000001,
+      "maximum_rss_median_bytes": 162627584,
+      "npm_allocated_storage_bytes": 25382912
+    },
+    "command": "/usr/bin/time -l bundle exec ruby -I spec tmp/visibility-ui/resource_probe.rb",
+    "samples": [
+      {
+        "cpu_seconds": 0.98945,
+        "html_bytes": 11380,
+        "side": "base",
+        "iteration": 0,
+        "maximum_rss_bytes": 167542784
+      },
+      {
+        "cpu_seconds": 1.009438,
+        "html_bytes": 13057,
+        "side": "head",
+        "iteration": 0,
+        "maximum_rss_bytes": 158728192
+      },
+      {
+        "cpu_seconds": 0.9965640000000001,
+        "html_bytes": 13057,
+        "side": "head",
+        "iteration": 1,
+        "maximum_rss_bytes": 162627584
+      },
+      {
+        "cpu_seconds": 1.000191,
+        "html_bytes": 11380,
+        "side": "base",
+        "iteration": 1,
+        "maximum_rss_bytes": 158203904
+      },
+      {
+        "cpu_seconds": 1.016189,
+        "html_bytes": 11380,
+        "side": "base",
+        "iteration": 2,
+        "maximum_rss_bytes": 157024256
+      },
+      {
+        "cpu_seconds": 0.9922420000000001,
+        "html_bytes": 13057,
+        "side": "head",
+        "iteration": 2,
+        "maximum_rss_bytes": 164708352
+      }
+    ],
+    "finished_at": "2026-11-13T10:02:33.306986+00:00",
+    "artifact_finished_at": "2026-11-13T10:03:54.566999+00:00"
+  },
+  "images_sha256": {
+    "20261113091112_ready-park-visible-index.png": "2f1f3ec7ad59e1fd5b9292031827a63c2affeff49b88ef9ebee8c3afebaf39db",
+    "20261113091112_ready-park-visible-level-390.png": "27f79fd9c851b879cfa71accb30f039c8668da06ec58e9dcde73674cefe69989",
+    "20261113091112_ready-park-visible-history-390.png": "a4c77980fc8fc2a1f0a7e8b6b14e2c8e60a8ebc1c4ca34abed6b4c215735c5c3",
+    "20261113091112_ready-park-visible-empty-390.png": "421dfb747787071ae6bdcb0adb437a6b18f98c7039d1aa9c4c5cf5ce0cb25598",
+    "20261113091112_ready-park-visible-history.png": "6575ea3997b2c2e83036c1338040bf3bd970e175089923cff28e9a9e3fe86fb8",
+    "20261113091112_ready-park-visible-index-390.png": "46dc1edc2f85e7b08cd6f5f3ec3195c841fd5e781e54266cd12fa52a3ebba9cc"
+  },
+  "coverage": {
+    "covered_lines": 1229,
+    "executable_lines": 1262
+  },
+  "contrary_pass": [
+    "A successful HTML response alone did not establish styles: the new request test failed on the missing stylesheet.",
+    "CSS alone would leave menu/theme scripts absent: the request test fetches every importmap asset and the browser checks menu and theme commands.",
+    "A narrow page width alone would not prove index commands remain usable: browser Ready/Park actions pass after horizontal table scrolling.",
+    "The same agent implemented and verified this change; no independent human or agent assessment is claimed.",
+    "Only the installed Ruby/Rails/macOS and Chromium combination ran locally; Linux CI and customized hosts remain separate."
+  ],
+  "claims": [
+    {
+      "claim": "The previous unstyled shell was an intentional acceptable visual limitation",
+      "outcome": "outdated",
+      "action": "Replace that assessment and all four images with styled browser evidence."
+    },
+    {
+      "claim": "The chart covers both shown and skipped evaluations",
+      "outcome": "supported",
+      "source": "spec/onni/visibility_chart_spec.rb and spec/requests/visibility_charts_admin_spec.rb",
+      "action": "Use VisibilityChart; preserve outcome fields."
+    },
+    {
+      "claim": "Tailwind CLI installation uses tailwindcss and @tailwindcss/cli",
+      "outcome": "supported",
+      "source": "https://tailwindcss.com/docs/installation/tailwind-cli",
+      "action": "Add private test-only locked build tools; preserve the Ruby runtime graph."
+    },
+    {
+      "claim": "The new tool graph has no reported known vulnerabilities in this run",
+      "outcome": "supported",
+      "source": "npm audit JSON result; this artifact commands",
+      "action": "Add npm audit and grouped dependency updates; do not claim a complete supply-chain audit."
+    },
+    {
+      "claim": "Local rendering is faster or uses less memory",
+      "outcome": "unsupported",
+      "source": "resources samples in this artifact",
+      "action": "Make no directional performance claim."
+    }
+  ]
+}

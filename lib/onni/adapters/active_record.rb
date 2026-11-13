@@ -42,6 +42,15 @@ module Onni
         end
       end
 
+      def update_gates(key)
+        ::Onni::Feature.transaction do
+          ::Onni::Feature.lock.find_by!(key: key.to_s)
+          gates = gates_for(key)
+          yield gates
+          replace_gates(key, gates)
+        end
+      end
+
       def add_gate(key, gate_key, value)
         ::Onni::Gate.find_or_create_by!(feature_key: key.to_s, key: gate_key.to_s, value: value.to_s)
       end
@@ -62,8 +71,8 @@ module Onni
           {
             "period_start" => bucket.period_start,
             "period" => bucket.period,
-            "enabled_hits" => bucket.enabled_hits,
-            "disabled_hits" => bucket.disabled_hits
+            "shown_count" => bucket.shown_count,
+            "skip_count" => bucket.skip_count
           }
         end
       end

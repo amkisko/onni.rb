@@ -13,8 +13,8 @@ RSpec.describe Onni::Stats do
   end
 
   it "summarizes bucket storage for operators" do
-    travel_to(3.days.ago) { Onni.adapter.record_stat("demo", enabled: true) }
-    travel_to(1.day.ago) { Onni.adapter.record_stat("demo", enabled: true) }
+    travel_to(3.days.ago) { Onni.adapter.record_stat("demo", shown: true) }
+    travel_to(1.day.ago) { Onni.adapter.record_stat("demo", shown: true) }
 
     overview = described_class.overview
 
@@ -27,7 +27,7 @@ RSpec.describe Onni::Stats do
 
   it "flags when oldest buckets are past retention" do
     Onni.configuration.stats_retention = 2.days
-    travel_to(5.days.ago) { Onni.adapter.record_stat("demo", enabled: true) }
+    travel_to(5.days.ago) { Onni.adapter.record_stat("demo", shown: true) }
 
     expect(described_class.overview[:past_retention]).to be(true)
   end

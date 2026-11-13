@@ -125,6 +125,7 @@ ThreadSafety/MutableClassInstanceVariable:
 
 ThreadSafety/NewThread:
   Exclude:
+    - spec/onni/cache_consistency_spec.rb
     - spec/onni/sync_spec.rb
     - spec/onni/group_concurrency_spec.rb
     - spec/requests/sqlite_support_spec.rb

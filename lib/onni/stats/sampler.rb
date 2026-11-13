@@ -13,12 +13,12 @@ module Onni
 
       module_function
 
-      def decide(name:, enabled:)
+      def decide(name:, shown:)
         config = Onni.configuration
         return :skip unless config.stats_enabled
         return :skip if ignored?(name, config)
 
-        rate = coerce_rate(rate_for(name: name, enabled: enabled, config: config))
+        rate = rate_for(name: name, shown: shown, config: config)
         return :skip if rate <= 0.0
         return {record: true, weight: 1} if rate >= 1.0
         return :skip unless Random.rand < rate
@@ -43,10 +43,10 @@ module Onni
         (1.0 / rate).round.clamp(1, MAX_WEIGHT)
       end
 
-      def rate_for(name:, enabled:, config:)
+      def rate_for(name:, shown:, config:)
         if config.stats_sampler
-          sampled = config.stats_sampler.call({name: name.to_s, enabled: enabled})
-          return sampled unless sampled.nil?
+          sampled = config.stats_sampler.call({name: name.to_s, shown: shown})
+          return coerce_rate(sampled) unless sampled.nil?
         end
 
         config.stats_sample_rate
@@ -54,7 +54,11 @@ module Onni
       private_class_method :rate_for
 
       def ignored?(name, config)
-        Array(config.stats_ignore).any? { |key| key.to_s == name.to_s }
+        keys = Array(config.stats_ignore)
+        return false if keys.empty?
+
+        name = name.to_s
+        keys.any? { |key| key.to_s == name }
       end
       private_class_method :ignored?
     end

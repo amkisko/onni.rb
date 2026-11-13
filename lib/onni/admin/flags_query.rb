@@ -6,7 +6,7 @@ module Onni
     class FlagsQuery
       DEFAULT_PER_PAGE = 25
       PER_PAGE_OPTIONS = [10, 25, 50, 100].freeze
-      SCOPES = %w[all enabled disabled].freeze
+      SCOPES = %w[all ready pending parked].freeze
       DEFAULT_SCOPE = "all"
 
       def initialize(params = {})
@@ -64,18 +64,23 @@ module Onni
 
       def scope_counts
         base = pre_scope_flags
-        enabled = base.count { |flag| flag.enabled?(record_stats: false) }
+        states = base.map(&:power_state).tally
         {
           "all" => base.size,
-          "enabled" => enabled,
-          "disabled" => base.size - enabled
+          "ready" => states.fetch(:ready, 0),
+          "pending" => states.fetch(:pending, 0),
+          "parked" => states.fetch(:parked, 0)
         }
       end
 
       private
 
       def all_flags
-        @all_flags ||= Onni::Registry.config.keys.sort.map { |key| Onni::Flag.new(key) }
+        @all_flags ||= begin
+          keys = Onni::Registry.config.keys.sort
+          Onni.preload!(keys) unless keys.all? { |key| RequestStore.gates&.key?(key) }
+          keys.map { |key| Onni::Flag.new(key) }
+        end
       end
 
       def pre_scope_flags
@@ -93,10 +98,8 @@ module Onni
 
       def filter_scope(list)
         case scope
-        when "enabled"
-          list.select { |flag| flag.enabled?(record_stats: false) }
-        when "disabled"
-          list.reject { |flag| flag.enabled?(record_stats: false) }
+        when "ready", "pending", "parked"
+          list.select { |flag| flag.power_state.to_s == scope }
         else
           list
         end

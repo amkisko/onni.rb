@@ -3,8 +3,14 @@
 require "onni/admin/flags_query"
 
 ActiveAdmin.register_page "Features" do
-  menu priority: 3, label: proc { I18n.t("onni.menu", default: "Features") },
+  menu priority: 3, label: proc { I18n.t("onni.menu", default: "Flags") },
     if: proc { instance_exec(&Onni.configuration.admin_authorized) }
+
+  breadcrumb do
+    links = [link_to("Admin", admin_root_path)]
+    links << link_to(I18n.t("onni.menu", default: "Flags"), admin_features_path) unless action_name == "index"
+    links
+  end
 
   controller do
     before_action :onni_require_admin!
@@ -131,18 +137,15 @@ ActiveAdmin.register_page "Features" do
                 span "—"
               end
             end
-            column("Enabled globally") { |flag| status_tag(flag.enabled?(record_stats: false) ? "Yes" : "No") }
-            column("Gates") do |flag|
-              names = flag.gates.map { |gate| gate["key"] }
-              names.presence&.join(", ") || "—"
-            end
+            column("Status") { |flag| status_tag(flag.power_state.to_s.capitalize) }
+            column("Type") { |flag| flag.type.capitalize }
             column("Actions") do |flag|
-              if flag.enabled?(record_stats: false)
-                button_to "Disable", admin_features_disable_path(key: flag.name),
+              if flag.ready?
+                button_to "Park", admin_features_park_path(key: flag.name),
                   method: :post,
                   class: "bg-red-500 hover:bg-red-700 text-white hover:text-white action-item-button"
               else
-                button_to "Enable", admin_features_enable_path(key: flag.name),
+                button_to "Ready", admin_features_ready_path(key: flag.name),
                   method: :post,
                   class: "bg-orange-500 hover:bg-orange-700 text-white hover:text-white action-item-button"
               end
@@ -157,7 +160,7 @@ ActiveAdmin.register_page "Features" do
             table_for collection do
               column("Key") { |flag| link_to flag.name, helpers.onni_feature_path(flag.name) }
               column("Description", &:description)
-              column("Enabled globally") { |flag| status_tag(flag.enabled?(record_stats: false) ? "Yes" : "No") }
+              column("Status") { |flag| status_tag(flag.power_state.to_s.capitalize) }
             end
           end
         end
@@ -171,52 +174,39 @@ ActiveAdmin.register_page "Features" do
     render "admin/features/stats", layout: "active_admin"
   end
 
-  page_action :enable, method: :post do
-    Onni.enable(params.require(:key))
-    redirect_to admin_features_path, notice: "Enabled #{params[:key]}"
+  page_action :ready, method: :post do
+    Onni.ready!(params.require(:key))
+    redirect_to admin_features_path, notice: "Ready #{params[:key]}"
+  rescue KeyError
+    head :not_found
   end
 
-  page_action :disable, method: :post do
-    Onni.disable(params.require(:key))
-    redirect_to admin_features_path, notice: "Disabled #{params[:key]}"
+  page_action :park, method: :post do
+    Onni.park!(params.require(:key))
+    redirect_to admin_features_path, notice: "Parked #{params[:key]}"
+  rescue KeyError
+    head :not_found
   end
 
   page_action :feature, method: :get do
     range = params.fetch(:range, "24h")
-    next head(:bad_request) unless Onni::HitChart::WINDOWS.key?(range)
+    next head(:bad_request) unless Onni::VisibilityChart::WINDOWS.key?(range)
+
+    next head(:not_found) unless Onni::Registry.known?(params.require(:key))
 
     @flag = Onni::Flag.new(params.require(:key))
-    @hit_chart = Onni::HitChart.new(@flag.name, range: range)
+    @visibility_chart = Onni::VisibilityChart.new(@flag.name, range: range)
     @page_title = @flag.name
     render "admin/features/show", layout: "active_admin"
   end
 
   page_action :update_feature, method: :post do
     key = params.require(:key)
-    feature_params = params[:feature].presence || params
-    percentage = feature_params[:percentage].presence
-    Onni.enable_percentage_of_actors(key, percentage.to_i) if percentage
-    if feature_params[:control].present? || feature_params[:treatment].present? || params[:variants].present?
-      variants =
-        if params[:variants].present?
-          params[:variants].to_unsafe_h.transform_values(&:to_i)
-        else
-          {
-            "control" => feature_params[:control].to_i,
-            "treatment" => feature_params[:treatment].to_i
-          }
-        end
-      variants = variants.reject { |_name, weight| weight.to_i <= 0 }
-      Onni.set_variants(key, variants) if variants.any?
-    end
-    group_action = feature_params[:group_action]
-    group_name = feature_params[:group_name]
-    case group_action
-    when "enable"
-      Onni.enable_group(key, group_name) if group_name.present?
-    when "disable"
-      Onni.disable_group(key, group_name) if group_name.present?
-    end
+    Onni::RolloutForm.new.apply!(key, params[:feature].presence || params)
     redirect_to onni_feature_path(key), notice: "Updated #{key}"
+  rescue ArgumentError, TypeError
+    render plain: "Check the rollout settings.", status: 422
+  rescue KeyError
+    head :not_found
   end
 end

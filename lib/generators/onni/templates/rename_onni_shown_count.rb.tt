@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+class RenameOnniShownCount < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    rename_column :onni_feature_stat_buckets, :show_count, :shown_count
+  end
+end

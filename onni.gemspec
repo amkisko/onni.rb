@@ -8,11 +8,11 @@ Gem::Specification.new do |spec|
   spec.authors = ["Andrei Makarov"]
   spec.email = ["contact@kiskolabs.com"]
 
-  spec.summary = "Feature flags, A/B variants, and hit stats for Ruby apps"
+  spec.summary = "Feature flags, A/B variants, and evaluation statistics for Ruby apps"
   spec.description = <<~TEXT
     Feature-flag and experiment core for any Ruby app: YAML registry, runtime hot
     switches, actor and audience-group targeting, percentage / A/B assignment, and
-    hit stats for analysis. Not an authorization system. Optional ActiveRecord
+    evaluation statistics for analysis. Not an authorization system. Optional ActiveRecord
     adapter and pluggable ActiveAdmin dashboard. Includes a pluggable migrator
     for importing gates from another feature-flag library.
   TEXT

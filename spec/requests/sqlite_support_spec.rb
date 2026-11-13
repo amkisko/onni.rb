@@ -21,9 +21,9 @@ RSpec.describe "Onni SQLite ActiveRecord support", type: :request do
     end
 
     begin
-      adapter.record_stat("sqlite_upsert", enabled: true, weight: 2)
-      adapter.record_stat("sqlite_upsert", enabled: true, weight: 3)
-      adapter.record_stat("sqlite_upsert", enabled: false, weight: 1)
+      adapter.record_stat("sqlite_upsert", shown: true, weight: 2)
+      adapter.record_stat("sqlite_upsert", shown: true, weight: 3)
+      adapter.record_stat("sqlite_upsert", shown: false, weight: 1)
     ensure
       ActiveSupport::Notifications.unsubscribe(subscription)
     end
@@ -32,11 +32,11 @@ RSpec.describe "Onni SQLite ActiveRecord support", type: :request do
     expect(joined).to match(/ON CONFLICT/i)
     expect(joined).to include("excluded.updated_at")
     # PostgreSQL rejects bare RHS column names when excluded.* is also in SET (PG::AmbiguousColumn).
-    expect(joined).to include("enabled_hits = onni_feature_stat_buckets.enabled_hits +")
-    expect(joined).to include("disabled_hits = onni_feature_stat_buckets.disabled_hits +")
+    expect(joined).to include("shown_count = onni_feature_stat_buckets.shown_count +")
+    expect(joined).to include("skip_count = onni_feature_stat_buckets.skip_count +")
     bucket = Onni::StatBucket.find_by!(feature_key: "sqlite_upsert")
-    expect(bucket.enabled_hits).to eq(5)
-    expect(bucket.disabled_hits).to eq(1)
+    expect(bucket.shown_count).to eq(5)
+    expect(bucket.skip_count).to eq(1)
   end
 
   describe "pooled connections", use_transactional_tests: false do
@@ -54,7 +54,7 @@ RSpec.describe "Onni SQLite ActiveRecord support", type: :request do
           ActiveRecord::Base.connection_pool.with_connection do |connection|
             raise "missing stats table" unless connection.table_exists?(:onni_feature_stat_buckets)
 
-            Onni::Adapters::ActiveRecord.new.record_stat("sqlite_pool", enabled: true, weight: 1)
+            Onni::Adapters::ActiveRecord.new.record_stat("sqlite_pool", shown: true, weight: 1)
           end
         rescue => error
           errors << "#{error.class}:#{error.message}"
@@ -63,18 +63,18 @@ RSpec.describe "Onni SQLite ActiveRecord support", type: :request do
       threads.each(&:join)
 
       expect(errors).to eq([])
-      expect(Onni::StatBucket.find_by!(feature_key: "sqlite_pool").enabled_hits).to eq(4)
+      expect(Onni::StatBucket.find_by!(feature_key: "sqlite_pool").shown_count).to eq(4)
     end
 
     it "batches buffered hits under concurrent flush pressure" do
       Onni.configuration.stats_buffer = true
       Onni.reset_request!
-      Onni.enable(:demo)
+      Onni.ready!(:demo)
 
-      10.times { Onni.enabled?(:demo) }
+      10.times { Onni.visible?(:demo) }
       Onni.flush_stats!
 
-      expect(Onni::StatBucket.find_by!(feature_key: "demo").enabled_hits).to eq(10)
+      expect(Onni::StatBucket.find_by!(feature_key: "demo").shown_count).to eq(10)
     ensure
       Onni.configuration.stats_buffer = false
       Onni.reset_request!

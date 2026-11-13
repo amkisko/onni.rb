@@ -16,7 +16,7 @@ SCENARIO=calibrate bundle exec ruby benchmarks/load.rb
 # or: make bench-calibrate
 ```
 
-Distinct stages: `registry`, `enable`, `boolean`, `actor`, `percentage`, `group`, `variant`, `conditions`, `stats`. Fail if stage order or wall separation collapses.
+Distinct stages: `registry`, `show`, `boolean`, `actor`, `percentage`, `group`, `variant`, `conditions`, `stats`. Fail if stage order or wall separation collapses.
 
 ## Ceilings
 
@@ -50,3 +50,10 @@ Distinct stages: `registry`, `enable`, `boolean`, `actor`, `percentage`, `group`
 ## Network
 
 `not_in_scope` (in-process memory adapter only)
+
+Ready/park/visible verification keeps the same seven evaluation paths with
+explicit YAML types. The visible stage replaces the transitional show label;
+counts use shown_count/skip_count. Existing limits remain unchanged unless a
+separate pressure episode accepts a tighter proposal.
+Use the larger observed heap delta across calibration and a fresh gate run, multiplied
+by 1.25, because the wall-time median alone does not bound GC-dependent heap deltas.

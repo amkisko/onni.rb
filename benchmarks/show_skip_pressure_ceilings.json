@@ -1,0 +1,18 @@
+{
+  "basis": {
+    "cpu_s": "median * 0.85",
+    "wall_s": "median * 0.85",
+    "allocated_objects": "median * 0.85",
+    "peak_rss_bytes": "max * 1.15",
+    "store_bytes": "max * 1.15",
+    "source_bytes": "baseline * 1.05"
+  },
+  "limits": {
+    "cpu_s": 1.5332079,
+    "wall_s": 1.5369011500442866,
+    "allocated_objects": 6875650.85,
+    "peak_rss_bytes": 47989555.199999996,
+    "store_bytes": 755.55,
+    "source_bytes": 98108.85
+  }
+}

@@ -14,8 +14,32 @@ module Onni
       Registry.known?(name)
     end
 
-    def enabled?(actor = nil, record_stats: true)
-      Onni.enabled?(name, actor, record_stats: record_stats)
+    def visible?(actor = nil, record_stats: true)
+      Onni.visible?(name, actor, record_stats: record_stats)
+    end
+
+    def power_state
+      Store.power_state(name)
+    end
+
+    def ready?
+      power_state == :ready
+    end
+
+    def pending?
+      power_state == :pending
+    end
+
+    def parked?
+      power_state == :parked
+    end
+
+    def type
+      Settings.type(definition)
+    end
+
+    def level
+      Settings.level(definition, gates)
     end
 
     def gates
@@ -64,11 +88,16 @@ module Onni
       end
     end
 
-    def variants
-      raw = definition["variants"] || gates_variants
-      return {} if raw.blank?
+    def groups
+      Settings.list("groups", definition, gates)
+    end
 
-      raw.transform_keys(&:to_s).transform_values(&:to_i)
+    def actors
+      Settings.list("actors", definition, gates)
+    end
+
+    def variants
+      Settings.variants(definition, gates)
     end
 
     private
@@ -81,15 +110,6 @@ module Onni
       else
         "#{absolute} #{label} ago"
       end
-    end
-
-    def gates_variants
-      gate = gates.find { |entry| entry["key"] == "variants" }
-      return {} unless gate
-
-      JSON.parse(gate["value"])
-    rescue JSON::ParserError
-      {}
     end
   end
 end

@@ -70,4 +70,39 @@ RSpec.describe Onni::Registry do
       expect(described_class.definition(:from_rails)["description"]).to eq("Via root")
     end
   end
+
+  it "defaults omitted types to group and loads every declared audience type" do
+    Dir.mktmpdir do |directory|
+      path = File.join(directory, "features.yml")
+      File.write(path, YAML.dump(
+        "basic" => {}, "global" => {"type" => "boolean"},
+        "rollout" => {"type" => "percentage", "level" => 30},
+        "audience" => {"type" => "group", "groups" => ["beta_testers"]},
+        "selected" => {"type" => "actors", "actors" => ["User;1"]},
+        "experiment" => {"type" => "experiment", "variants" => {"control" => 100}}
+      ))
+      Onni.configuration.features_path = path
+      expect(described_class.reload!.transform_values { |definition| definition.fetch("type") }).to eq(
+        "basic" => "group", "global" => "boolean", "rollout" => "percentage", "audience" => "group",
+        "selected" => "actors", "experiment" => "experiment"
+      )
+    end
+  end
+
+  [nil, {"type" => "unknown"}, {"type" => "percentage", "level" => 101},
+    {"type" => "percentage", "level" => "30"}, {"type" => "group", "groups" => "staff"},
+    {"type" => "actors", "actors" => [nil]}, {"conditions" => [1]},
+    {"type" => "experiment", "variants" => {"control" => -1}},
+    {"type" => "experiment", "variants" => {"control" => 0}}].each do |definition|
+    it "rejects malformed YAML definition #{definition.inspect}" do
+      Dir.mktmpdir do |directory|
+        path = File.join(directory, "features.yml")
+        File.write(path, YAML.dump("demo" => definition))
+        Onni.configuration.features_path = path
+        expect { described_class.reload! }.to raise_error(ArgumentError)
+      ensure
+        Onni.configuration.features_path = nil
+      end
+    end
+  end
 end

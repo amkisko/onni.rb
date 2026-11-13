@@ -20,7 +20,7 @@ RSpec.describe Onni::Stats::Purge do
 
   def seed_bucket(feature_key, period_start)
     travel_to(period_start) do
-      Onni.adapter.record_stat(feature_key, enabled: true)
+      Onni.adapter.record_stat(feature_key, shown: true)
     end
   end
 
@@ -42,7 +42,7 @@ RSpec.describe Onni::Stats::Purge do
     result = described_class.call(older_than: 3.days.ago)
 
     expect(result[:processed_count]).to eq(1)
-    expect(Onni::Stats.for("demo", from: 10.days.ago).map { |row| row["enabled_hits"] }).to eq([1])
+    expect(Onni::Stats.for("demo", from: 10.days.ago).map { |row| row["shown_count"] }).to eq([1])
   end
 
   it "pages through batches and enqueues the next page when enqueue is present" do

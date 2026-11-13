@@ -20,8 +20,8 @@ ActiveRecord::Schema.define(version: 20_261_112_000_000) do
     t.string :feature_key, null: false
     t.string :period, null: false, default: "hour"
     t.datetime :period_start, null: false
-    t.bigint :enabled_hits, null: false, default: 0
-    t.bigint :disabled_hits, null: false, default: 0
+    t.bigint :shown_count, null: false, default: 0
+    t.bigint :skip_count, null: false, default: 0
     t.timestamps
   end
   add_index :onni_feature_stat_buckets, [:feature_key, :period, :period_start],

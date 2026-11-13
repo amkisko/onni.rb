@@ -9,25 +9,30 @@ RSpec.describe Onni::Adapters::ActiveRecord, "#record_stats_batch" do
     expect(Onni::StatBucket).to receive(:upsert_all).once.and_call_original
 
     result = adapter.record_stats_batch(
-      "alpha" => {enabled: 2, disabled: 1},
-      "beta" => {enabled: 3, disabled: 0}
+      "alpha" => {shown_count: 2, skip_count: 1},
+      "beta" => {shown_count: 3, skip_count: 0}
     )
 
     expect(result).to eq(2)
-    expect(Onni::StatBucket.find_by!(feature_key: "alpha")).to have_attributes(enabled_hits: 2, disabled_hits: 1)
-    expect(Onni::StatBucket.find_by!(feature_key: "beta")).to have_attributes(enabled_hits: 3, disabled_hits: 0)
+    expect(Onni::StatBucket.find_by!(feature_key: "alpha")).to have_attributes(shown_count: 2, skip_count: 1)
+    expect(Onni::StatBucket.find_by!(feature_key: "beta")).to have_attributes(shown_count: 3, skip_count: 0)
   end
 
   it "increments both hit columns on a second batch for the same hour" do
-    adapter.record_stats_batch("demo" => {enabled: 2, disabled: 1})
-    adapter.record_stats_batch("demo" => {enabled: 3, disabled: 4})
+    adapter.record_stats_batch("demo" => {shown_count: 2, skip_count: 1})
+    adapter.record_stats_batch("demo" => {shown_count: 3, skip_count: 4})
 
-    expect(Onni::StatBucket.find_by!(feature_key: "demo")).to have_attributes(enabled_hits: 5, disabled_hits: 5)
+    expect(Onni::StatBucket.find_by!(feature_key: "demo")).to have_attributes(shown_count: 5, skip_count: 5)
+  end
+
+  it "preserves summed sample weights larger than one evaluation's weight limit" do
+    adapter.record_stats_batch("demo" => {shown_count: 1_000_007, skip_count: 2_000_009})
+    expect(Onni::StatBucket.find_by!(feature_key: "demo")).to have_attributes(shown_count: 1_000_007, skip_count: 2_000_009)
   end
 
   it "returns zero and skips upsert_all for empty weights" do
     expect(Onni::StatBucket).not_to receive(:upsert_all)
-    expect(adapter.record_stats_batch("demo" => {enabled: 0, disabled: 0})).to eq(0)
+    expect(adapter.record_stats_batch("demo" => {shown_count: 0, skip_count: 0})).to eq(0)
     expect(Onni::StatBucket.count).to eq(0)
   end
 
@@ -38,9 +43,9 @@ RSpec.describe Onni::Adapters::ActiveRecord, "#record_stats_batch" do
       original.call(*args, **kwargs)
     end
 
-    adapter.record_stats_batch("demo" => {enabled: 1, disabled: 1})
+    adapter.record_stats_batch("demo" => {shown_count: 1, skip_count: 1})
     joined = sql.join(" ")
-    expect(joined).to include("enabled_hits = onni_feature_stat_buckets.enabled_hits + excluded.enabled_hits")
-    expect(joined).to include("disabled_hits = onni_feature_stat_buckets.disabled_hits + excluded.disabled_hits")
+    expect(joined).to include("shown_count = onni_feature_stat_buckets.shown_count + excluded.shown_count")
+    expect(joined).to include("skip_count = onni_feature_stat_buckets.skip_count + excluded.skip_count")
   end
 end

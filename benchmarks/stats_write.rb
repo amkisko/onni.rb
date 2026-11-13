@@ -228,9 +228,9 @@ module Onni
                 case mode
                 when "direct"
                   # Bypass sampler so every hit is one upsert (worst-case lock path).
-                  Onni.adapter.record_stat(HOT_KEY, enabled: true, weight: 1)
+                  Onni.adapter.record_stat(HOT_KEY, shown: true, weight: 1)
                 when "buffer", "sample"
-                  Onni::Stats.record(HOT_KEY, enabled: true)
+                  Onni::Stats.record(HOT_KEY, shown: true)
                 else
                   raise ArgumentError, "Unknown MODE=#{mode.inspect}"
                 end
@@ -266,7 +266,7 @@ module Onni
           "errors" => error_list.size,
           "lock_waits" => wait_list.size,
           "error_classes" => error_list.map { |e| e.split(":").first }.tally,
-          "hits" => Onni::StatBucket.where(feature_key: HOT_KEY).sum(:enabled_hits)
+          "hits" => Onni::StatBucket.where(feature_key: HOT_KEY).sum(:shown_count)
         }
       end
 

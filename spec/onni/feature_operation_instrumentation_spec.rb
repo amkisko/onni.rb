@@ -8,7 +8,10 @@ RSpec.describe "Onni feature_operation instrumentation" do
     Onni.adapter = Onni::Adapters::Memory.new
     Onni.configuration.stats_enabled = false
     allow(Onni::Registry).to receive(:require_definition!)
-    allow(Onni::Registry).to receive_messages(known?: true, definition: {"description" => "Demo", "expires_at" => "2099-01-01"})
+    allow(Onni::Registry).to receive(:known?).and_return(true)
+    allow(Onni::Registry).to receive(:definition) do |name|
+      {"type" => {demo: "group", experiment: "experiment", rollout: "percentage"}.fetch(name)}
+    end
   end
 
   def capture_operations
@@ -22,26 +25,26 @@ RSpec.describe "Onni feature_operation instrumentation" do
     ActiveSupport::Notifications.unsubscribe(subscription) if subscription
   end
 
-  it "instruments enable_group and set_variants mutations" do
+  it "instruments visible_group and variants mutations" do
     Onni.register_group(:staff) { |_actor, _| true }
 
     events = capture_operations do
-      Onni.enable_group(:demo, :staff)
-      Onni.set_variants(:demo, {control: 40, treatment: 60})
+      Onni.visible_group!(:demo, :staff)
+      Onni.variants!(:experiment, {control: 40, treatment: 60})
     end
 
-    expect(events.map { |event| event.payload[:operation] }).to eq([:enable_group, :set_variants])
+    expect(events.map { |event| event.payload[:operation] }).to eq([:visible_group, :variants])
     expect(events.first.payload).to include(feature_name: "demo", group_name: "staff", result: true)
-    expect(events.last.payload).to include(feature_name: "demo", result: true)
+    expect(events.last.payload).to include(feature_name: "experiment", result: true)
   end
 
-  it "instruments disable_group and percentage mutations" do
+  it "instruments drop_group and level mutations" do
     events = capture_operations do
-      Onni.enable_percentage_of_actors(:demo, 250)
-      Onni.disable_group(:demo, :staff)
+      Onni.level!(:rollout, 250)
+      Onni.drop_group!(:demo, :staff)
     end
 
-    expect(events.map { |event| event.payload[:operation] }).to eq([:enable_percentage_of_actors, :disable_group])
-    expect(events.first.payload[:percentage]).to eq(100)
+    expect(events.map { |event| event.payload[:operation] }).to eq([:level, :drop_group])
+    expect(events.first.payload[:level]).to eq(100)
   end
 end

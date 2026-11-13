@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+class RenameOnniStatsCounts < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    rename_column :onni_feature_stat_buckets, :enabled_hits, :shown_count
+    rename_column :onni_feature_stat_buckets, :disabled_hits, :skip_count
+  end
+end

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 module Onni
-  class HitChart
+  class VisibilityChart
     WINDOWS = {"24h" => 24, "7d" => 168, "30d" => 720}.freeze
 
-    attr_reader :range, :from, :to, :rows, :enabled_hits, :disabled_hits
+    attr_reader :range, :from, :to, :rows, :shown_count, :skip_count
 
     def initialize(name, range: "24h")
-      raise ArgumentError, "Unsupported hit history range" unless WINDOWS.key?(range)
+      raise ArgumentError, "Unsupported evaluation history range" unless WINDOWS.key?(range)
 
       @range = range
       @to = Time.current.utc
@@ -19,17 +19,17 @@ module Onni
       range == "24h"
     end
 
-    def enabled_percentage
-      total = enabled_hits + disabled_hits
-      enabled_hits.fdiv(total) * 100 if total.positive?
+    def shown_share
+      total = shown_count + skip_count
+      shown_count.fdiv(total) if total.positive?
     end
 
     def maximum
-      [1, rows.flat_map { |row| row.values_at("enabled_hits", "disabled_hits") }.max].max
+      [1, rows.flat_map { |row| row.values_at("shown_count", "skip_count") }.max].max
     end
 
     def points(column)
-      raise ArgumentError, "Unknown hit series" unless %w[enabled_hits disabled_hits].include?(column)
+      raise ArgumentError, "Unknown evaluation series" unless %w[shown_count skip_count].include?(column)
 
       peak = maximum
       rows.each_with_index.map do |row, index|
@@ -41,8 +41,8 @@ module Onni
 
     def load_history(name)
       @rows = build_rows(Onni::Stats.for(name, from: from, to: to))
-      @enabled_hits = rows.sum { |row| row.fetch("enabled_hits") }
-      @disabled_hits = rows.sum { |row| row.fetch("disabled_hits") }
+      @shown_count = rows.sum { |row| row.fetch("shown_count") }
+      @skip_count = rows.sum { |row| row.fetch("skip_count") }
     end
 
     def interval
@@ -74,8 +74,8 @@ module Onni
     def period_row(started, samples)
       {
         "period_start" => started,
-        "enabled_hits" => samples.sum { |sample| sample.fetch("enabled_hits") },
-        "disabled_hits" => samples.sum { |sample| sample.fetch("disabled_hits") }
+        "shown_count" => samples.sum { |sample| sample.fetch("shown_count") },
+        "skip_count" => samples.sum { |sample| sample.fetch("skip_count") }
       }
     end
   end

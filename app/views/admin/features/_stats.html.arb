@@ -2,7 +2,7 @@ feature_path ||= helpers.onni_feature_path(flag.name)
 range_form = Onni::HistoryForm.new(range: chart.range)
 
 div do
-  h2 "Hits", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4", id: "onni-hit-history"
+  h2 "Evaluations", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4", id: "onni-visibility-history"
 
   active_admin_form_for(
     range_form,
@@ -24,24 +24,24 @@ div do
 
   totals = [
     {
-      "enabled" => helpers.number_with_delimiter(chart.enabled_hits),
-      "disabled" => helpers.number_with_delimiter(chart.disabled_hits),
-      "share" => chart.enabled_percentage ? helpers.number_to_percentage(chart.enabled_percentage, precision: 1) : "No data"
+      "shown_count" => helpers.number_with_delimiter(chart.shown_count),
+      "skip_count" => helpers.number_with_delimiter(chart.skip_count),
+      "share" => chart.shown_share ? helpers.number_to_percentage(chart.shown_share * 100, precision: 1) : "No data"
     }
   ]
   div class: "paginated-collection mb-4" do
     div class: "paginated-collection-contents" do
       div class: "index-as-table" do
         table_for totals do
-          column("Enabled") { |row| span row.fetch("enabled"), "data-onni-enabled-hits": true }
-          column("Disabled") { |row| span row.fetch("disabled"), "data-onni-disabled-hits": true }
-          column("Enabled share") { |row| span row.fetch("share"), "data-onni-enabled-percentage": true }
+          column("Shown count") { |row| span row.fetch("shown_count"), "data-onni-shown-count": true }
+          column("Skip count") { |row| span row.fetch("skip_count"), "data-onni-skip-count": true }
+          column("Shown share") { |row| span row.fetch("share"), "data-onni-shown-share": true }
         end
       end
     end
   end
 
-  if chart.enabled_percentage.nil?
+  if chart.shown_share.nil?
     para role: "status", class: "my-4" do
       text_node "No recorded evaluations in this window."
     end
@@ -61,8 +61,8 @@ div do
                 format: :short
               )
             end
-            column("Enabled") { |row| helpers.number_with_delimiter(row.fetch("enabled_hits")) }
-            column("Disabled") { |row| helpers.number_with_delimiter(row.fetch("disabled_hits")) }
+            column("Shown count") { |row| helpers.number_with_delimiter(row.fetch("shown_count")) }
+            column("Skip count") { |row| helpers.number_with_delimiter(row.fetch("skip_count")) }
           end
         end
       end

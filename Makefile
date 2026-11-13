@@ -1,4 +1,4 @@
-.PHONY: release lint audit test clean bench-calibrate bench-matrix bench-gate bench-stats-calibrate bench-stats-ladder bench-stats-gate
+.PHONY: release lint audit test admin-assets clean bench-calibrate bench-matrix bench-gate bench-stats-calibrate bench-stats-ladder bench-stats-gate
 
 bench-calibrate:
 	SCENARIO=calibrate bundle exec ruby benchmarks/load.rb
@@ -29,6 +29,7 @@ lint:
 	ruby usr/bin/check_loc.rb
 
 audit:
+	npm --prefix spec/dummy audit
 	@for lock in Gemfile.lock gemfiles/*.gemfile.lock; do \
 		if [ "$${lock}" = "gemfiles/rails72.gemfile.lock" ]; then \
 			echo "==> $${lock} (skip: Rails 7.2 has no published fix yet; document in docs/dependencies if needed)"; \
@@ -38,8 +39,12 @@ audit:
 		bundle exec bundler-audit check --gemfile-lock "$${lock}" || exit 1; \
 	done
 
-test: lint
+test: lint admin-assets
 	bundle exec polyrun parallel-rspec --workers 5 --merge-failures
+
+admin-assets:
+	npm --prefix spec/dummy ci
+	bundle exec ruby usr/scripts/build_admin_assets.rb
 
 clean:
 	rm -rf coverage .pray/cache tmp

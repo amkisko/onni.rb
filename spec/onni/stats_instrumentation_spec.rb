@@ -16,10 +16,10 @@ RSpec.describe "Onni stats instrumentation" do
       events << ActiveSupport::Notifications::Event.new(*args)
     end
 
-    Onni::Stats.record("demo", enabled: true)
+    Onni::Stats.record("demo", shown: true)
 
     expect(events.size).to eq(1)
-    expect(events.first.payload).to include(name: "demo", enabled: true, weight: 1)
+    expect(events.first.payload).to include(name: "demo", shown: true, weight: 1)
   ensure
     ActiveSupport::Notifications.unsubscribe(subscription)
   end
@@ -31,7 +31,7 @@ RSpec.describe "Onni stats instrumentation" do
     end
     Onni.configuration.stats_ignore = %w[demo]
 
-    Onni::Stats.record("demo", enabled: true)
+    Onni::Stats.record("demo", shown: true)
 
     expect(events).to be_empty
   ensure

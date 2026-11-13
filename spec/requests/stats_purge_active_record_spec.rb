@@ -8,8 +8,8 @@ RSpec.describe "Onni stats purge ActiveRecord", type: :request do
       feature_key: feature_key,
       period: "hour",
       period_start: period_start.utc.beginning_of_hour,
-      enabled_hits: 1,
-      disabled_hits: 0
+      shown_count: 1,
+      skip_count: 0
     )
   end
 

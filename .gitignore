@@ -23,6 +23,8 @@
 /spec/dummy/log/
 /spec/dummy/storage/
 /spec/dummy/tmp/
+/spec/dummy/node_modules/
+/spec/dummy/public/
 /spec/dummy/db/*.sqlite3
 
 # IDE

@@ -8,8 +8,8 @@ RSpec.describe "Onni ActiveAdmin stats storage", type: :request do
       feature_key: "demo",
       period: "hour",
       period_start: 5.days.ago.utc.beginning_of_hour,
-      enabled_hits: 1,
-      disabled_hits: 0
+      shown_count: 1,
+      skip_count: 0
     )
 
     get admin_features_stats_path
@@ -37,8 +37,8 @@ RSpec.describe "Onni ActiveAdmin stats storage", type: :request do
       feature_key: "demo",
       period: "hour",
       period_start: 10.days.ago.utc.beginning_of_hour,
-      enabled_hits: 1,
-      disabled_hits: 0
+      shown_count: 1,
+      skip_count: 0
     )
 
     get admin_features_stats_path

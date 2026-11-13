@@ -25,9 +25,9 @@ RSpec.describe Onni::Stats do
     allow(Random).to receive(:rand).and_return(0.01)
     Onni.configuration.stats_sample_rate = 0.1
 
-    described_class.record("demo", enabled: true)
+    described_class.record("demo", shown: true)
 
-    expect(described_class.for("demo").sum { |bucket| bucket["enabled_hits"] }).to eq(10)
+    expect(described_class.for("demo").sum { |bucket| bucket["shown_count"] }).to eq(10)
   end
 
   it "stores raw sample counts when scaling is disabled" do
@@ -35,9 +35,15 @@ RSpec.describe Onni::Stats do
     Onni.configuration.stats_sample_rate = 0.1
     Onni.configuration.stats_scale_sampled_hits = false
 
-    described_class.record("demo", enabled: true)
+    described_class.record("demo", shown: true)
 
-    expect(described_class.for("demo").sum { |bucket| bucket["enabled_hits"] }).to eq(1)
+    expect(described_class.for("demo").sum { |bucket| bucket["shown_count"] }).to eq(1)
+  end
+
+  it "does not create buckets when stats are disabled" do
+    Onni.configuration.stats_enabled = false
+    described_class.record("demo", shown: true)
+    expect(described_class.for("demo")).to eq([])
   end
 
   it "swallows adapter errors and logs when Rails is present" do
@@ -47,7 +53,7 @@ RSpec.describe Onni::Stats do
     stub_const("Rails", rails)
     allow(Onni.adapter).to receive(:record_stat).and_raise(RuntimeError, "boom")
 
-    expect { described_class.record("demo", enabled: true) }.not_to raise_error
+    expect { described_class.record("demo", shown: true) }.not_to raise_error
     expect(logger).to have_received(:warn).with(/Onni stats failed/)
   end
 end

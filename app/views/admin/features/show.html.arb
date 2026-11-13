@@ -1,16 +1,8 @@
 flag = assigns.fetch(:flag)
-chart = assigns.fetch(:hit_chart)
+chart = assigns.fetch(:visibility_chart)
 variants = flag.variants
-enabled = flag.enabled?(record_stats: false)
 feature_path = helpers.onni_feature_path(flag.name)
-percentage = flag.gates.find { |gate| gate["key"] == "percentage_of_actors" }&.fetch("value", nil)
-rollout_form = Onni::RolloutForm.new(
-  percentage: percentage,
-  group_name: nil,
-  group_action: nil,
-  control: variants["control"],
-  treatment: variants["treatment"]
-)
+rollout_form = Onni::RolloutForm.new(level: flag.level)
 
 div class: "main-content-container" do
   div class: "space-y-10" do
@@ -23,7 +15,7 @@ div class: "main-content-container" do
     div do
       h2 "Overview", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
       attributes_table_for(flag) do
-        row("Status") { status_tag(enabled ? "Enabled" : "Disabled") }
+        row("Status") { status_tag(flag.power_state.to_s.capitalize) }
         row("Expires") do
           if flag.expires_summary
             span flag.expires_summary, title: flag.expires_full, "data-onni-expires": true
@@ -44,56 +36,59 @@ div class: "main-content-container" do
     end
 
     div do
-      h2 "Gates", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
-      if flag.gates.empty?
-        para { text_node "None" }
-      else
-        div class: "paginated-collection" do
-          div class: "paginated-collection-contents" do
-            div class: "index-as-table" do
-              table_for flag.gates do
-                column("Key") { |gate| code gate["key"] }
-                column("Value") { |gate| code gate["value"] }
-              end
-            end
-          end
+      h2 "Audience", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+      attributes_table_for(flag) do
+        row("Type") { flag.type.capitalize }
+        case flag.type
+        when "percentage"
+          row("Level") { flag.level }
+        when "group"
+          row("Groups") { flag.groups.join(", ").presence || "None" }
+        when "actors"
+          row("Actors") { flag.actors.size }
         end
       end
     end
 
-    div do
-      h2 "Rollout", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
-      active_admin_form_for(
-        rollout_form,
-        url: helpers.admin_features_update_feature_path(key: flag.name),
-        method: :post
-      ) do |f|
-        f.inputs do
-          f.input :percentage,
-            as: :number,
-            label: "Percentage of actors (0-100)",
-            input_html: {min: 0, max: 100, name: "percentage", id: "percentage"}
-          f.input :group_name,
-            as: :select,
-            collection: Onni::Group.names,
-            include_blank: true,
-            input_html: {name: "group_name", id: "group_name"}
-          f.input :group_action,
-            as: :select,
-            collection: [%w[Enable enable], %w[Disable disable]],
-            include_blank: "Action",
-            input_html: {name: "group_action", id: "group_action"}
-          f.input :control,
-            as: :number,
-            label: "Variant control",
-            input_html: {min: 0, max: 100, name: "variants[control]", id: "variant_control"}
-          f.input :treatment,
-            as: :number,
-            label: "Variant treatment",
-            input_html: {min: 0, max: 100, name: "variants[treatment]", id: "variant_treatment"}
-        end
-        f.actions do
-          f.action :submit, label: "Save"
+    if %w[percentage group experiment].include?(flag.type)
+      div do
+        h2 "Rollout", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+        active_admin_form_for(
+          rollout_form,
+          url: helpers.admin_features_update_feature_path(key: flag.name),
+          method: :post
+        ) do |f|
+          f.inputs do
+            if flag.type == "percentage"
+              f.input :level,
+                as: :number,
+                label: "Level (0-100)",
+                input_html: {min: 0, max: 100, name: "level", id: "level"}
+            end
+            if flag.type == "group"
+              f.input :group_name,
+                as: :select,
+                collection: Onni::Group.names,
+                include_blank: true,
+                input_html: {name: "group_name", id: "group_name"}
+              f.input :group_action,
+                as: :select,
+                collection: [["Add group", "visible"], ["Remove group", "drop"]],
+                include_blank: "Action",
+                input_html: {name: "group_action", id: "group_action"}
+            end
+            if flag.type == "experiment"
+              variants.each_with_index do |(name, weight), index|
+                f.input :variant_weight,
+                  as: :number,
+                  label: "Variant #{name}",
+                  input_html: {min: 0, value: weight, name: "variants[#{name}]", id: "variant_#{index}"}
+              end
+            end
+          end
+          f.actions do
+            f.action :submit, label: "Save"
+          end
         end
       end
     end
@@ -104,7 +99,7 @@ div class: "main-content-container" do
     )
 
     para do
-      text_node helpers.link_to("Back to features", helpers.admin_features_path, class: "action-item-button")
+      text_node helpers.link_to("Back to flags", helpers.admin_features_path, class: "action-item-button")
     end
   end
 end

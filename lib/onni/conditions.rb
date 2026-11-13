@@ -10,10 +10,13 @@ module Onni
 
     def met?(name, actor, definition: nil)
       definition ||= Registry.definition(name) || {}
-      conditions = Array(definition["conditions"])
-      return true if conditions.empty?
-      # Global checks (no actor) only answer whether a gate is armed.
       return true if actor.nil?
+
+      conditions = definition["conditions"]
+      return true if conditions.nil?
+
+      conditions = Array(conditions)
+      return true if conditions.empty?
 
       conditions.all? { |condition| match?(condition, actor) }
     end

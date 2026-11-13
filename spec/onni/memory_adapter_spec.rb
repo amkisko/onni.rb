@@ -8,7 +8,7 @@ RSpec.describe Onni::Adapters::Memory do
   it "clears features, gates, and stats" do
     adapter.add("demo")
     adapter.add_gate("demo", "boolean", "true")
-    adapter.record_stat("demo", enabled: true)
+    adapter.record_stat("demo", shown: true)
 
     adapter.clear!
 
@@ -24,5 +24,62 @@ RSpec.describe Onni::Adapters::Memory do
       {"key" => "boolean", "value" => "true"},
       {"key" => "groups", "value" => "staff"}
     )
+  end
+
+  it "keeps arbitrary feature keys distinct in stat buckets" do
+    adapter.record_stat("new_checkout|control", shown: true)
+    adapter.record_stat("new_checkout", shown: false)
+    expect(adapter.stats_for("new_checkout|control").sum { |row| row.fetch("shown_count") }).to eq(1)
+    expect(adapter.stats_for("new_checkout").sum { |row| row.fetch("skip_count") }).to eq(1)
+  end
+
+  it "owns the stat key instead of retaining a mutable caller string" do
+    key = +"new_checkout"
+    adapter.record_stat(key, shown: true)
+    key.replace("search_v2")
+    expect(adapter.stats_for("new_checkout").sum { |row| row.fetch("shown_count") }).to eq(1)
+    expect(adapter.stats_for("search_v2")).to eq([])
+  end
+
+  it "does not freeze a string returned by a custom feature key" do
+    key_class = Struct.new(:value) do
+      def to_s
+        value
+      end
+    end
+    key = key_class.new(+"new_checkout")
+    adapter.record_stat(key, shown: true)
+    key.value.replace("search_v2")
+    expect(adapter.stats_for("new_checkout").sum { |row| row.fetch("shown_count") }).to eq(1)
+  end
+
+  it "keeps gate readers independent of stored data and the caller's input" do
+    value = +"true"
+    adapter.add_gate("demo", "boolean", value)
+    value.replace("false")
+    read = adapter.gates_for("demo")
+    read.first["value"].replace("changed")
+    expect(adapter.gates_for("demo")).to eq([{"key" => "boolean", "value" => "true"}])
+  end
+
+  it "provides immutable evaluation snapshots that survive later gate writes" do
+    adapter.add_gate("demo", "boolean", "true")
+    snapshot = adapter.gates_snapshot_for("demo")
+    expect { snapshot.first["value"].replace("changed") }.to raise_error(FrozenError)
+    adapter.add_gate("demo", "groups", "beta_testers")
+    adapter.remove_gate("demo", "boolean")
+    expect(snapshot).to eq([{"key" => "boolean", "value" => "true"}])
+    expect(adapter.gates_snapshot_for("demo")).to eq([{"key" => "groups", "value" => "beta_testers"}])
+  end
+
+  it "does not publish partial gate edits when an update fails" do
+    adapter.add_gate("demo", "boolean", "true")
+    expect {
+      adapter.update_gates("demo") do |gates|
+        gates.first["value"].replace("false")
+        raise "aborted"
+      end
+    }.to raise_error(RuntimeError, "aborted")
+    expect(adapter.gates_for("demo")).to eq([{"key" => "boolean", "value" => "true"}])
   end
 end

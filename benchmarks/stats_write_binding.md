@@ -54,3 +54,7 @@ Distinct stages: `setup`, `single_write`, `concurrent_wait`, `buffer_flush`, `lo
 ## Storage
 
 Local SQLite file growth is in scope for the probe DB path under `benchmarks/tmp/`.
+
+Ready/park/visible verification keeps direct L1 at eight writers and 200 evaluations per
+writer. Stored counters are shown_count/skip_count; zero lock waits and write errors
+remain required.

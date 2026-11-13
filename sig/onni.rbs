@@ -6,15 +6,22 @@ module Onni
   def self.adapter: () -> untyped
   def self.adapter=: (untyped) -> untyped
   def self.reset_adapter!: () -> void
-  def self.enabled?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
-  def self.disabled?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
+  def self.visible?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
+  def self.ready?: (untyped name) -> bool
+  def self.pending?: (untyped name) -> bool
+  def self.parked?: (untyped name) -> bool
+  def self.ready!: (untyped name) -> true
+  def self.park!: (untyped name) -> true
+  def self.clear!: (untyped name) -> true
+  def self.visible_group!: (untyped name, untyped group_name) -> true
+  def self.drop_group!: (untyped name, untyped group_name) -> true
+  def self.visible_actor!: (untyped name, untyped actor) -> true
+  def self.drop_actor!: (untyped name, untyped actor) -> true
+  def self.level!: (untyped name, untyped percentage) -> true
+  def self.level: (untyped name) -> Integer
+  def self.variants!: (untyped name, untyped variants) -> true
+  def self.variants: (untyped name) -> Hash[String, Integer]
   def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool) -> untyped
-  def self.enable: (untyped name, ?untyped? actor) -> true
-  def self.disable: (untyped name, ?untyped? actor) -> true
-  def self.enable_group: (untyped name, untyped group_name) -> true
-  def self.disable_group: (untyped name, untyped group_name) -> true
-  def self.enable_percentage_of_actors: (untyped name, untyped percentage) -> true
-  def self.set_variants: (untyped name, untyped variants) -> true
   def self.add: (untyped name) -> untyped
   def self.exist?: (untyped name) -> bool
   def self.features: () -> Array[Flag]
@@ -80,7 +87,15 @@ module Onni
     attr_reader name: String
     def initialize: (untyped name) -> void
     def exist?: () -> bool
-    def enabled?: (?untyped? actor, ?record_stats: bool) -> bool
+    def visible?: (?untyped? actor, ?record_stats: bool) -> bool
+    def power_state: () -> (:ready | :pending | :parked)?
+    def ready?: () -> bool
+    def pending?: () -> bool
+    def parked?: () -> bool
+    def type: () -> String
+    def level: () -> Integer
+    def groups: () -> Array[String]
+    def actors: () -> Array[String]
     def gates: () -> Array[Hash[String, untyped]]
     def definition: () -> Hash[String, untyped]
     def description: () -> untyped
@@ -88,24 +103,25 @@ module Onni
     def variants: () -> Hash[String, Integer]
   end
 
-  class HitChart
+  class VisibilityChart
     WINDOWS: Hash[String, Integer]
     attr_reader range: String
     attr_reader from: untyped
     attr_reader to: untyped
     attr_reader rows: Array[Hash[String, untyped]]
-    attr_reader enabled_hits: Integer
-    attr_reader disabled_hits: Integer
+    attr_reader shown_count: Integer
+    attr_reader skip_count: Integer
     def initialize: (untyped name, ?range: String) -> void
     def hourly?: () -> bool
-    def enabled_percentage: () -> Float?
+    def shown_share: () -> Float?
     def maximum: () -> Integer
     def points: (String column) -> String
   end
 
   module Store
-    def self.enabled?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
+    def self.visible?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
     def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool) -> untyped
+    def self.power_state: (untyped name) -> (:ready | :pending | :parked)?
     def self.bust_cache!: (untyped name) -> untyped
   end
 
@@ -115,6 +131,7 @@ module Onni
     def self.known?: (untyped name) -> bool
     def self.definition: (untyped name) -> untyped
     def self.require_definition!: (untyped name) -> untyped
+    def self.validate_variants!: (untyped variants) -> void
   end
 
   module Group
@@ -136,7 +153,7 @@ module Onni
   end
 
   module Stats
-    def self.record: (untyped name, enabled: bool) -> untyped
+    def self.record: (untyped name, shown: bool) -> untyped
     def self.for: (untyped name, ?period: String, ?from: untyped, ?to: untyped) -> Array[Hash[String, untyped]]
     def self.purge!: (**untyped) -> Hash[Symbol, untyped]
     def self.overview: () -> Hash[Symbol, untyped]
@@ -149,13 +166,13 @@ module Onni
 
     module Sampler
       MAX_WEIGHT: Integer
-      def self.decide: (name: untyped, enabled: bool) -> (:skip | Hash[Symbol, untyped])
+      def self.decide: (name: untyped, shown: bool) -> (:skip | Hash[Symbol, untyped])
       def self.coerce_rate: (untyped) -> Float
       def self.weight_for: (Float) -> Integer
     end
 
     module Buffer
-      def self.add: (untyped name, enabled: bool, weight: untyped) -> void
+      def self.add: (untyped name, shown: bool, weight: untyped) -> void
       def self.flush!: () -> Integer
     end
 
@@ -173,12 +190,14 @@ module Onni
       def exist?: (untyped key) -> bool
       def feature_keys: () -> Array[String]
       def gates_for: (untyped key) -> Array[Hash[String, untyped]]
+      def gates_snapshot_for: (untyped key) -> Array[Hash[String, untyped]]
       def gates_for_many: (untyped keys) -> Hash[String, Array[Hash[String, untyped]]]
       def replace_gates: (untyped key, untyped gates) -> untyped
+      def update_gates: (untyped key) { (Array[Hash[String, untyped]]) -> untyped } -> untyped
       def add_gate: (untyped key, untyped gate_key, untyped value) -> untyped
       def remove_gate: (untyped key, untyped gate_key, ?untyped? value) -> untyped
       def clear_gates: (untyped key) -> untyped
-      def record_stat: (untyped key, enabled: bool, ?weight: untyped) -> untyped
+      def record_stat: (untyped key, shown: bool, ?weight: untyped) -> untyped
       def record_stats_batch: (untyped buckets) -> Integer
       def stats_for: (untyped key, ?period: String, ?from: untyped, ?to: untyped) -> Array[Hash[String, untyped]]
       def purge_stats_batch: (older_than: untyped, batch_size: untyped, after_id: untyped) -> Hash[Symbol, untyped]
@@ -192,10 +211,11 @@ module Onni
       def gates_for: (untyped key) -> Array[Hash[String, untyped]]
       def gates_for_many: (untyped keys) -> Hash[String, Array[Hash[String, untyped]]]
       def replace_gates: (untyped key, untyped gates) -> untyped
+      def update_gates: (untyped key) { (Array[Hash[String, untyped]]) -> untyped } -> untyped
       def add_gate: (untyped key, untyped gate_key, untyped value) -> untyped
       def remove_gate: (untyped key, untyped gate_key, ?untyped? value) -> untyped
       def clear_gates: (untyped key) -> untyped
-      def record_stat: (untyped key, enabled: bool, ?weight: untyped) -> untyped
+      def record_stat: (untyped key, shown: bool, ?weight: untyped) -> untyped
       def record_stats_batch: (untyped buckets) -> Integer
       def stats_for: (untyped key, ?period: String, ?from: untyped, ?to: untyped) -> Array[Hash[String, untyped]]
       def purge_stats_batch: (older_than: untyped, batch_size: untyped, after_id: untyped) -> Hash[Symbol, untyped]

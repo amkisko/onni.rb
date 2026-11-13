@@ -2,82 +2,72 @@
 
 require "time"
 require "json"
+require "objspace"
+require "securerandom"
 
 module Onni
   module Store
-    CACHE_KEY_PREFIX = "onni/gates/"
+    CACHE_KEY_PREFIX = "onni/gates/v2/"
+
+    @cache_states = ObjectSpace::WeakKeyMap.new
 
     module_function
 
-    def enabled?(name, actor = nil, record_stats: true)
-      return false unless Registry.known?(name)
+    def visible?(name, actor = nil, record_stats: true)
+      definition = Registry.definition(name)
+      return false unless definition
 
-      result = evaluate(name, actor)
-      Stats.record(name, enabled: result) if record_stats
+      gates = cached_gates(name)
+      return false unless Settings.powered?(gates, definition)
+      result = matches?(name, actor, definition, gates)
+      Stats.record(name, shown: result) if record_stats
       result
     end
 
-    def variant(name, actor, record_stats: true)
-      return unless Registry.known?(name)
-      return if actor.nil?
+    def power_state(name)
+      definition = Registry.definition(name)
+      return unless definition
 
-      definition = Registry.definition(name) || {}
-      return if expired?(definition)
-
-      gates = cached_gates(name)
-      return if gates.empty?
-
-      matched =
-        boolean_enabled?(gates) ||
-        actor_enabled?(gates, actor) ||
-        group_enabled?(gates, actor) ||
-        percentage_enabled?(gates, name, actor)
-      return unless matched
-      return unless Conditions.met?(name, actor, definition: definition)
-
-      Stats.record(name, enabled: true) if record_stats
-
-      variants = variant_weights(definition, gates)
-      return if variants.blank?
-
-      Actor.variant_for(actor, name, variants)
+      Settings.power_state(cached_gates(name), definition)
     end
 
-    def evaluate(name, actor)
-      definition = Registry.definition(name) || {}
-      return false if expired?(definition)
+    def variant(name, actor = nil, record_stats: true)
+      definition = Registry.definition(name)
+      return unless definition
+      return if actor.nil?
 
       gates = cached_gates(name)
-      return false if gates.empty?
+      return unless Settings.powered?(gates, definition)
+      return unless Settings.type(definition) == "experiment"
 
-      matched =
-        boolean_enabled?(gates) ||
-        actor_enabled?(gates, actor) ||
-        group_enabled?(gates, actor) ||
-        percentage_enabled?(gates, name, actor)
-      return false unless matched
+      weights = Settings.variants(definition, gates)
+      matched = weights.values.sum.positive? && !expired?(definition) &&
+        Conditions.met?(name, actor, definition: definition)
+      Stats.record(name, shown: matched) if record_stats
+      Actor.variant_for(actor, name, weights) if matched
+    end
+
+    def matches?(name, actor, definition, gates)
+      return false if expired?(definition)
+      return false unless audience_matches?(name, actor, definition, gates)
 
       Conditions.met?(name, actor, definition: definition)
     end
-    private_class_method :evaluate
+    private_class_method :matches?
 
-    def variant_weights(definition, gates)
-      raw = definition["variants"]
-      return normalize_variants(raw) if raw.present?
-
-      gate = Array(gates).find { |entry| entry["key"] == "variants" }
-      return {} unless gate
-
-      normalize_variants(JSON.parse(gate["value"]))
-    rescue JSON::ParserError
-      {}
+    def audience_matches?(name, actor, definition, gates)
+      case Settings.type(definition)
+      when "boolean" then true
+      when "experiment" then Settings.variants(definition, gates).values.sum.positive?
+      when "actors" then Settings.list("actors", definition, gates).include?(Actor.id(actor))
+      when "group"
+        !actor.nil? && Settings.list("groups", definition, gates).any? { |group| Group.member?(group, actor) }
+      when "percentage"
+        !actor.nil? && Actor.percentage_value(actor, name) < Settings.level(definition, gates)
+      else false
+      end
     end
-    private_class_method :variant_weights
-
-    def normalize_variants(raw)
-      raw.transform_keys(&:to_s).transform_values(&:to_i)
-    end
-    private_class_method :normalize_variants
+    private_class_method :audience_matches?
 
     def expired?(definition)
       raw = definition["expires_at"]
@@ -103,53 +93,45 @@ module Onni
       return preloaded[key] if preloaded&.key?(key)
 
       cache = Onni.configuration.cache
-      return Onni.adapter.gates_for(key) unless cache
+      return read_gates(key) unless cache
 
       cache.fetch(cache_key(key), expires_in: Onni.configuration.cache_ttl) do
-        Onni.adapter.gates_for(key)
+        read_gates(key)
       end
     end
     private_class_method :cached_gates
 
+    def read_gates(name)
+      adapter = Onni.adapter
+      return adapter.gates_snapshot_for(name) if adapter.respond_to?(:gates_snapshot_for)
+
+      adapter.gates_for(name)
+    end
+    private_class_method :read_gates
+
     def bust_cache!(name)
       key = name.to_s
-      Onni.configuration.cache&.delete(cache_key(key))
+      cache = Onni.configuration.cache
+      if cache
+        old_key = cache_key(key, advance: true)
+        begin
+          cache.delete(old_key)
+        rescue => error
+          Rails.logger.warn("Onni cache cleanup failed: #{error.class}") if defined?(Rails)
+        end
+      end
       RequestStore.gates&.delete(key)
     end
 
-    def cache_key(name)
-      "#{CACHE_KEY_PREFIX}#{Onni.adapter.object_id}/#{name}"
+    def cache_key(name, advance: false)
+      adapter = Onni.adapter
+      Sync.synchronize do
+        state = @cache_states[adapter] ||= {namespace: SecureRandom.hex(16), versions: Hash.new(0)}
+        version = state[:versions][name]
+        state[:versions][name] = version + 1 if advance
+        "#{CACHE_KEY_PREFIX}#{state[:namespace]}/#{version}/#{name}"
+      end
     end
     private_class_method :cache_key
-
-    def boolean_enabled?(gates)
-      gates.any? { |gate| gate["key"] == "boolean" && gate["value"] == "true" }
-    end
-    private_class_method :boolean_enabled?
-
-    def actor_enabled?(gates, actor)
-      actor_id = Actor.id(actor)
-      return false if actor_id.blank?
-
-      gates.any? { |gate| gate["key"] == "actors" && gate["value"] == actor_id }
-    end
-    private_class_method :actor_enabled?
-
-    def group_enabled?(gates, actor)
-      return false if actor.nil?
-
-      gates.any? { |gate| gate["key"] == "groups" && Group.member?(gate["value"], actor) }
-    end
-    private_class_method :group_enabled?
-
-    def percentage_enabled?(gates, name, actor)
-      return false if actor.nil?
-
-      gate = gates.find { |entry| entry["key"] == "percentage_of_actors" }
-      return false unless gate
-
-      Actor.percentage_value(actor, name) < gate["value"].to_i
-    end
-    private_class_method :percentage_enabled?
   end
 end

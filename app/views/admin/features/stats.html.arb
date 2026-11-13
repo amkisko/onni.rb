@@ -5,7 +5,7 @@ record = Onni::Flag.new("stats_storage")
 div class: "main-content-container" do
   div class: "space-y-10" do
     para class: "text-gray-700 dark:text-gray-200" do
-      text_node "Storage used for feature evaluation hit stats. Retention and sampling come from Onni configuration."
+      text_node "Storage used for feature evaluation statistics."
     end
 
     div do
@@ -15,7 +15,7 @@ div class: "main-content-container" do
         row("Oldest hour") { overview[:oldest_period_start] || "—" }
         row("Retention") { retention ? "#{(retention / 1.day).to_i} days" : "not set" }
         row("Sample rate") { overview[:sample_rate] }
-        row("Scale sampled hits") { overview[:scale_sampled_hits] ? "yes" : "no" }
+        row("Scale sampled counts") { overview[:scale_sampled_hits] ? "yes" : "no" }
         row("Past retention") { status_tag(overview[:past_retention] ? "Yes" : "No") }
         row("Large table") { status_tag(overview[:large_table] ? "Yes" : "No") }
       end

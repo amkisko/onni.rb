@@ -7,7 +7,11 @@ module Onni
     # Imports: boolean, actors, groups, percentage_of_actors, variants.
     # Skips unknown registry keys and unsupported gate keys (counted in skipped_gates).
     class Importer
-      SUPPORTED_GATE_KEYS = %w[boolean actors groups percentage_of_actors variants].freeze
+      TYPE_GATES = {
+        "boolean" => [], "actors" => %w[actors actors_override],
+        "group" => %w[groups groups_override], "percentage" => %w[percentage_of_actors],
+        "experiment" => %w[variants]
+      }.freeze
 
       def initialize(source)
         @source = source
@@ -31,13 +35,13 @@ module Onni
           value = gate_field(row, :value)
           next unless Registry.known?(feature_key)
 
-          unless SUPPORTED_GATE_KEYS.include?(gate_key)
+          unless supported?(feature_key, gate_key) && valid_gate?(gate_key, value)
             skipped_gates += 1
             next
           end
 
           Onni.add(feature_key)
-          Onni.adapter.add_gate(feature_key, gate_key, value)
+          write_gate(feature_key, gate_key, value)
           Onni::Store.bust_cache!(feature_key)
           gates += 1
         end
@@ -46,6 +50,36 @@ module Onni
       end
 
       private
+
+      def supported?(feature_key, gate_key)
+        type = Settings.type(Registry.definition(feature_key) || {})
+        (%w[boolean powered] + TYPE_GATES.fetch(type, [])).include?(gate_key)
+      end
+
+      def write_gate(feature_key, gate_key, value)
+        gate_key = "powered" if gate_key == "boolean"
+        Onni.adapter.update_gates(feature_key) do |entries|
+          entries.reject! { |gate| gate["key"] == gate_key } unless %w[actors groups].include?(gate_key)
+          entry = {"key" => gate_key, "value" => value.to_s}
+          entries << entry unless entries.include?(entry)
+        end
+      end
+
+      def valid_gate?(key, value)
+        case key
+        when "boolean", "powered" then %w[true false].include?(value.to_s)
+        when "percentage_of_actors" then Integer(value).between?(0, 100)
+        when "variants"
+          Registry.validate_variants!(JSON.parse(value))
+          true
+        when "actors_override", "groups_override"
+          values = JSON.parse(value)
+          values.is_a?(Array) && values.all? { |entry| entry.is_a?(String) && !entry.empty? }
+        else !value.to_s.empty?
+        end
+      rescue ArgumentError, TypeError, JSON::ParserError
+        false
+      end
 
       def gate_field(row, name)
         row[name] || row[name.to_s]

@@ -32,15 +32,15 @@ RSpec.describe Onni::Middleware::RequestLifecycle do
 
   it "flushes buffered stats after the request" do
     app = lambda do |_env|
-      Onni::Stats.record("demo", enabled: true)
-      Onni::Stats.record("demo", enabled: true)
+      Onni::Stats.record("demo", shown: true)
+      Onni::Stats.record("demo", shown: true)
       [200, {}, ["ok"]]
     end
 
     expect(Onni.adapter).to receive(:record_stats_batch).once.and_call_original
     status, = call_middleware(app)
     expect(status).to eq(200)
-    expect(Onni::Stats.for("demo").sum { |bucket| bucket["enabled_hits"] }).to eq(2)
+    expect(Onni::Stats.for("demo").sum { |bucket| bucket["shown_count"] }).to eq(2)
   end
 
   it "clears request state when the app raises" do
@@ -48,14 +48,14 @@ RSpec.describe Onni::Middleware::RequestLifecycle do
     expect(Onni::RequestStore.gates).not_to be_nil
 
     app = lambda do |_env|
-      Onni::Stats.record("demo", enabled: true)
+      Onni::Stats.record("demo", shown: true)
       raise "boom"
     end
 
     expect { call_middleware(app) }.to raise_error(RuntimeError, "boom")
     expect(Onni::RequestStore.gates).to be_nil
     expect(Onni::RequestStore.stats_buffer).to be_nil
-    expect(Onni::Stats.for("demo").sum { |bucket| bucket["enabled_hits"] }).to eq(1)
+    expect(Onni::Stats.for("demo").sum { |bucket| bucket["shown_count"] }).to eq(1)
   end
 
   it "preloads gates when request_preload is enabled" do
@@ -64,6 +64,28 @@ RSpec.describe Onni::Middleware::RequestLifecycle do
 
     status, = call_middleware(->(_env) { [200, {}, ["ok"]] })
     expect(status).to eq(200)
+  end
+
+  it "keeps a successful response and clears request state when stats flushing fails" do
+    Onni.preload!(:demo)
+    allow(Onni.adapter).to receive(:record_stats_batch).and_raise(IOError, "unavailable")
+    app = lambda do |_env|
+      Onni::Stats.record("demo", shown: true)
+      [200, {}, ["ok"]]
+    end
+    expect(call_middleware(app)).to eq([200, {}, ["ok"]])
+    expect(Onni::RequestStore.gates).to be_nil
+    expect(Onni::RequestStore.stats_buffer).to be_nil
+  end
+
+  it "preserves the application failure when stats flushing also fails" do
+    allow(Onni.adapter).to receive(:record_stats_batch).and_raise(IOError, "unavailable")
+    app = lambda do |_env|
+      Onni::Stats.record("demo", shown: true)
+      raise "application failed"
+    end
+    expect { call_middleware(app) }.to raise_error(RuntimeError, "application failed")
+    expect(Onni::RequestStore.stats_buffer).to be_nil
   end
 
   it "skips preload when request_preload is disabled" do

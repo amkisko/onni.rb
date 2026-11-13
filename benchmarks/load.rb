@@ -8,7 +8,7 @@
 #   SCENARIO=gate bundle exec ruby benchmarks/load.rb
 #   SCENARIO=matrix bundle exec ruby benchmarks/load.rb
 
-gem_lib = File.expand_path("../lib", __dir__)
+gem_lib = ENV["PRESSURE_SOURCE"] ? File.join(ENV["PRESSURE_SOURCE"], "lib") : File.expand_path("../lib", __dir__)
 $LOAD_PATH.unshift(gem_lib) unless $LOAD_PATH.include?(gem_lib)
 
 polyrun_lib = ENV["PRESSURE_POLYRUN_LIB"] || File.expand_path("../../polyrun.rb/lib", __dir__)
@@ -31,7 +31,7 @@ module Onni
       # Named stages for meter self-test (distinct known walls).
       STAGES = %w[
         registry
-        enable
+        visible
         boolean
         actor
         percentage
@@ -43,29 +43,36 @@ module Onni
 
       FEATURES_YAML = <<~YAML
         flag_boolean:
+          type: boolean
           expires_at: "2099-01-01"
           description: "Global boolean"
         flag_actor:
+          type: actors
           expires_at: "2099-01-01"
           description: "Actor gate"
         flag_percentage:
+          type: percentage
           expires_at: "2099-01-01"
           description: "Percentage of actors"
         flag_group:
+          type: group
           expires_at: "2099-01-01"
           description: "Audience group"
         flag_variant:
+          type: experiment
           expires_at: "2099-01-01"
           description: "A/B variants"
           variants:
             control: 50
             treatment: 50
         flag_conditions:
+          type: boolean
           expires_at: "2099-01-01"
           description: "Boolean plus conditions"
           conditions:
             - "beta_tester?"
         flag_stats:
+          type: boolean
           expires_at: "2099-01-01"
           description: "Hit stats path"
       YAML
@@ -172,13 +179,13 @@ module Onni
       def run_all_features_batch!(n, actors:)
         n.times do |i|
           actor = actors[i % actors.size]
-          Onni.enabled?(:flag_boolean)
-          Onni.enabled?(:flag_actor, actor)
-          Onni.enabled?(:flag_percentage, actor)
-          Onni.enabled?(:flag_group, actor)
+          Onni.visible?(:flag_boolean)
+          Onni.visible?(:flag_actor, actor)
+          Onni.visible?(:flag_percentage, actor)
+          Onni.visible?(:flag_group, actor)
           Onni.variant(:flag_variant, actor)
-          Onni.enabled?(:flag_conditions, actor)
-          Onni.enabled?(:flag_stats, actor)
+          Onni.visible?(:flag_conditions, actor)
+          Onni.visible?(:flag_stats, actor)
         end
         Onni.flush_stats! if Onni.configuration.stats_buffer
       end
@@ -189,14 +196,14 @@ module Onni
         Onni::Group.clear!
         Onni.register_group(:staff) { |actor, _| actor.id.even? }
 
-        Onni.enable(:flag_boolean)
-        Onni.enable(:flag_actor, actor_class.new(0, beta_tester: true))
-        Onni.enable_percentage_of_actors(:flag_percentage, 100)
-        Onni.enable_group(:flag_group, :staff)
-        Onni.enable(:flag_variant)
-        Onni.set_variants(:flag_variant, {control: 50, treatment: 50})
-        Onni.enable(:flag_conditions)
-        Onni.enable(:flag_stats)
+        Onni.ready!(:flag_boolean)
+        Onni.visible_actor!(:flag_actor, actor_class.new(0, beta_tester: true))
+        Onni.level!(:flag_percentage, 100)
+        Onni.visible_group!(:flag_group, :staff)
+        Onni.ready!(:flag_variant)
+        Onni.variants!(:flag_variant, {control: 50, treatment: 50})
+        Onni.ready!(:flag_conditions)
+        Onni.ready!(:flag_stats)
 
         Onni.configuration.stats_enabled = true
         Onni.configuration.stats_sample_rate = 0.1
@@ -271,4 +278,4 @@ module Onni
   end
 end
 
-Onni::Bench::Load.run!
+Onni::Bench::Load.run! if $PROGRAM_NAME == __FILE__

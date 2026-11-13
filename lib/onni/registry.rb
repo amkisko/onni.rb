@@ -2,9 +2,12 @@
 
 require "time"
 require "yaml"
+require "onni/registry/validation"
 
 module Onni
   module Registry
+    extend Validation
+
     module_function
 
     def config
@@ -53,7 +56,10 @@ module Onni
       loaded = YAML.safe_load(raw, aliases: true)
       return {} unless loaded.is_a?(Hash)
 
-      loaded.each_value { |definition| attach_expiry!(definition) if definition.is_a?(Hash) }
+      loaded.each do |name, definition|
+        validate_definition!(name, definition)
+        attach_expiry!(definition)
+      end
       loaded
     end
     private_class_method :load_config

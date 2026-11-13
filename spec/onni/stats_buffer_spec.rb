@@ -27,19 +27,19 @@ RSpec.describe Onni::Stats::Buffer do
 
   it "coalesces repeated hits until flush" do
     expect(Onni.adapter).not_to receive(:record_stat)
-    Onni::Stats.record("demo", enabled: true)
-    Onni::Stats.record("demo", enabled: true)
-    Onni::Stats.record("demo", enabled: false)
+    Onni::Stats.record("demo", shown: true)
+    Onni::Stats.record("demo", shown: true)
+    Onni::Stats.record("demo", shown: false)
 
     expect(Onni.adapter).to receive(:record_stats_batch).once.and_call_original
     expect(described_class.flush!).to eq(1)
-    expect(Onni::Stats.for("demo").sum { |bucket| bucket["enabled_hits"] }).to eq(2)
-    expect(Onni::Stats.for("demo").sum { |bucket| bucket["disabled_hits"] }).to eq(1)
+    expect(Onni::Stats.for("demo").sum { |bucket| bucket["shown_count"] }).to eq(2)
+    expect(Onni::Stats.for("demo").sum { |bucket| bucket["skip_count"] }).to eq(1)
   end
 
-  it "flushes through reset_request! when buffering is enabled" do
-    Onni::Stats.record("demo", enabled: true)
+  it "flushes through reset_request! when buffering is show" do
+    Onni::Stats.record("demo", shown: true)
     Onni.reset_request!
-    expect(Onni::Stats.for("demo").sum { |bucket| bucket["enabled_hits"] }).to eq(1)
+    expect(Onni::Stats.for("demo").sum { |bucket| bucket["shown_count"] }).to eq(1)
   end
 end

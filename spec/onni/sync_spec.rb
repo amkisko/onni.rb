@@ -22,7 +22,7 @@ RSpec.describe Onni::Sync do
         Onni::Group.register(:"group_#{index}") { |_actor, _| true }
         Onni.adapter.add("feature_#{index}")
         Onni.adapter.add_gate("feature_#{index}", "boolean", "true")
-        Onni.adapter.record_stat("feature_#{index}", enabled: true)
+        Onni.adapter.record_stat("feature_#{index}", shown: true)
       rescue => error
         errors << error
       end
@@ -59,6 +59,17 @@ RSpec.describe Onni::Sync do
     expect(Onni::Group.known?(:beta)).to be(true)
     expect(Onni.adapter.gates_for("alpha")).to include(hash_including("key" => "boolean"))
     expect(Onni.adapter.gates_for("beta")).to include(hash_including("key" => "boolean"))
+  end
+
+  it "retains every audience update when writers share a flag" do
+    Onni.configuration.concurrency = :mutex
+    Onni.adapter = Onni::Adapters::Memory.new
+    allow(Onni::Registry).to receive(:config).and_return("demo" => {"type" => "group"})
+    threads = 8.times.map do |index|
+      Thread.new { Onni.visible_group!(:demo, "group_#{index}") }
+    end
+    threads.each(&:value)
+    expect(Onni[:demo].groups.sort).to eq(8.times.map { |index| "group_#{index}" })
   end
 
   it "allows concurrency none for single-threaded hosts" do

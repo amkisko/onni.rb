@@ -1,5 +1,6 @@
 ---
 demo:
+  type: experiment
   expires_at: "2099-01-01"
   description: "Integration demo flag"
   variants:
@@ -7,5 +8,13 @@ demo:
     treatment: 50
 
 search_v2:
+  type: percentage
   expires_at: "2099-01-01"
   description: "Second flag for registry sync"
+
+audience:
+  description: "Audience targeting"
+
+selected:
+  type: actors
+  actors: []

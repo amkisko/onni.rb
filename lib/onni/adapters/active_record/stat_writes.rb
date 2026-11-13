@@ -5,9 +5,9 @@ module Onni
     class ActiveRecord
       # Hit-bucket upsert helpers for the ActiveRecord adapter.
       module StatWrites
-        def record_stat(key, enabled:, weight: 1)
+        def record_stat(key, shown:, weight: 1)
           weight = weight.to_i.clamp(1, Stats::Sampler::MAX_WEIGHT)
-          upsert_stat_row(key.to_s, enabled: enabled, weight: weight)
+          upsert_stat_row(key.to_s, shown: shown, weight: weight)
         end
 
         def record_stats_batch(buckets)
@@ -21,8 +21,8 @@ module Onni
             rows,
             unique_by: %i[feature_key period period_start],
             on_duplicate: ::Arel.sql(
-              "enabled_hits = #{table}.enabled_hits + excluded.enabled_hits, " \
-              "disabled_hits = #{table}.disabled_hits + excluded.disabled_hits, " \
+              "shown_count = #{table}.shown_count + excluded.shown_count, " \
+              "skip_count = #{table}.skip_count + excluded.skip_count, " \
               "updated_at = excluded.updated_at"
             )
           )
@@ -35,27 +35,27 @@ module Onni
           period_start = Time.current.utc.beginning_of_hour
           now = Time.current
           buckets.filter_map do |feature_key, counts|
-            enabled_weight = counts[:enabled].to_i.clamp(0, Stats::Sampler::MAX_WEIGHT)
-            disabled_weight = counts[:disabled].to_i.clamp(0, Stats::Sampler::MAX_WEIGHT)
-            next if enabled_weight <= 0 && disabled_weight <= 0
+            shown_weight = [counts[:shown_count].to_i, 0].max
+            skip_weight = [counts[:skip_count].to_i, 0].max
+            next if shown_weight <= 0 && skip_weight <= 0
 
             {
               feature_key: feature_key.to_s,
               period: "hour",
               period_start: period_start,
-              enabled_hits: enabled_weight,
-              disabled_hits: disabled_weight,
+              shown_count: shown_weight,
+              skip_count: skip_weight,
               created_at: now,
               updated_at: now
             }
           end
         end
 
-        def upsert_stat_row(key, enabled:, weight:)
+        def upsert_stat_row(key, shown:, weight:)
           weight = weight.to_i.clamp(1, Stats::Sampler::MAX_WEIGHT)
           period_start = Time.current.utc.beginning_of_hour
           now = Time.current
-          column = enabled ? "enabled_hits" : "disabled_hits"
+          column = shown ? "shown_count" : "skip_count"
           table = ::Onni::StatBucket.table_name
           # Intent: unique_by matches index_onni_feature_stats_unique. Qualify the existing-row
           # column on the RHS; bare names are ambiguous with excluded on PostgreSQL ON CONFLICT.
@@ -65,8 +65,8 @@ module Onni
               feature_key: key.to_s,
               period: "hour",
               period_start: period_start,
-              enabled_hits: enabled ? weight : 0,
-              disabled_hits: enabled ? 0 : weight,
+              shown_count: shown ? weight : 0,
+              skip_count: shown ? 0 : weight,
               created_at: now,
               updated_at: now
             },

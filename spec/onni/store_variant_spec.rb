@@ -24,6 +24,7 @@ RSpec.describe Onni::Store do
     allow(Onni::Registry).to receive_messages(
       known?: true,
       definition: {
+        "type" => "experiment",
         "description" => "Demo",
         "expires_at" => "2099-01-01",
         "variants" => {"control" => 50, "treatment" => 50}
@@ -31,25 +32,26 @@ RSpec.describe Onni::Store do
     )
   end
 
-  it "assigns variants from YAML without a second adapter gates fetch" do
-    Onni.enable(:demo)
-    Onni.set_variants(:demo, {control: 10, treatment: 90})
+  it "assigns variants from runtime overrides without a second adapter gates fetch" do
+    Onni.ready!(:demo)
+    Onni.variants!(:demo, {control: 10, treatment: 90})
     user = user_class.new(7)
 
-    expect(Onni.adapter).to receive(:gates_for).once.and_call_original
+    expect(Onni.adapter).to receive(:gates_snapshot_for).once.and_call_original
     expect(%i[control treatment]).to include(described_class.variant(:demo, user))
   end
 
   it "reads gate variants when YAML has none, still with one gates fetch" do
     allow(Onni::Registry).to receive(:definition).and_return(
+      "type" => "experiment",
       "description" => "Demo",
       "expires_at" => "2099-01-01"
     )
-    Onni.enable(:demo)
-    Onni.set_variants(:demo, {control: 25, treatment: 75})
+    Onni.ready!(:demo)
+    Onni.variants!(:demo, {control: 25, treatment: 75})
     user = user_class.new(7)
 
-    expect(Onni.adapter).to receive(:gates_for).once.and_call_original
+    expect(Onni.adapter).to receive(:gates_snapshot_for).once.and_call_original
     expect(%i[control treatment]).to include(described_class.variant(:demo, user))
   end
 end

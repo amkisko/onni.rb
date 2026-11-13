@@ -8,7 +8,7 @@ end
 source "amkisko", git: "https://github.com/amkisko/prayers.git", distribution: "prayers"
 
 compose "AGENTS.md" do
-  pray ".agents/project.md"
+  pray "prayers/project.md"
   pray "amkisko/working-rules", "~> 2.7"
   pray "amkisko/security", "~> 1.5"
   pray "amkisko/docs-conventions", "~> 3.7"

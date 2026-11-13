@@ -26,17 +26,17 @@ RSpec.describe Onni::Stats::Sampler do
 
   it "skips when stats are disabled" do
     Onni.configuration.stats_enabled = false
-    expect(described_class.decide(name: "demo", enabled: true)).to eq(:skip)
+    expect(described_class.decide(name: "demo", shown: true)).to eq(:skip)
   end
 
   it "skips ignored feature keys" do
     Onni.configuration.stats_ignore = %w[demo]
-    expect(described_class.decide(name: :demo, enabled: true)).to eq(:skip)
+    expect(described_class.decide(name: :demo, shown: true)).to eq(:skip)
   end
 
   it "records with weight 1 when sample rate is 1.0 without drawing Random" do
     expect(Random).not_to receive(:rand)
-    expect(described_class.decide(name: "demo", enabled: true)).to eq(record: true, weight: 1)
+    expect(described_class.decide(name: "demo", shown: true)).to eq(record: true, weight: 1)
   end
 
   it "clamps sample rates outside 0.0..1.0" do
@@ -54,26 +54,45 @@ RSpec.describe Onni::Stats::Sampler do
     Onni.configuration.stats_sampler = ->(context) {
       (context[:name] == "busy") ? 0.0 : 1.0
     }
-    expect(described_class.decide(name: "busy", enabled: true)).to eq(:skip)
-    expect(described_class.decide(name: "quiet", enabled: true)).to eq(record: true, weight: 1)
+    expect(described_class.decide(name: "busy", shown: true)).to eq(:skip)
+    expect(described_class.decide(name: "quiet", shown: true)).to eq(record: true, weight: 1)
   end
 
-  it "scales weight as the inverse of the sample rate when enabled" do
+  it "provides the shown outcome without a power-state payload" do
+    received = nil
+    Onni.configuration.stats_sampler = ->(context) {
+      received = context
+      1.0
+    }
+    described_class.decide(name: :new_checkout, shown: false)
+    expect(received).to eq(name: "new_checkout", shown: false)
+  end
+
+  it "falls back to the configured rate and still coerces custom rates" do
+    allow(Random).to receive(:rand).and_return(0.01)
+    Onni.configuration.stats_sample_rate = 0.5
+    Onni.configuration.stats_sampler = ->(_context) {}
+    expect(described_class.decide(name: "demo", shown: true)).to eq(record: true, weight: 2)
+    Onni.configuration.stats_sampler = ->(_context) { "0.25" }
+    expect(described_class.decide(name: "demo", shown: true)).to eq(record: true, weight: 4)
+  end
+
+  it "scales weight as the inverse of the sample rate when show" do
     allow(Random).to receive(:rand).and_return(0.05)
     Onni.configuration.stats_sample_rate = 0.1
-    expect(described_class.decide(name: "demo", enabled: true)).to eq(record: true, weight: 10)
+    expect(described_class.decide(name: "demo", shown: true)).to eq(record: true, weight: 10)
   end
 
   it "keeps weight 1 when scaling is disabled" do
     allow(Random).to receive(:rand).and_return(0.05)
     Onni.configuration.stats_sample_rate = 0.1
     Onni.configuration.stats_scale_sampled_hits = false
-    expect(described_class.decide(name: "demo", enabled: true)).to eq(record: true, weight: 1)
+    expect(described_class.decide(name: "demo", shown: true)).to eq(record: true, weight: 1)
   end
 
   it "skips when the random draw falls outside the rate" do
     allow(Random).to receive(:rand).and_return(0.9)
     Onni.configuration.stats_sample_rate = 0.1
-    expect(described_class.decide(name: "demo", enabled: true)).to eq(:skip)
+    expect(described_class.decide(name: "demo", shown: true)).to eq(:skip)
   end
 end

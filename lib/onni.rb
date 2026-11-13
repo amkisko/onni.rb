@@ -11,7 +11,9 @@ require "onni/actor"
 require "onni/group"
 require "onni/conditions"
 require "onni/stats"
+require "onni/settings"
 require "onni/flag"
+require "onni/mutations"
 require "onni/request_store"
 require "onni/store"
 require "onni/adapters/memory"
@@ -21,6 +23,8 @@ require "onni/migrator/importer"
 require "onni/engine" if defined?(Rails::Engine)
 
 module Onni
+  extend Mutations
+
   class << self
     def configuration
       @configuration ||= Configuration.new
@@ -42,69 +46,32 @@ module Onni
       @adapter = nil
     end
 
-    def enabled?(name, actor = nil, record_stats: true)
-      Store.enabled?(name, actor, record_stats: record_stats)
+    def visible?(name, actor = nil, record_stats: true)
+      Store.visible?(name, actor, record_stats: record_stats)
     end
 
-    def disabled?(name, actor = nil, record_stats: true)
-      !enabled?(name, actor, record_stats: record_stats)
+    def ready?(name)
+      Store.power_state(name) == :ready
+    end
+
+    def pending?(name)
+      Store.power_state(name) == :pending
+    end
+
+    def parked?(name)
+      Store.power_state(name) == :parked
     end
 
     def variant(name, actor = nil, record_stats: true)
       Store.variant(name, actor, record_stats: record_stats)
     end
 
-    def enable(name, actor = nil)
-      feature_operation(name, :enable) do |payload|
-        add(name)
-        if actor
-          adapter.add_gate(name, "actors", Actor.id(actor))
-          payload[:actor_id] = Actor.id(actor)
-        else
-          adapter.add_gate(name, "boolean", "true")
-        end
-      end
+    def variants(name)
+      self[name].variants
     end
 
-    def disable(name, actor = nil)
-      feature_operation(name, :disable) do |payload|
-        if actor
-          adapter.remove_gate(name, "actors", Actor.id(actor))
-          payload[:actor_id] = Actor.id(actor)
-        else
-          adapter.clear_gates(name)
-        end
-      end
-    end
-
-    def enable_group(name, group_name)
-      feature_operation(name, :enable_group, group_name: group_name.to_s) do
-        add(name)
-        adapter.add_gate(name, "groups", group_name.to_s)
-      end
-    end
-
-    def disable_group(name, group_name)
-      feature_operation(name, :disable_group, group_name: group_name.to_s) do
-        adapter.remove_gate(name, "groups", group_name.to_s)
-      end
-    end
-
-    def enable_percentage_of_actors(name, percentage)
-      clamped = percentage.to_i.clamp(0, 100)
-      feature_operation(name, :enable_percentage_of_actors, percentage: clamped) do
-        add(name)
-        adapter.remove_gate(name, "percentage_of_actors")
-        adapter.add_gate(name, "percentage_of_actors", clamped.to_s)
-      end
-    end
-
-    def set_variants(name, variants)
-      feature_operation(name, :set_variants) do
-        add(name)
-        adapter.remove_gate(name, "variants")
-        adapter.add_gate(name, "variants", JSON.generate(variants.transform_keys(&:to_s)))
-      end
+    def level(name)
+      self[name].level
     end
 
     def add(name)
@@ -166,6 +133,9 @@ module Onni
 
     def reset_request!
       Stats::Buffer.flush! if configuration.stats_buffer
+    rescue => error
+      Rails.logger.warn("Onni stats flush failed: #{error.class}") if defined?(Rails)
+    ensure
       RequestStore.clear!
     end
 

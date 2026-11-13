@@ -40,50 +40,55 @@ RSpec.describe Onni do
     described_class.configuration.stats_enabled = false
     Onni::Group.clear!
     allow(Onni::Registry).to receive(:require_definition!)
-    allow(Onni::Registry).to receive_messages(known?: true, definition: {"description" => "Demo",
+    allow(Onni::Registry).to receive_messages(known?: true, definition: {"type" => "boolean", "description" => "Demo",
                                                                          "expires_at" => "2099-01-01",
                                                                          "variants" => {"control" => 50, "treatment" => 50}})
   end
 
   it "fails closed for unknown features" do
     allow(Onni::Registry).to receive(:known?).with(:missing).and_return(false)
-    expect(described_class.enabled?(:missing)).to be(false)
+    allow(Onni::Registry).to receive(:definition).with(:missing).and_return(nil)
+    expect(described_class.visible?(:missing)).to be(false)
   end
 
   it "raises when enabling an undefined feature" do
     allow(Onni::Registry).to receive(:require_definition!).and_raise(KeyError)
-    expect { described_class.enable(:missing) }.to raise_error(KeyError)
+    expect { described_class.ready!(:missing) }.to raise_error(KeyError)
   end
 
-  it "enables globally and for an actor" do
+  it "shows globally and for a targeted actor" do
     user = user_class.new(42)
-    expect(described_class.enabled?(:demo, user)).to be(false)
-    described_class.enable(:demo)
-    expect(described_class.enabled?(:demo)).to be(true)
-    described_class.disable(:demo)
-    described_class.enable(:demo, user)
-    expect(described_class.enabled?(:demo, user)).to be(true)
-    expect(described_class.enabled?(:demo, user_class.new(99))).to be(false)
+    expect(described_class.visible?(:demo, user)).to be(false)
+    described_class.ready!(:demo)
+    expect(described_class.visible?(:demo)).to be(true)
+    described_class.park!(:demo)
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "actors")
+    described_class.visible_actor!(:demo, user)
+    expect(described_class.visible?(:demo, user)).to be(true)
+    expect(described_class.visible?(:demo, user_class.new(99))).to be(false)
   end
 
-  it "enables a registered audience group" do
+  it "makes a registered audience group visible" do
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "group")
     described_class.register_group(:beta_testers) { |actor, _| actor.beta_tester? }
-    described_class.enable_group(:demo, :beta_testers)
-    expect(described_class.enabled?(:demo, user_class.new(1, beta_tester: true))).to be(true)
-    expect(described_class.enabled?(:demo, user_class.new(2, beta_tester: false))).to be(false)
+    described_class.visible_group!(:demo, :beta_testers)
+    expect(described_class.visible?(:demo, user_class.new(1, beta_tester: true))).to be(true)
+    expect(described_class.visible?(:demo, user_class.new(2, beta_tester: false))).to be(false)
   end
 
   it "rolls out by percentage of actors" do
-    described_class.enable_percentage_of_actors(:demo, 100)
-    expect(described_class.enabled?(:demo, user_class.new(1))).to be(true)
-    described_class.enable_percentage_of_actors(:demo, 0)
-    expect(described_class.enabled?(:demo, user_class.new(1))).to be(false)
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "percentage")
+    described_class.level!(:demo, 100)
+    expect(described_class.visible?(:demo, user_class.new(1))).to be(true)
+    described_class.level!(:demo, 0)
+    expect(described_class.visible?(:demo, user_class.new(1))).to be(false)
   end
 
-  it "assigns a stable A/B variant when enabled" do
+  it "assigns a stable A/B variant when ready" do
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "experiment")
     user = user_class.new(7)
-    described_class.enable(:demo)
-    described_class.set_variants(:demo, {control: 50, treatment: 50})
+    described_class.ready!(:demo)
+    described_class.variants!(:demo, {control: 50, treatment: 50})
     variant = described_class.variant(:demo, user)
     expect(%i[control treatment]).to include(variant)
     expect(described_class.variant(:demo, user)).to eq(variant)
@@ -91,70 +96,75 @@ RSpec.describe Onni do
 
   it "applies YAML conditions after a gate matches" do
     allow(Onni::Registry).to receive(:definition).and_return(
+      "type" => "boolean",
       "description" => "Demo",
       "expires_at" => "2099-01-01",
       "conditions" => ["beta_tester?"]
     )
-    described_class.enable(:demo)
-    expect(described_class.enabled?(:demo)).to be(true)
-    expect(described_class.enabled?(:demo, user_class.new(1, beta_tester: true))).to be(true)
-    expect(described_class.enabled?(:demo, user_class.new(2, beta_tester: false))).to be(false)
+    described_class.ready!(:demo)
+    expect(described_class.visible?(:demo)).to be(true)
+    expect(described_class.visible?(:demo, user_class.new(1, beta_tester: true))).to be(true)
+    expect(described_class.visible?(:demo, user_class.new(2, beta_tester: false))).to be(false)
   end
 
   it "fails closed when expires_at is in the past" do
     allow(Onni::Registry).to receive(:definition).and_return(
+      "type" => "boolean",
       "description" => "Demo",
       "expires_at" => "2000-01-01"
     )
-    described_class.enable(:demo)
-    expect(described_class.enabled?(:demo)).to be(false)
-    expect(described_class.enabled?(:demo, user_class.new(1))).to be(false)
+    described_class.ready!(:demo)
+    expect(described_class.visible?(:demo)).to be(false)
+    expect(described_class.visible?(:demo, user_class.new(1))).to be(false)
   end
 
   it "fails closed when expires_at cannot be parsed" do
     allow(Onni::Registry).to receive(:definition).and_return(
+      "type" => "boolean",
       "description" => "Demo",
       "expires_at" => "not-a-date"
     )
-    described_class.enable(:demo)
-    expect(described_class.enabled?(:demo)).to be(false)
+    described_class.ready!(:demo)
+    expect(described_class.visible?(:demo)).to be(false)
   end
 
-  it "disables a registered audience group" do
+  it "drops a registered audience group visible" do
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "group")
     described_class.register_group(:beta_testers) { |actor, _| actor.beta_tester? }
-    described_class.enable_group(:demo, :beta_testers)
-    described_class.disable_group(:demo, :beta_testers)
-    expect(described_class.enabled?(:demo, user_class.new(1, beta_tester: true))).to be(false)
+    described_class.visible_group!(:demo, :beta_testers)
+    described_class.drop_group!(:demo, :beta_testers)
+    expect(described_class.visible?(:demo, user_class.new(1, beta_tester: true))).to be(false)
   end
 
   it "clamps percentage rollout to 0..100" do
-    described_class.enable_percentage_of_actors(:demo, 250)
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "percentage")
+    described_class.level!(:demo, 250)
     expect(described_class.adapter.gates_for("demo")).to include(
       hash_including("key" => "percentage_of_actors", "value" => "100")
     )
-    described_class.enable_percentage_of_actors(:demo, -5)
+    described_class.level!(:demo, -5)
     expect(described_class.adapter.gates_for("demo")).to include(
       hash_including("key" => "percentage_of_actors", "value" => "0")
     )
   end
 
-  it "records enabled and disabled hit stats" do
+  it "records shown evaluations and omits hard-off misses" do
     described_class.configuration.stats_enabled = true
     described_class.configuration.stats_sample_rate = 1.0
-    described_class.enable(:demo)
-    described_class.enabled?(:demo)
-    described_class.disable(:demo)
-    described_class.enabled?(:demo)
+    described_class.ready!(:demo)
+    described_class.visible?(:demo)
+    described_class.park!(:demo)
+    described_class.visible?(:demo)
     stats = Onni::Stats.for(:demo)
-    expect(stats.sum { |bucket| bucket["enabled_hits"] }).to eq(1)
-    expect(stats.sum { |bucket| bucket["disabled_hits"] }).to eq(1)
+    expect(stats.sum { |bucket| bucket["shown_count"] }).to eq(1)
+    expect(stats.sum { |bucket| bucket["skip_count"] }).to eq(0)
   end
 
   it "skips hit stats when record_stats is false" do
     described_class.configuration.stats_enabled = true
     described_class.configuration.stats_sample_rate = 1.0
-    described_class.enable(:demo)
-    described_class.enabled?(:demo, record_stats: false)
+    described_class.ready!(:demo)
+    described_class.visible?(:demo, record_stats: false)
     expect(Onni::Stats.for(:demo)).to eq([])
   end
 
@@ -162,11 +172,11 @@ RSpec.describe Onni do
     cache = ActiveSupport::Cache::MemoryStore.new
     described_class.configuration.cache = cache
     described_class.configuration.cache_ttl = 60
-    described_class.enable(:demo)
-    expect(described_class.enabled?(:demo)).to be(true)
+    described_class.ready!(:demo)
+    expect(described_class.visible?(:demo)).to be(true)
 
     described_class.adapter = Onni::Adapters::Memory.new
-    expect(described_class.enabled?(:demo)).to be(false)
+    expect(described_class.visible?(:demo)).to be(false)
   end
 
   it "marks a YAML-known flag as existing without adapter rows" do
@@ -175,24 +185,19 @@ RSpec.describe Onni do
     expect(described_class.exist?(:demo)).to be(false)
   end
 
-  it "reports disabled? as the inverse of enabled?" do
-    expect(described_class.disabled?(:demo)).to be(true)
-    described_class.enable(:demo)
-    expect(described_class.disabled?(:demo)).to be(false)
-  end
-
   it "removes a single actor gate when disabling for that actor" do
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "actors")
     user = user_class.new(42)
     other = user_class.new(99)
-    described_class.enable(:demo, user)
-    described_class.enable(:demo, other)
-    described_class.disable(:demo, user)
-    expect(described_class.enabled?(:demo, user)).to be(false)
-    expect(described_class.enabled?(:demo, other)).to be(true)
+    described_class.visible_actor!(:demo, user)
+    described_class.visible_actor!(:demo, other)
+    described_class.drop_actor!(:demo, user)
+    expect(described_class.visible?(:demo, user)).to be(false)
+    expect(described_class.visible?(:demo, other)).to be(true)
   end
 
   it "lists Flag objects for adapter feature keys" do
-    described_class.enable(:demo)
+    described_class.ready!(:demo)
     flags = described_class.features
     expect(flags.map(&:name)).to include("demo")
     expect(flags.first).to be_a(Onni::Flag)
@@ -229,11 +234,12 @@ RSpec.describe Onni do
       raise ArgumentError, "bad deadline"
     end
     allow(Onni::Registry).to receive(:definition).and_return(
+      "type" => "boolean",
       "description" => "Demo",
       "expires_at" => "2099-01-01",
       "expires_at_time" => bad_deadline
     )
-    described_class.enable(:demo)
-    expect(described_class.enabled?(:demo)).to be(false)
+    described_class.ready!(:demo)
+    expect(described_class.visible?(:demo)).to be(false)
   end
 end

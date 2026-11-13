@@ -54,7 +54,9 @@ jobs:
           bundler-cache: true
 
       - name: Run tests
-        run: bundle exec polyrun parallel-rspec --workers 5 --merge-failures
+        run: |
+          make admin-assets
+          bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 
   coverage:
     runs-on: ubuntu-latest
@@ -69,7 +71,9 @@ jobs:
         with:
           ruby-version: "3.4"
           bundler-cache: true
-      - run: POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
+      - run: |
+          make admin-assets
+          POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
       - name: Report coverage for Sonar/Codecov
         run: |
           test -f coverage/merged.json

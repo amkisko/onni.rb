@@ -24,46 +24,62 @@ RSpec.describe "Onni ActiveRecord adapter integration", type: :request do
     expect(Onni::Feature.where(key: "search_v2")).to exist
   end
 
+  it "persists parked power separately from pending across adapter replacement" do
+    Onni::Registry.config.fetch("search_v2")["level"] = 25
+    expect(Onni.pending?(:search_v2)).to be(true)
+    Onni.level!(:search_v2, 0)
+    expect(Onni.ready?(:search_v2)).to be(true)
+    Onni.park!(:search_v2)
+    Onni.reset_adapter!
+    Onni.reset_request!
+    expect(Onni.parked?(:search_v2)).to be(true)
+    expect(Onni[:search_v2].power_state).to eq(:parked)
+    Onni.clear!(:search_v2)
+    Onni.reset_adapter!
+    expect(Onni.pending?(:search_v2)).to be(true)
+    expect(Onni.level(:search_v2)).to eq(25)
+  end
+
   it "stores actor and percentage gates and evaluates them" do
     user = user_class.new(7)
     other = user_class.new(8)
 
-    Onni.enable(:demo, user)
-    expect(Onni.enabled?(:demo, user)).to be(true)
-    expect(Onni.enabled?(:demo, other)).to be(false)
+    Onni.visible_actor!(:selected, user)
+    expect(Onni.visible?(:selected, user)).to be(true)
+    expect(Onni.visible?(:selected, other)).to be(false)
 
-    Onni.enable_percentage_of_actors(:search_v2, 100)
-    expect(Onni.enabled?(:search_v2, user)).to be(true)
+    Onni.level!(:search_v2, 100)
+    expect(Onni.visible?(:search_v2, user)).to be(true)
   end
 
   it "records hit stats into ActiveRecord buckets" do
-    Onni.enable(:demo)
-    Onni.enabled?(:demo)
-    Onni.disable(:demo)
-    Onni.enabled?(:demo)
+    Onni.ready!(:demo)
+    Onni.visible?(:demo)
+    Onni.park!(:demo)
+    Onni.visible?(:demo)
 
     stats = Onni::Stats.for(:demo)
-    expect(stats.sum { |bucket| bucket["enabled_hits"] }).to eq(1)
-    expect(stats.sum { |bucket| bucket["disabled_hits"] }).to eq(1)
+    expect(stats.sum { |bucket| bucket["shown_count"] }).to eq(1)
+    expect(stats.sum { |bucket| bucket["skip_count"] }).to eq(0)
   end
 
   it "increments an existing hour bucket on later hits" do
     adapter = Onni::Adapters::ActiveRecord.new
-    adapter.record_stat("demo", enabled: true)
-    adapter.record_stat("demo", enabled: true)
-    adapter.record_stat("demo", enabled: false)
+    adapter.record_stat("demo", shown: true)
+    adapter.record_stat("demo", shown: true)
+    adapter.record_stat("demo", shown: false)
 
     bucket = Onni::StatBucket.find_by!(feature_key: "demo")
-    expect(bucket.enabled_hits).to eq(2)
-    expect(bucket.disabled_hits).to eq(1)
+    expect(bucket.shown_count).to eq(2)
+    expect(bucket.skip_count).to eq(1)
   end
 
   it "applies sample weight on upsert" do
     adapter = Onni::Adapters::ActiveRecord.new
-    adapter.record_stat("demo", enabled: true, weight: 10)
-    adapter.record_stat("demo", enabled: true, weight: 10)
+    adapter.record_stat("demo", shown: true, weight: 10)
+    adapter.record_stat("demo", shown: true, weight: 10)
 
-    expect(Onni::StatBucket.find_by!(feature_key: "demo").enabled_hits).to eq(20)
+    expect(Onni::StatBucket.find_by!(feature_key: "demo").shown_count).to eq(20)
   end
 
   it "lists feature keys from feature rows and gate-only keys" do

@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "onni/adapters/memory/statistics"
+
 module Onni
   module Adapters
     class Memory
+      include Statistics
+
       EMPTY_GATES = [].freeze
 
       def initialize(lock: Sync.new_lock)
@@ -40,6 +44,10 @@ module Onni
         @lock.synchronize { gates_for_unlocked(key.to_s) }
       end
 
+      def gates_snapshot_for(key)
+        @lock.synchronize { @gates.fetch(key.to_s, EMPTY_GATES) }
+      end
+
       def gates_for_many(keys)
         @lock.synchronize do
           keys.each_with_object({}) do |key, loaded|
@@ -49,14 +57,24 @@ module Onni
       end
 
       def replace_gates(key, gates)
-        @lock.synchronize { @gates[key.to_s] = gates.map { |gate| stringify(gate) } }
+        @lock.synchronize { @gates[key.to_s] = freeze_gates(gates) }
+      end
+
+      def update_gates(key)
+        @lock.synchronize do
+          gates = gates_for_unlocked(key.to_s)
+          gates = gates.dup if gates.frozen?
+          yield gates
+          @gates[key.to_s] = freeze_gates(gates)
+        end
       end
 
       def add_gate(key, gate_key, value)
         @lock.synchronize do
-          list = (@gates[key.to_s] ||= [])
+          list = @gates.fetch(key.to_s, EMPTY_GATES).dup
           entry = {"key" => gate_key.to_s, "value" => value.to_s}
           list << entry unless list.any? { |gate| gate["key"] == entry["key"] && gate["value"] == entry["value"] }
+          @gates[key.to_s] = freeze_gates(list)
         end
       end
 
@@ -65,79 +83,14 @@ module Onni
           list = @gates[key.to_s]
           next if list.nil?
 
-          list.reject! do |gate|
+          @gates[key.to_s] = list.reject do |gate|
             gate["key"] == gate_key.to_s && (value.nil? || gate["value"] == value.to_s)
-          end
+          end.freeze
         end
       end
 
       def clear_gates(key)
-        @lock.synchronize { @gates[key.to_s] = [] }
-      end
-
-      def record_stat(key, enabled:, weight: 1)
-        weight = weight.to_i.clamp(1, Stats::Sampler::MAX_WEIGHT)
-        @lock.synchronize do
-          bucket = (@stats[stat_bucket_key(key)] ||= {enabled: 0, disabled: 0})
-          bucket[enabled ? :enabled : :disabled] += weight
-        end
-      end
-
-      def record_stats_batch(buckets)
-        @lock.synchronize do
-          buckets.each do |feature_key, counts|
-            bucket = (@stats[stat_bucket_key(feature_key)] ||= {enabled: 0, disabled: 0})
-            bucket[:enabled] += counts[:enabled].to_i
-            bucket[:disabled] += counts[:disabled].to_i
-          end
-        end
-        buckets.size
-      end
-
-      def stats_for(key, period: "hour", from: 24.hours.ago, to: Time.current)
-        @lock.synchronize do
-          @stats.filter_map do |bucket_key, counts|
-            feature_key, period_start = bucket_key.split("|", 2)
-            next unless feature_key == key.to_s
-
-            started = Time.parse("#{period_start} UTC")
-            next unless started.between?(from, to)
-
-            {
-              "period_start" => started,
-              "period" => period,
-              "enabled_hits" => counts[:enabled],
-              "disabled_hits" => counts[:disabled]
-            }
-          end
-        end
-      end
-
-      def purge_stats_batch(older_than:, batch_size:, after_id: 0)
-        @lock.synchronize do
-          matching = @stats.keys.select { |bucket_key|
-            _feature_key, period_start = bucket_key.split("|", 2)
-            Time.parse("#{period_start} UTC") < older_than
-          }.sort
-          slice = matching.first(batch_size)
-          slice.each { |bucket_key| @stats.delete(bucket_key) }
-          return {deleted: 0, last_id: nil} if slice.empty?
-
-          {deleted: slice.size, last_id: (slice.size == batch_size) ? (after_id + slice.size) : nil}
-        end
-      end
-
-      def stats_overview
-        @lock.synchronize do
-          starts = @stats.keys.filter_map { |bucket_key|
-            _feature_key, period_start = bucket_key.split("|", 2)
-            Time.parse("#{period_start} UTC")
-          }
-          {
-            bucket_count: @stats.size,
-            oldest_period_start: starts.min
-          }
-        end
+        @lock.synchronize { @gates[key.to_s] = EMPTY_GATES }
       end
 
       private
@@ -146,15 +99,18 @@ module Onni
         list = @gates[key]
         return EMPTY_GATES if list.nil? || list.empty?
 
-        list.map(&:dup)
+        list.map { |gate| {"key" => gate["key"].dup, "value" => gate["value"].dup} }
       end
 
-      def stringify(gate)
-        {"key" => gate[:key] || gate["key"], "value" => (gate[:value] || gate["value"]).to_s}
-      end
-
-      def stat_bucket_key(key)
-        "#{key}|#{Time.now.utc.strftime("%Y-%m-%dT%H:00:00")}"
+      def freeze_gates(gates)
+        gates.map do |gate|
+          key = (gate[:key] || gate["key"]).to_s
+          value = (gate[:value] || gate["value"]).to_s
+          {
+            "key" => key.frozen? ? key : key.dup.freeze,
+            "value" => value.frozen? ? value : value.dup.freeze
+          }.freeze
+        end.freeze
       end
     end
   end

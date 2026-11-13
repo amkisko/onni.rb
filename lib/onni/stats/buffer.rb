@@ -6,12 +6,11 @@ module Onni
     module Buffer
       module_function
 
-      def add(name, enabled:, weight:)
-        buckets = RequestStore.stats_buffer || {}
+      def add(name, shown:, weight:)
+        buckets = RequestStore.stats_buffer ||= {}
         key = name.to_s
-        bucket = (buckets[key] ||= {enabled: 0, disabled: 0})
-        bucket[enabled ? :enabled : :disabled] += weight.to_i
-        RequestStore.stats_buffer = buckets
+        bucket = (buckets[key] ||= {shown_count: 0, skip_count: 0})
+        bucket[shown ? :shown_count : :skip_count] += weight.to_i
       end
 
       def flush!
@@ -24,8 +23,8 @@ module Onni
           adapter.record_stats_batch(buckets)
         else
           buckets.each do |feature_key, counts|
-            adapter.record_stat(feature_key, enabled: true, weight: counts[:enabled]) if counts[:enabled].positive?
-            adapter.record_stat(feature_key, enabled: false, weight: counts[:disabled]) if counts[:disabled].positive?
+            adapter.record_stat(feature_key, shown: true, weight: counts[:shown_count]) if counts[:shown_count].positive?
+            adapter.record_stat(feature_key, shown: false, weight: counts[:skip_count]) if counts[:skip_count].positive?
           end
         end
         buckets.size

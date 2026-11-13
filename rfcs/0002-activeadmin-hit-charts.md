@@ -1,11 +1,15 @@
 # RFC 0002: ActiveAdmin hit charts
 
 - Type: Standards Track
-- Status: Draft
+- Status: Superseded
 - Created: 2026-11-12
 - Author: Codex
 
 ## Summary
+
+RFC-0003 supersedes the vocabulary and customization fields below with
+visible? evaluation, VisibilityChart, and shown_count/skip_count. This earlier design
+remains a historical record of the original chart surface.
 
 Add an included enabled/disabled evaluation chart to each ActiveAdmin Features
 detail page, with bounded history windows and a replaceable chart partial.

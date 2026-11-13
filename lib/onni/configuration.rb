@@ -19,7 +19,7 @@ module Onni
       @cache_ttl = 15 * 60
       @stats_enabled = true
       @stats_sample_rate = 1.0
-      # Optional callable `{name:, enabled:} -> rate|bool|nil` (nil falls back to stats_sample_rate).
+      # Optional callable `{name:, shown:} -> rate|bool|nil` (nil falls back to stats_sample_rate).
       @stats_sampler = nil
       # Feature keys that never write hit buckets.
       @stats_ignore = []

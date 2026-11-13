@@ -5,17 +5,25 @@
 Do not edit managed blocks in `AGENTS.md` or provisioned files under `.agents/`.
 To change shared guidance, update `Prayfile` and run `pray install`.
 
-<!-- pray:ae5d334a -->
+<!-- pray:40c79f7d -->
 # Project
 
-onni: feature flags, gradual rollout, A/B variants, audience groups, and hit stats for any Ruby app, with first-class pluggable ActiveAdmin support.
+Onni provides typed feature flags, gradual rollout, experiments, audience groups,
+and evaluation statistics for Ruby apps, with pluggable ActiveAdmin support.
 
-Onni is for experiments, rollouts, variants, and analysis — not authorization or access control. Keep privileged actions behind a real policy layer.
+Use ready!/park! for runtime power and ready?/pending?/parked? for its states.
+Use visible? for actor visibility, visible_*/drop_* for audience slices, and
+level!/level for the percentage dial. Stats use shown_count/skip_count and
+shown_share. The v1 API has no enable/disable or transitional show/skip aliases.
 
-Do not put private product or host-specific feature names in public docs or examples; use generic placeholders (`new_checkout`, `search_v2`, `beta_testers`).
+Onni is for experiments and rollout visibility, not authorization. Keep
+privileged actions behind the host's policy layer.
 
-Default branch is `main`. Repository: https://github.com/amkisko/onni.rb
-<!-- pray:ae5d334a -->
+Use generic public feature names such as new_checkout, search_v2, and beta_testers.
+Do not put private product or host-specific names in public documentation.
+
+Default branch: main. Repository: https://github.com/amkisko/onni.rb
+<!-- pray:40c79f7d -->
 
 <!-- pray:9068e4a2 -->
 - when fixing or refactoring code, add or update tests first to expose the current bug/regression path (or missing contract), then implement the fix, then run focused and broader checks, and do not ship behavior changes without proving before/after via specs;

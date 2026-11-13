@@ -43,4 +43,10 @@ RSpec.describe Onni::Conditions do
     definition = {"conditions" => ["not_a_real_check"]}
     expect(described_class.met?(:demo, user_class.new(beta_tester: true), definition: definition)).to be(false)
   end
+
+  it "retains scalar predicate handling and rejects false as a condition" do
+    actor = user_class.new(beta_tester: true)
+    expect(described_class.met?(:demo, actor, definition: {"conditions" => "beta_tester?"})).to be(true)
+    expect(described_class.met?(:demo, actor, definition: {"conditions" => false})).to be(false)
+  end
 end

@@ -17,6 +17,16 @@ RSpec.describe Onni::Actor do
     end
   end
 
+  it "assigns relative weights and never selects a zero-weight variant" do
+    choices = 100.times.map do |index|
+      actor = Struct.new(:id).new(index)
+      described_class.variant_for(actor, "search_v2", "control" => 1, "treatment" => 1, "unused" => 0)
+    end
+    expect(choices).to include(:control, :treatment)
+    expect(choices).not_to include(:unused)
+    expect(choices.count(:control)).to be_between(30, 70)
+  end
+
   it "builds a stable actor id from class and id" do
     expect(described_class.id(user_class.new(42))).to eq("User;42")
   end
@@ -42,8 +52,8 @@ RSpec.describe Onni::Actor do
     expect(%i[control treatment]).to include(first)
   end
 
-  it "falls back to the last variant when weights do not cover the score" do
+  it "returns no assignment when every weight is zero" do
     user = user_class.new(7)
-    expect(described_class.variant_for(user, "demo", {"control" => 0, "treatment" => 0})).to eq(:treatment)
+    expect(described_class.variant_for(user, "demo", {"control" => 0, "treatment" => 0})).to be_nil
   end
 end

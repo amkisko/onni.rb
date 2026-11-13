@@ -2,8 +2,30 @@
 # new_checkout:
 #   expires_at: "2027-01-01"
 #   description: "Checkout redesign experiment"
+#
+# Omitting type defaults to group with an empty audience.
+#
+# Do not use Onni flags as authorization. Keep access control in your policy layer.
+#
+# search_v2:
+#   type: percentage
+#   level: 0
+#
+# beta_search:
+#   type: group
+#   groups: [beta_testers]
+#
+# selected_audience:
+#   type: actors
+#   actors: []
+#
+# simple_feature:
+#   type: boolean
+#
+# checkout_experiment:
+#   type: experiment
 #   variants:
 #     control: 50
 #     treatment: 50
 #
-# Do not use Onni flags as authorization. Keep access control in your policy layer.
+# YAML defaults apply only after Onni.ready!; Onni.park! clears overrides and power.

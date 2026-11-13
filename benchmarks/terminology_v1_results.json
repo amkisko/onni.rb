@@ -1,0 +1,1171 @@
+{
+  "episode": "ready-park-visible-terminology-v1",
+  "assembled_at": "2026-11-13T09:43:48Z",
+  "revision": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+  "working_tree": "includes uncommitted prior implementation and pressure optimizations; source digests identify measured bytes",
+  "scope": "five contract-adoption iterations; regression verification against earlier accepted pressure limits, no new optimization-cooker or ceiling proposal",
+  "source_digest": "621bd1a06029e34d367b6aa88dd3bea93b68504b84d17def17f80c8a260ce811",
+  "machine_class": "arm64-darwin24/Ruby 4.0.2",
+  "memory": "process_lifetime",
+  "energy_proxy": "cpu_s",
+  "network": "not_in_scope",
+  "calibration": {
+    "mode": "calibrate",
+    "started_at": "2026-11-13T09:12:55Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "calibrate",
+    "count": 1,
+    "samples": 5,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "ecabc4c4ecd4d15f027770149e79cbd480d17736e33fcc66a64156c6b799f967",
+    "revision": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+    "calibration": [
+      {
+        "wall_s": 0.11429299996234477,
+        "cpu_s": 0.005510000000000015,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.001264000020455569,
+          "evaluate": 0.003765000030398369,
+          "record": 0.007517000020015985
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 73531392
+      },
+      {
+        "wall_s": 0.11479899997357279,
+        "cpu_s": 0.005500000000000005,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.0012630000128410757,
+          "evaluate": 0.003765000030398369,
+          "record": 0.007518999977037311
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 73809920
+      },
+      {
+        "wall_s": 0.115302000020165,
+        "cpu_s": 0.005793999999999994,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.0012659999774768949,
+          "evaluate": 0.003759999992325902,
+          "record": 0.007516000012401491
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 74547200
+      },
+      {
+        "wall_s": 0.11551500001223758,
+        "cpu_s": 0.005610999999999977,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.0012679999927058816,
+          "evaluate": 0.0037640000227838755,
+          "record": 0.007516000012401491
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 74383360
+      },
+      {
+        "wall_s": 0.11427000002004206,
+        "cpu_s": 0.0063770000000000215,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.001269000000320375,
+          "evaluate": 0.003764999972190708,
+          "record": 0.0075190000352449715
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 73859072
+      }
+    ],
+    "finished_at": "2026-11-13T09:12:57Z"
+  },
+  "baseline": {
+    "mode": "measure",
+    "started_at": "2026-11-13T09:12:58Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "all",
+    "count": 100000,
+    "samples": 5,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "ecabc4c4ecd4d15f027770149e79cbd480d17736e33fcc66a64156c6b799f967",
+    "revision": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+    "source_digests": {
+      "after": "625d4165f2b5ded12ce726e9ff73f49bb77c81d5017f607d6b04e06f5c7577cd"
+    },
+    "raw": {
+      "after": [
+        {
+          "wall_s": 1.4302659999812022,
+          "cpu_s": 1.42581,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.0001140000531449914,
+            "actor": 0.00024700001813471317,
+            "percentage": 0.00019099999917671084,
+            "group": 0.00018100003944709897,
+            "variant": 0.0002959999837912619,
+            "conditions": 0.0001640000264160335,
+            "stats": 0.00006399996345862746
+          },
+          "peak_rss_bytes": 41156608
+        },
+        {
+          "wall_s": 1.4268559999763966,
+          "cpu_s": 1.423314,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.0001230000052601099,
+            "actor": 0.0002429999876767397,
+            "percentage": 0.0001889999839477241,
+            "group": 0.00021899997955188155,
+            "variant": 0.0003380000125616789,
+            "conditions": 0.0001419999753125012,
+            "stats": 0.00004299997817724943
+          },
+          "peak_rss_bytes": 41189376
+        },
+        {
+          "wall_s": 1.4121799999848008,
+          "cpu_s": 1.4050090000000002,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00010800000745803118,
+            "actor": 0.00024500000290572643,
+            "percentage": 0.00018999999156221747,
+            "group": 0.00023900001542642713,
+            "variant": 0.00030499999411404133,
+            "conditions": 0.00014600000577047467,
+            "stats": 0.00004499999340623617
+          },
+          "peak_rss_bytes": 41943040
+        },
+        {
+          "wall_s": 1.434521000017412,
+          "cpu_s": 1.427169,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00011899997480213642,
+            "actor": 0.00028600002406165004,
+            "percentage": 0.00021199998445808887,
+            "group": 0.00018999999156221747,
+            "variant": 0.0002899999963119626,
+            "conditions": 0.00013000000035390258,
+            "stats": 0.00004499999340623617
+          },
+          "peak_rss_bytes": 42156032
+        },
+        {
+          "wall_s": 1.4146729999920353,
+          "cpu_s": 1.411152,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00012699997751042247,
+            "actor": 0.0002019999665208161,
+            "percentage": 0.0001610000035725534,
+            "group": 0.0002690000110305846,
+            "variant": 0.00020999996922910213,
+            "conditions": 0.00016600004164502025,
+            "stats": 0.00005600001895800233
+          },
+          "peak_rss_bytes": 41467904
+        }
+      ]
+    },
+    "summary": {
+      "after": {
+        "cpu_s": 1.423314,
+        "wall_s": 1.4268559999763966,
+        "allocated_objects": 4489001,
+        "peak_rss_bytes": 42156032,
+        "store_bytes": 657,
+        "source_bytes": 95580
+      }
+    },
+    "finished_at": "2026-11-13T09:13:06Z"
+  },
+  "paired_comparison": {
+    "mode": "compare",
+    "started_at": "2026-11-13T09:26:50Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "all",
+    "count": 100000,
+    "samples": 5,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "9de41bc2cb0324036008f789e631313c5ae745bca62582d3b30f0c4b82be0bfd",
+    "revision": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+    "source_digests": {
+      "before": "625d4165f2b5ded12ce726e9ff73f49bb77c81d5017f607d6b04e06f5c7577cd",
+      "after": "621bd1a06029e34d367b6aa88dd3bea93b68504b84d17def17f80c8a260ce811"
+    },
+    "raw": {
+      "before": [
+        {
+          "wall_s": 1.410892000014428,
+          "cpu_s": 1.409156,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00024199998006224632,
+            "actor": 0.00020100001711398363,
+            "percentage": 0.00014900002861395478,
+            "group": 0.0002639999729581177,
+            "variant": 0.00022300001000985503,
+            "conditions": 0.00014599994756281376,
+            "stats": 0.000058999983593821526
+          },
+          "peak_rss_bytes": 40615936
+        },
+        {
+          "wall_s": 1.4337459999951534,
+          "cpu_s": 1.424156,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009599997429177165,
+            "actor": 0.00024999998277053237,
+            "percentage": 0.00019500002963468432,
+            "group": 0.0001829999964684248,
+            "variant": 0.0002959999837912619,
+            "conditions": 0.0001479999627918005,
+            "stats": 0.0000439999857917428
+          },
+          "peak_rss_bytes": 40091648
+        },
+        {
+          "wall_s": 1.4051629999885336,
+          "cpu_s": 1.40305,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00010099995415657759,
+            "actor": 0.0002710000262595713,
+            "percentage": 0.0002300000051036477,
+            "group": 0.0001799999736249447,
+            "variant": 0.00029200001154094934,
+            "conditions": 0.00012400001287460327,
+            "stats": 0.00004199997056275606
+          },
+          "peak_rss_bytes": 41992192
+        },
+        {
+          "wall_s": 1.3819640000001527,
+          "cpu_s": 1.380966,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009300000965595245,
+            "actor": 0.00024199998006224632,
+            "percentage": 0.0001889999839477241,
+            "group": 0.000202000024728477,
+            "variant": 0.0003209999995306134,
+            "conditions": 0.0001419999753125012,
+            "stats": 0.00004299997817724943
+          },
+          "peak_rss_bytes": 40763392
+        },
+        {
+          "wall_s": 1.393173000018578,
+          "cpu_s": 1.392557,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 657,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95580,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009099999442696571,
+            "actor": 0.00024800002574920654,
+            "percentage": 0.00019699998665601015,
+            "group": 0.00015899998834356666,
+            "variant": 0.0003019999712705612,
+            "conditions": 0.0001509999856352806,
+            "stats": 0.00005299999611452222
+          },
+          "peak_rss_bytes": 42205184
+        }
+      ],
+      "after": [
+        {
+          "wall_s": 1.3910340000293218,
+          "cpu_s": 1.389878,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009899999713525176,
+            "actor": 0.00024100003065541387,
+            "percentage": 0.0001509999856352806,
+            "group": 0.0001829999964684248,
+            "variant": 0.00027000001864507794,
+            "conditions": 0.00013999996008351445,
+            "stats": 0.00005400000372901559
+          },
+          "peak_rss_bytes": 41336832
+        },
+        {
+          "wall_s": 1.3932820000336505,
+          "cpu_s": 1.3922089999999998,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009699998190626502,
+            "actor": 0.00019300001440569758,
+            "percentage": 0.00022300001000985503,
+            "group": 0.00015700003132224083,
+            "variant": 0.00036200002068653703,
+            "conditions": 0.0001640000264160335,
+            "stats": 0.00004800001624971628
+          },
+          "peak_rss_bytes": 41304064
+        },
+        {
+          "wall_s": 1.4234660000074655,
+          "cpu_s": 1.4223149999999998,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009700004011392593,
+            "actor": 0.0002749999985098839,
+            "percentage": 0.00021299999207258224,
+            "group": 0.00017800001660361886,
+            "variant": 0.0003209999995306134,
+            "conditions": 0.00013499998021870852,
+            "stats": 0.00005099998088553548
+          },
+          "peak_rss_bytes": 41123840
+        },
+        {
+          "wall_s": 1.413475000008475,
+          "cpu_s": 1.412413,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.0001170000177808106,
+            "actor": 0.0002870000316761434,
+            "percentage": 0.00016500003403052688,
+            "group": 0.00018199998885393143,
+            "variant": 0.00030499999411404133,
+            "conditions": 0.0001479999627918005,
+            "stats": 0.00004700000863522291
+          },
+          "peak_rss_bytes": 41893888
+        },
+        {
+          "wall_s": 1.3637929999968037,
+          "cpu_s": 1.3630229999999999,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00010199996177107096,
+            "actor": 0.00024500000290572643,
+            "percentage": 0.00013699999544769526,
+            "group": 0.00017900002421811223,
+            "variant": 0.00030399998649954796,
+            "conditions": 0.00013399997260421515,
+            "stats": 0.00005099998088553548
+          },
+          "peak_rss_bytes": 40763392
+        }
+      ]
+    },
+    "summary": {
+      "before": {
+        "cpu_s": 1.40305,
+        "wall_s": 1.4051629999885336,
+        "allocated_objects": 4489001,
+        "peak_rss_bytes": 42205184,
+        "store_bytes": 657,
+        "source_bytes": 95580
+      },
+      "after": {
+        "cpu_s": 1.3922089999999998,
+        "wall_s": 1.3932820000336505,
+        "allocated_objects": 4489001,
+        "peak_rss_bytes": 41893888,
+        "store_bytes": 664,
+        "source_bytes": 94675
+      }
+    },
+    "ratios": {
+      "cpu_s": 0.9922732618224581,
+      "wall_s": 0.9915447532030235,
+      "allocated_objects": 1.0,
+      "peak_rss_bytes": 0.9926242236024845,
+      "store_bytes": 1.0106544901065448,
+      "source_bytes": 0.9905314919439213
+    },
+    "primary": "cpu_s",
+    "noise_floor": 0.03,
+    "improved": false,
+    "finished_at": "2026-11-13T09:27:08Z"
+  },
+  "directional_cpu_floor": 0.03,
+  "directional_claim": "no CPU improvement above floor; allocation count unchanged",
+  "ceilings": {
+    "basis": {
+      "cpu_s": "median * 0.85",
+      "wall_s": "median * 0.85",
+      "allocated_objects": "median * 0.85",
+      "peak_rss_bytes": "max * 1.15",
+      "store_bytes": "max * 1.15",
+      "source_bytes": "baseline * 1.05"
+    },
+    "limits": {
+      "cpu_s": 1.5332079,
+      "wall_s": 1.5369011500442866,
+      "allocated_objects": 6875650.85,
+      "peak_rss_bytes": 47989555.199999996,
+      "store_bytes": 755.55,
+      "source_bytes": 98108.85
+    }
+  },
+  "ceilings_changed": false,
+  "independent_gate": {
+    "mode": "gate",
+    "started_at": "2026-11-13T09:27:09Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "all",
+    "count": 100000,
+    "samples": 5,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "9de41bc2cb0324036008f789e631313c5ae745bca62582d3b30f0c4b82be0bfd",
+    "revision": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+    "source_digests": {
+      "after": "621bd1a06029e34d367b6aa88dd3bea93b68504b84d17def17f80c8a260ce811"
+    },
+    "raw": {
+      "after": [
+        {
+          "wall_s": 1.4067109999596141,
+          "cpu_s": 1.405621,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00010000000474974513,
+            "actor": 0.0001449999981559813,
+            "percentage": 0.0002389999572187662,
+            "group": 0.00016799999866634607,
+            "variant": 0.000341000035405159,
+            "conditions": 0.00016299996059387922,
+            "stats": 0.00004600000102072954
+          },
+          "peak_rss_bytes": 41107456
+        },
+        {
+          "wall_s": 1.3762730000307783,
+          "cpu_s": 1.3752980000000001,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009300000965595245,
+            "actor": 0.00015900004655122757,
+            "percentage": 0.0002340000355616212,
+            "group": 0.00017200002912431955,
+            "variant": 0.000341000035405159,
+            "conditions": 0.00016200001118704677,
+            "stats": 0.00004800001624971628
+          },
+          "peak_rss_bytes": 42467328
+        },
+        {
+          "wall_s": 1.3681199999991804,
+          "cpu_s": 1.367411,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009899999713525176,
+            "actor": 0.00016200001118704677,
+            "percentage": 0.00022499996703118086,
+            "group": 0.0002209999947808683,
+            "variant": 0.00029099994571879506,
+            "conditions": 0.0001479999627918005,
+            "stats": 0.00004199997056275606
+          },
+          "peak_rss_bytes": 41402368
+        },
+        {
+          "wall_s": 1.3821370000368915,
+          "cpu_s": 1.381321,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00008999998681247234,
+            "actor": 0.00015999999595806003,
+            "percentage": 0.00022899999748915434,
+            "group": 0.00015699997311457992,
+            "variant": 0.0002959999837912619,
+            "conditions": 0.00015899998834356666,
+            "stats": 0.0000439999857917428
+          },
+          "peak_rss_bytes": 41205760
+        },
+        {
+          "wall_s": 1.3900230000144802,
+          "cpu_s": 1.389461,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 94675,
+          "stage_batch_p95_s": {
+            "boolean": 0.00011199997970834374,
+            "actor": 0.00027000001864507794,
+            "percentage": 0.00021499994909390807,
+            "group": 0.0001800000318326056,
+            "variant": 0.00029499997617676854,
+            "conditions": 0.0001480000209994614,
+            "stats": 0.00005400000372901559
+          },
+          "peak_rss_bytes": 40173568
+        }
+      ]
+    },
+    "summary": {
+      "after": {
+        "cpu_s": 1.381321,
+        "wall_s": 1.3821370000368915,
+        "allocated_objects": 4489001,
+        "peak_rss_bytes": 42467328,
+        "store_bytes": 664,
+        "source_bytes": 94675
+      }
+    },
+    "gates": {
+      "cpu_s": true,
+      "wall_s": true,
+      "allocated_objects": true,
+      "peak_rss_bytes": true,
+      "store_bytes": true,
+      "source_bytes": true
+    },
+    "pass": true,
+    "finished_at": "2026-11-13T09:27:17Z"
+  },
+  "hard_off": {
+    "stats_enabled": true,
+    "parked": {
+      "mode": "measure",
+      "started_at": "2026-11-13T09:34:26Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "parked",
+      "count": 100000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "70138dc689bd62d2305b68e8481d50c92d827f0f03ee310b1328941df41012ba",
+      "revision": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+      "source_digests": {
+        "after": "621bd1a06029e34d367b6aa88dd3bea93b68504b84d17def17f80c8a260ce811"
+      },
+      "raw": {
+        "after": [
+          {
+            "wall_s": 0.05891399999381974,
+            "cpu_s": 0.058848999999999985,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00010599999222904444,
+              "actor": 0.00018900004215538502,
+              "percentage": 0.0002080000122077763,
+              "group": 0.00010600005043670535,
+              "variant": 0.00031700002728030086,
+              "conditions": 0.00018500001169741154,
+              "stats": 0.00004199997056275606
+            },
+            "peak_rss_bytes": 41222144
+          },
+          {
+            "wall_s": 0.060326000035274774,
+            "cpu_s": 0.06023600000000001,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00010900001507252455,
+              "actor": 0.00019699998665601015,
+              "percentage": 0.00015700003132224083,
+              "group": 0.00010699999984353781,
+              "variant": 0.0003090000245720148,
+              "conditions": 0.00014299998292699456,
+              "stats": 0.00005199998850002885
+            },
+            "peak_rss_bytes": 42500096
+          },
+          {
+            "wall_s": 0.061797000002115965,
+            "cpu_s": 0.06171899999999997,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00010699999984353781,
+              "actor": 0.00015900004655122757,
+              "percentage": 0.00016500003403052688,
+              "group": 0.0001039999770000577,
+              "variant": 0.0002680000034160912,
+              "conditions": 0.00015600002370774746,
+              "stats": 0.0000850000069476664
+            },
+            "peak_rss_bytes": 41746432
+          },
+          {
+            "wall_s": 0.0604639999801293,
+            "cpu_s": 0.06032399999999999,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00009000004502013326,
+              "actor": 0.00015300000086426735,
+              "percentage": 0.00015400000847876072,
+              "group": 0.00010200001997873187,
+              "variant": 0.0003029999788850546,
+              "conditions": 0.00014700001338496804,
+              "stats": 0.0000439999857917428
+            },
+            "peak_rss_bytes": 41992192
+          },
+          {
+            "wall_s": 0.05878100002883002,
+            "cpu_s": 0.058645999999999976,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00009400001727044582,
+              "actor": 0.00016799999866634607,
+              "percentage": 0.00024100003065541387,
+              "group": 0.00010300002759322524,
+              "variant": 0.00028899998869746923,
+              "conditions": 0.0001669999910518527,
+              "stats": 0.00009699998190626502
+            },
+            "peak_rss_bytes": 41598976
+          }
+        ]
+      },
+      "summary": {
+        "after": {
+          "cpu_s": 0.06023600000000001,
+          "wall_s": 0.060326000035274774,
+          "allocated_objects": 200009,
+          "peak_rss_bytes": 42500096,
+          "store_bytes": 2,
+          "source_bytes": 94675
+        }
+      },
+      "finished_at": "2026-11-13T09:34:28Z"
+    },
+    "pending": {
+      "mode": "measure",
+      "started_at": "2026-11-13T09:34:28Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "pending",
+      "count": 100000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "70138dc689bd62d2305b68e8481d50c92d827f0f03ee310b1328941df41012ba",
+      "revision": "e72b1f9b256e89a05dcb0903afeb1d81feb17fb7",
+      "source_digests": {
+        "after": "621bd1a06029e34d367b6aa88dd3bea93b68504b84d17def17f80c8a260ce811"
+      },
+      "raw": {
+        "after": [
+          {
+            "wall_s": 0.05365000001620501,
+            "cpu_s": 0.05360799999999999,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00009599997429177165,
+              "actor": 0.00020100001711398363,
+              "percentage": 0.00014399999054148793,
+              "group": 0.0000879999715834856,
+              "variant": 0.00027000001864507794,
+              "conditions": 0.00016799999866634607,
+              "stats": 0.00009000004502013326
+            },
+            "peak_rss_bytes": 41533440
+          },
+          {
+            "wall_s": 0.05298999999649823,
+            "cpu_s": 0.05293599999999998,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00008700002217665315,
+              "actor": 0.00017199997091665864,
+              "percentage": 0.00019700004486367106,
+              "group": 0.0000950000248849392,
+              "variant": 0.0003440000000409782,
+              "conditions": 0.00017899996601045132,
+              "stats": 0.000041000021155923605
+            },
+            "peak_rss_bytes": 42090496
+          },
+          {
+            "wall_s": 0.05121500004315749,
+            "cpu_s": 0.051213000000000036,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.00012100004823878407,
+              "actor": 0.00015400000847876072,
+              "percentage": 0.00015400000847876072,
+              "group": 0.00008700002217665315,
+              "variant": 0.0002749999985098839,
+              "conditions": 0.00013800000306218863,
+              "stats": 0.00004600000102072954
+            },
+            "peak_rss_bytes": 41713664
+          },
+          {
+            "wall_s": 0.052687999967020005,
+            "cpu_s": 0.052624000000000004,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.0001010000123642385,
+              "actor": 0.00018199998885393143,
+              "percentage": 0.0001640000264160335,
+              "group": 0.00008800002979114652,
+              "variant": 0.0002769999555312097,
+              "conditions": 0.00013499998021870852,
+              "stats": 0.00004900002386420965
+            },
+            "peak_rss_bytes": 41156608
+          },
+          {
+            "wall_s": 0.05422500002896413,
+            "cpu_s": 0.05418300000000004,
+            "allocated_objects": 200009,
+            "stats_rows": 0,
+            "store_bytes": 2,
+            "cache_accounted_bytes": 0,
+            "source_bytes": 94675,
+            "stage_batch_p95_s": {
+              "boolean": 0.000109999964479357,
+              "actor": 0.00019599997904151678,
+              "percentage": 0.00016200001118704677,
+              "group": 0.00010699999984353781,
+              "variant": 0.000299000006634742,
+              "conditions": 0.00012799998512491584,
+              "stats": 0.000044000043999403715
+            },
+            "peak_rss_bytes": 41828352
+          }
+        ]
+      },
+      "summary": {
+        "after": {
+          "cpu_s": 0.05293599999999998,
+          "wall_s": 0.05298999999649823,
+          "allocated_objects": 200009,
+          "peak_rss_bytes": 42090496,
+          "store_bytes": 2,
+          "source_bytes": 94675
+        }
+      },
+      "finished_at": "2026-11-13T09:34:30Z"
+    }
+  },
+  "stock_gates": {
+    "evaluation": {
+      "samples_per_label": 5,
+      "aggregation": "one wall-median row retained by stock runner",
+      "results": [
+        {
+          "label": "gate_all_features_10000",
+          "ops": 10000,
+          "targets": {
+            "wall_s": 0.208968749975611,
+            "cpu_s": 0.21075500000000003,
+            "heap_delta_bytes": 5358608.75
+          },
+          "pass": true,
+          "metrics": {
+            "wall_s": 0.13954499998362735,
+            "cpu_s": 0.14169700000000002,
+            "heap_delta_bytes": 3700456,
+            "gc": {
+              "count": 6,
+              "allocated_objects": 468614,
+              "heap_live_slots": 147038,
+              "heap_live_delta": 58165,
+              "major_gc_count": 0,
+              "minor_gc_count": 6
+            }
+          }
+        }
+      ]
+    },
+    "sqlite_write": {
+      "samples_per_label": 5,
+      "aggregation": "one wall-median row retained by stock runner",
+      "results": [
+        {
+          "label": "gate_direct_w8_ops200",
+          "ops": 1600,
+          "targets": {
+            "wall_s": 0.3275687499990454,
+            "cpu_s": 0.33230750000000026,
+            "heap_delta_bytes": 14541706.25,
+            "lock_waits": 0,
+            "write_errors": 0
+          },
+          "pass": true,
+          "metrics": {
+            "wall_s": 0.2674869999755174,
+            "cpu_s": 0.27263300000000007,
+            "heap_delta_bytes": 11632255,
+            "gc": {
+              "count": 1,
+              "allocated_objects": 339745,
+              "heap_live_slots": 437222,
+              "heap_live_delta": 132249,
+              "major_gc_count": 0,
+              "minor_gc_count": 1
+            },
+            "lock_waits": 0,
+            "write_errors": 0,
+            "recorded_hits": 1600
+          }
+        }
+      ]
+    }
+  },
+  "package": {
+    "samples": 3,
+    "source_date_epoch": "1794528000",
+    "raw": {
+      "before": [
+        {
+          "bytes": 43008,
+          "sha256": "d928b237d0ab827f5d2d14444f169946e82868fe1584b05411e16f4c1522c05b"
+        },
+        {
+          "bytes": 43008,
+          "sha256": "d928b237d0ab827f5d2d14444f169946e82868fe1584b05411e16f4c1522c05b"
+        },
+        {
+          "bytes": 43008,
+          "sha256": "d928b237d0ab827f5d2d14444f169946e82868fe1584b05411e16f4c1522c05b"
+        }
+      ],
+      "after": [
+        {
+          "bytes": 43520,
+          "sha256": "ec89b00eb71a9e1237f523e16558a83ec4ce0b86beb683597942d8a09dc7dcaf"
+        },
+        {
+          "bytes": 43520,
+          "sha256": "ec89b00eb71a9e1237f523e16558a83ec4ce0b86beb683597942d8a09dc7dcaf"
+        },
+        {
+          "bytes": 43520,
+          "sha256": "ec89b00eb71a9e1237f523e16558a83ec4ce0b86beb683597942d8a09dc7dcaf"
+        }
+      ]
+    },
+    "summary_max_bytes": {
+      "before": 43008,
+      "after": 43520
+    }
+  },
+  "trace": {
+    "fields": {
+      "feature_operation.onni": [
+        "actor_id",
+        "feature_name",
+        "group_name",
+        "level",
+        "operation",
+        "result"
+      ],
+      "stats.record.onni": [
+        "name",
+        "shown",
+        "weight"
+      ],
+      "stats.purge.onni": [
+        "continued",
+        "deleted",
+        "processed_count"
+      ]
+    },
+    "operations": [
+      "clear",
+      "drop_actor",
+      "drop_group",
+      "level",
+      "park",
+      "ready",
+      "variants",
+      "visible_actor",
+      "visible_group"
+    ],
+    "payload_values_saved": false
+  },
+  "visual": {
+    "powerCommands": "passed",
+    "history": "passed",
+    "levelSave": "passed",
+    "groupActions": "passed",
+    "emptyState": "passed",
+    "viewports": [
+      1280,
+      390
+    ],
+    "hostStyles": "not installed in dummy app; rendered unstyled",
+    "redirects": "Rack responses followed inside bridge; native redirect status covered by request specs"
+  },
+  "coverage": {
+    "files": 39,
+    "covered_lines": 1225,
+    "executable_lines": 1258,
+    "fragments": 5
+  },
+  "iterations": [
+    {
+      "stage": "power and visibility",
+      "before": {
+        "examples": 21,
+        "failures": 20
+      },
+      "changes": "explicit three-state power; clear resets; direct v1 API removal"
+    },
+    {
+      "stage": "stats and schema",
+      "changes": "shown fields and payloads; legacy and transitional reversible generators",
+      "failed_attempt": "new generator lacked explicit source_root; corrected"
+    },
+    {
+      "stage": "admin",
+      "before": {
+        "examples": 26,
+        "failures": 19
+      },
+      "changes": "ready/park routes; four scopes; level and visible/drop forms; reserved names; 403 and 404 checks"
+    },
+    {
+      "stage": "consumers and documentation",
+      "changes": "RBS, current docs, benchmark scripts and Prayfile source; preserve historical data",
+      "failed_attempt": "first full run 207 examples/1 failure: stale percentage-event expectation; corrected to level"
+    },
+    {
+      "stage": "final verification",
+      "after": {
+        "examples": 210,
+        "failures": 0
+      },
+      "gates": "native, rotating-actor and SQLite gates pass unchanged limits"
+    }
+  ],
+  "fixture_notes": [
+    "old local shard databases moved aside and rebuilt from current schema",
+    "initial browser attempts exposed redirect interception limitations; bridge follows Rack redirects and request specs cover native statuses",
+    "initial hard-off observations had stats disabled; only repeated stats-enabled measurements retained here"
+  ],
+  "screenshots": [
+    "docs/reviews/assets/20261113091112_ready-park-visible-empty-390.png",
+    "docs/reviews/assets/20261113091112_ready-park-visible-history.png",
+    "docs/reviews/assets/20261113091112_ready-park-visible-index.png",
+    "docs/reviews/assets/20261113091112_ready-park-visible-level-390.png"
+  ],
+  "validation_commands": [
+    {
+      "command": "bundle exec rspec",
+      "observed": "210 examples, 0 failures; seed 50588"
+    },
+    {
+      "command": "RUBOCOP_CACHE_ROOT=tmp/rubocop-cache make lint",
+      "observed": "90 files clean; RBS valid; en locale parity; LOC warnings app/admin/features.rb=206, lib/onni.rb=163"
+    },
+    {
+      "command": "POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures",
+      "observed": "5 workers exit 0; 5 coverage fragments"
+    },
+    {
+      "command": "bundle exec polyrun report-coverage -i coverage/merged.json -o coverage --basename terminology_v1 --format json,cobertura",
+      "observed": "JSON and Cobertura generated"
+    },
+    {
+      "command": "OUT=benchmarks/output/terminology_v1_calibration.json bundle exec ruby benchmarks/pressure_runner.rb calibrate",
+      "observed": "5 isolated calibration samples pass"
+    },
+    {
+      "command": "PROBE=all OUT=benchmarks/output/terminology_v1_before.json bundle exec ruby benchmarks/pressure_runner.rb measure",
+      "observed": "5 baseline samples before source changes"
+    },
+    {
+      "command": "PROBE=all PRIMARY=cpu_s NOISE=0.03 BEFORE=tmp/terminology-v1/before OUT=benchmarks/output/terminology_v1_compare.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+      "observed": "CPU ratio 0.992273; inside 3% directional floor; allocations unchanged"
+    },
+    {
+      "command": "CEILINGS=benchmarks/show_skip_pressure_ceilings.json PROBE=all OUT=benchmarks/output/terminology_v1_gate.json bundle exec ruby benchmarks/pressure_runner.rb gate",
+      "observed": "all six unchanged limits pass"
+    },
+    {
+      "command": "PROBE=parked OUT=benchmarks/output/terminology_v1_parked.json bundle exec ruby benchmarks/pressure_runner.rb measure",
+      "observed": "5 samples with stats enabled; no recorded buckets"
+    },
+    {
+      "command": "PROBE=pending OUT=benchmarks/output/terminology_v1_pending.json bundle exec ruby benchmarks/pressure_runner.rb measure",
+      "observed": "5 samples with stats enabled; no recorded buckets"
+    },
+    {
+      "command": "SCENARIO=calibrate bundle exec ruby benchmarks/load.rb",
+      "observed": "order_ok and distinct_wall true; visible stage"
+    },
+    {
+      "command": "SCENARIO=gate SAMPLES=5 bundle exec ruby benchmarks/load.rb",
+      "observed": "PASS existing rotating-actor limits"
+    },
+    {
+      "command": "env -u DATABASE_URL -u RAILS_MASTER_KEY SCENARIO=calibrate bundle exec ruby benchmarks/stats_write.rb",
+      "observed": "order_ok and distinct_wall true"
+    },
+    {
+      "command": "env -u DATABASE_URL -u RAILS_MASTER_KEY SCENARIO=gate SAMPLES=5 bundle exec ruby benchmarks/stats_write.rb",
+      "observed": "PASS; 1600 counts; 0 lock waits/errors"
+    },
+    {
+      "command": "bundle exec ruby tmp/terminology-v1/trace.rb",
+      "observed": "revised fields and nine operations observed; payload values excluded"
+    },
+    {
+      "command": "bundle exec ruby tmp/terminology-v1/package.rb",
+      "observed": "3 deterministic builds per side; packaged baseline source digest checked"
+    },
+    {
+      "command": "node tmp/terminology-v1/preview.cjs",
+      "observed": "power commands, level save, group changes, history, and empty state pass at 1280/390px; dummy is unstyled; bridge follows redirects"
+    },
+    {
+      "command": "RBENV_VERSION=4.0.8 pray install --offline",
+      "observed": "only local project span installed; locked package graph unchanged"
+    },
+    {
+      "command": "RBENV_VERSION=4.0.8 pray verify",
+      "observed": "exit 0"
+    },
+    {
+      "command": "git diff --check",
+      "observed": "exit 0"
+    },
+    {
+      "command": "git diff --cached --check",
+      "observed": "exit 0"
+    }
+  ],
+  "auxiliary_scripts": {
+    "trace.rb": "require_relative \"../../benchmarks/load\"\nrequire \"active_support/notifications\"\n\nfields = Hash.new { |hash, name| hash[name] = [] }\noperations = []\nsubscriber = ActiveSupport::Notifications.subscribe(/\\.onni\\z/) do |*arguments|\n  event = ActiveSupport::Notifications::Event.new(*arguments)\n  fields[event.name] |= event.payload.keys.map(&:to_s)\n  operations << event.payload[:operation].to_s if event.payload.key?(:operation)\nend\nOnni::Bench::Load.with_registry! do\n  Onni::Bench::Load.prepare_features!\n  Onni.configuration.stats_sample_rate = 1.0\n  actor = Onni::Bench::Load.actor_class.new(0, beta_tester: true)\n  Onni.ready!(:flag_boolean)\n  Onni.park!(:flag_boolean)\n  Onni.clear!(:flag_boolean)\n  Onni.ready!(:flag_boolean)\n  Onni.visible_actor!(:flag_actor, actor)\n  Onni.drop_actor!(:flag_actor, actor)\n  Onni.visible_group!(:flag_group, :staff)\n  Onni.drop_group!(:flag_group, :staff)\n  Onni.level!(:flag_percentage, 0)\n  Onni.variants!(:flag_variant, control: 100)\n  Onni.visible?(:flag_boolean)\n  Onni.visible?(:flag_percentage, actor)\n  Onni.purge_stats!(older_than: Time.now + 3600)\nend\nActiveSupport::Notifications.unsubscribe(subscriber)\nresult = {\"fields\" => fields.transform_values(&:sort), \"operations\" => operations.uniq.sort, \"payload_values_saved\" => false}\nFile.write(\"benchmarks/output/terminology_v1_trace.json\", JSON.pretty_generate(result) + \"\\n\")\nputs JSON.generate(result)\n",
+    "package.rb": "require \"rubygems/package\"\nrequire \"open3\"\nrequire \"fileutils\"\nrequire \"json\"\nrequire \"digest\"\n\nbase = \"tmp/terminology-v1/package_before\"\nFileUtils.mkdir_p(base)\nGem::Package.new(\"tmp/pressure-show-skip/packages/after/onni-0.gem\").extract_files(base)\ndigest = Digest::SHA256.new\nDir[\"#{base}/{lib,app,sig}/**/*\"].select { |path| File.file?(path) }.sort.each do |path|\n  digest << path.delete_prefix(base) << File.binread(path)\nend\nexpected = JSON.parse(File.read(\"benchmarks/output/terminology_v1_compare.json\")).dig(\"source_digests\", \"before\")\nraise \"Packaged baseline does not match the measured baseline\" unless digest.hexdigest == expected\nroot = Dir.pwd\nraw = {\"before\" => base, \"after\" => \".\"}.transform_values do |directory|\n  Array.new(3) do |index|\n    destination = File.join(root, \"tmp/terminology-v1/package-#{directory == \".\" ? \"after\" : \"before\"}-#{index}.gem\")\n    _output, status = Open3.capture2e({\"SOURCE_DATE_EPOCH\" => \"1794528000\"}, \"gem\", \"build\", \"onni.gemspec\", \"--output\", destination, chdir: directory)\n    raise \"Package build failed\" unless status.success?\n    {\"bytes\" => File.size(destination), \"sha256\" => Digest::SHA256.file(destination).hexdigest}\n  end\nend\nresult = {\"samples\" => 3, \"source_date_epoch\" => \"1794528000\", \"raw\" => raw,\n          \"summary_max_bytes\" => raw.transform_values { |rows| rows.map { |row| row.fetch(\"bytes\") }.max }}\nFile.write(\"benchmarks/output/terminology_v1_package.json\", JSON.pretty_generate(result) + \"\\n\")\nputs JSON.generate(result.fetch(\"summary_max_bytes\"))\n",
+    "preview_bridge.rb": "require \"rspec/core\"\nrequire_relative \"../../spec/rails_helper\"\nrequire \"rack/mock\"\nrequire \"json\"\nrequire \"fileutils\"\n\ndirectory = File.join(__dir__, \"preview\")\nFileUtils.mkdir_p(directory)\nActiveRecord::Base.establish_connection(adapter: \"sqlite3\", database: File.join(directory, \"preview.sqlite3\"))\nActiveRecord::Schema.verbose = false\nload \"spec/dummy/db/schema.rb\"\nOnni.reset_adapter!\nOnni.register_group(:beta_testers) { |_actor, _| true }\nOnni.ready!(:demo)\nOnni.park!(:audience)\nOnni.adapter.record_stat(:demo, shown: true, weight: 24)\nOnni.adapter.record_stat(:demo, shown: false, weight: 6)\n$stdout.sync = true\nputs JSON.generate(ready: true)\nwhile (line = $stdin.gets)\n  request = JSON.parse(line)\n  response = Rack::MockRequest.new(Rails.application).request(\n    request.fetch(\"method\"), request.fetch(\"url\"),\n    input: request.fetch(\"body\", \"\"), \"CONTENT_TYPE\" => \"application/x-www-form-urlencoded\",\n    \"HTTP_COOKIE\" => request.fetch(\"cookie\", \"\")\n  )\n  puts JSON.generate(status: response.status, headers: response.headers, body: response.body)\nend\n",
+    "preview.cjs": "const path = require('node:path');\nconst fs = require('node:fs/promises');\nconst readline = require('node:readline');\nconst { spawn } = require('node:child_process');\nconst { chromium } = require(path.join(process.env.HOME, '.npm/_npx/69cf6d85e87fa9bf/node_modules/playwright'));\n\n(async () => {\n  const environment = { ...process.env };\n  delete environment.DATABASE_URL;\n  delete environment.RAILS_MASTER_KEY;\n  const bridge = spawn('bundle', ['exec', 'ruby', 'tmp/terminology-v1/preview_bridge.rb'], { env: environment });\n  bridge.stderr.on('data', () => {});\n  const lines = readline.createInterface({ input: bridge.stdout });\n  const reader = lines[Symbol.asyncIterator]();\n  if (!JSON.parse((await reader.next()).value).ready) throw new Error('Preview boot failed');\n  const browser = await chromium.launch({ headless: true });\n  try {\n    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });\n    const submit = async locator => {\n      await Promise.all([page.waitForNavigation({ waitUntil: 'domcontentloaded' }), locator.click()]);\n    };\n    let queue = Promise.resolve();\n    await page.route('http://onni.rails.fi/**', route => {\n      const task = queue.then(async () => {\n        const request = route.request();\n        bridge.stdin.write(JSON.stringify({ method: request.method(), url: request.url(), body: request.postData() || '', cookie: request.headers().cookie || '' }) + '\\n');\n        let response = JSON.parse((await reader.next()).value);\n        if ([302, 303].includes(response.status)) {\n          bridge.stdin.write(JSON.stringify({ method: 'GET', url: response.headers.location, cookie: request.headers().cookie || '' }) + '\\n');\n          response = JSON.parse((await reader.next()).value);\n        }\n        const headers = Object.fromEntries(Object.entries(response.headers).map(([name, value]) => [name, Array.isArray(value) ? value.join('\\n') : String(value)]));\n        await route.fulfill({ status: response.status, headers, body: response.body });\n      });\n      queue = task.catch(() => {});\n      return task;\n    });\n    const output = path.join(process.cwd(), 'docs/reviews/assets');\n    await fs.mkdir(output, { recursive: true });\n    const row = name => page.locator('tr').filter({ has: page.getByRole('link', { name, exact: true }) });\n    const check = (condition, message) => { if (!condition) throw new Error(message); };\n    await page.goto('http://onni.rails.fi/admin/features');\n    check(await row('demo').getByText('Ready', { exact: true }).count() > 0, 'Ready status missing');\n    check(await row('audience').getByText('Parked', { exact: true }).count() > 0, 'Parked status missing');\n    check(await row('search_v2').getByText('Pending', { exact: true }).count() > 0, 'Pending status missing');\n    await page.screenshot({ path: path.join(output, '20261113091112_ready-park-visible-index.png'), fullPage: true });\n    await submit(row('demo').getByRole('button', { name: 'Park', exact: true }));\n    await page.goto('http://onni.rails.fi/admin/features');\n    check(await row('demo').getByRole('button', { name: 'Ready', exact: true }).count() === 1, 'Park did not persist');\n    await submit(row('demo').getByRole('button', { name: 'Ready', exact: true }));\n    await page.goto('http://onni.rails.fi/admin/features/demo');\n    check((await page.locator('[data-onni-shown-share]').textContent()).trim() === '80.0%', 'Shown share mismatch');\n    await page.getByLabel('History', { exact: true }).selectOption('7d');\n    await submit(page.getByRole('button', { name: 'Show', exact: true }));\n    check(await page.locator('details tbody tr').count() === 7, 'History did not change');\n    await page.locator('summary').click();\n    await page.screenshot({ path: path.join(output, '20261113091112_ready-park-visible-history.png'), fullPage: true });\n    await page.setViewportSize({ width: 390, height: 844 });\n    await page.goto('http://onni.rails.fi/admin/features/search_v2');\n    await page.getByLabel('Level (0-100)', { exact: true }).fill('40');\n    await submit(page.getByRole('button', { name: 'Save', exact: true }));\n    check(await page.getByLabel('Level (0-100)', { exact: true }).inputValue() === '40', 'Level did not persist');\n    await page.screenshot({ path: path.join(output, '20261113091112_ready-park-visible-level-390.png'), fullPage: true });\n    await page.goto('http://onni.rails.fi/admin/features/audience');\n    await page.locator('select[name=\"group_name\"]').selectOption('beta_testers');\n    await page.locator('select[name=\"group_action\"]').selectOption('visible');\n    await submit(page.getByRole('button', { name: 'Save', exact: true }));\n    check(await page.locator('[data-status=\"ready\"]').count() > 0, 'Visible slice did not ready audience');\n    await page.locator('select[name=\"group_name\"]').selectOption('beta_testers');\n    await page.locator('select[name=\"group_action\"]').selectOption('drop');\n    await submit(page.getByRole('button', { name: 'Save', exact: true }));\n    check(await page.locator('[data-status=\"ready\"]').count() > 0, 'Drop changed power');\n    await page.goto('http://onni.rails.fi/admin/features/selected');\n    check((await page.locator('[data-onni-shown-share]').textContent()).trim() === 'No data', 'Empty history missing');\n    await page.screenshot({ path: path.join(output, '20261113091112_ready-park-visible-empty-390.png'), fullPage: true });\n    const report = { powerCommands: 'passed', history: 'passed', levelSave: 'passed', groupActions: 'passed', emptyState: 'passed', viewports: [1280, 390], hostStyles: 'not installed in dummy app; rendered unstyled', redirects: 'Rack responses followed inside bridge; native redirect status covered by request specs' };\n    await fs.writeFile('benchmarks/output/terminology_v1_visual.json', JSON.stringify(report, null, 2) + '\\n');\n    console.log(JSON.stringify(report));\n  } finally {\n    await browser.close();\n    bridge.stdin.end();\n    bridge.kill();\n  }\n})().catch(error => { console.error(error.message); process.exitCode = 1; });\n"
+  },
+  "external_claims": [
+    {
+      "location": "README.md Other ActiveRecord dialects",
+      "claim": "ON CONFLICT SET targets are bare; expressions can reference existing row and excluded",
+      "source": "https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT",
+      "outcome": "supported syntax; PostgreSQL execution not tested"
+    }
+  ]
+}

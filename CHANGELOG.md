@@ -2,10 +2,23 @@
 
 ## Unreleased
 
+- Default YAML flags to group; allow declarations with only description and expiry
+- Separate ready/pending/parked power from `visible?` evaluation with typed YAML defaults
+- Replace power, audience, and dial APIs with ready/park, visible/drop, and level; remove old names
+- Restore pending on `clear!`; retain ready power for soft zero levels
+- Count ready evaluations with `shown_count` / `skip_count`; provide reversible upgrades for both older schemas
+- Use Ready/Park commands and All/Ready/Pending/Parked scopes in ActiveAdmin
+- Name the evaluation chart `VisibilityChart`; use Flags throughout dashboard navigation
+- Reduce evaluation CPU and allocations; load admin flag gates in one query
+- Preserve full buffered counts above the per-evaluation sample-weight limit
+- Keep request results and application errors intact when stats flushing fails
+- Prevent delayed cache fills from restoring stale gates after a local mutation
+- Isolate stored memory gates from caller mutations and aborted updates
+
 - Document concurrent hit-stat write lock pressure and host levers (`stats_buffer`, sample, ignore)
 - Add ActiveRecord stats-write pressure probe (`benchmarks/stats_write.rb`) and L1 direct ceilings
 - Rails `RequestLifecycle` middleware always `reset_request!`; optional `request_preload`
-- ActiveRecord `record_stats_batch` uses one `upsert_all` for multi-flag flush (both hit columns)
+- ActiveRecord `record_stats_batch` uses one `upsert_all` for multi-flag flush (both count columns)
 
 ## 0.1.3 (2026-11-12)
 
