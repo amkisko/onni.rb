@@ -15,7 +15,8 @@ module Onni
     end
 
     def install!(rspec_config = ::RSpec.configuration)
-      rspec_config.before { reset! }
+      # RSpec runs before hooks via instance_exec on the example; qualify the call.
+      rspec_config.before { Onni::RSpec.reset! }
     end
   end
 end

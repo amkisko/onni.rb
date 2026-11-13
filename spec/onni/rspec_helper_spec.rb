@@ -28,12 +28,18 @@ RSpec.describe Onni::RSpec do
     expect(Onni::RequestStore.stats_buffer).to be_nil
   end
 
-  it "installs reset! as an RSpec before hook" do
+  it "installs a before hook that resets under RSpec instance_exec" do
     config = instance_double(::RSpec::Core::Configuration)
+    hook = nil
     expect(config).to receive(:before) do |&block|
-      expect(described_class).to receive(:reset!)
-      block.call
+      hook = block
     end
+
     described_class.install!(config)
+
+    example_context = Object.new
+    expect { example_context.instance_exec(&hook) }.not_to raise_error
+    expect(Onni.configuration.adapter).to eq(:memory)
+    expect(Onni.adapter).to be_a(Onni::Adapters::Memory)
   end
 end

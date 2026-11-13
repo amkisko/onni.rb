@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix `Onni::RSpec.install!` so the before hook calls `Onni::RSpec.reset!` under RSpec `instance_exec`
+
 ## 1.0.1 (2026-11-13)
 
 - Register ActiveAdmin Features pages before routes draw so production boot keeps `admin_features_path`
