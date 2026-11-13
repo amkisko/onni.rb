@@ -15,7 +15,7 @@ Ship a patch that qualifies `Onni::RSpec.reset!` inside the RSpec before hook re
 
 ## Next
 
-- Cut and publish the patch release.
+- Included in 2.0.0 cut; deliver with `make release`.
 - Hosts on 1.0.1 keep the manual `config.before { Onni::RSpec.reset! }` workaround until they upgrade.
 
 ## Source

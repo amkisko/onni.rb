@@ -233,10 +233,8 @@ No runtime dependencies, schema, release version, or published package changed.
 
 ## Next
 
-- Review RFC-0005 and select a breaking release; migrate code and YAML together.
-- Resolve or explicitly accept the measured aggregate timing cost and the
-  pre-existing source-size ceiling breach before publishing. Do not infer a
-  production callback or database budget from the memory-adapter probe.
+- Cut recorded as 2.0.0; deliver with `make release`.
+- Hosts migrate code and YAML together from exclusive audience types to filters.
 - Keep per-group percentages as a separate design and keep targeted stats out.
 - Keep keyboard, screen-reader, light-theme, and large configured-list review
   visible for the admin surface; the browser proof covers the stated widths

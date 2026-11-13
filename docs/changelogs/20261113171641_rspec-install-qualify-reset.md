@@ -16,7 +16,8 @@ Qualify `Onni::RSpec.install!` so the before hook calls `Onni::RSpec.reset!`. RS
 
 ## Next
 
-- Include in the next patch cut so hosts on 1.0.1 can drop the manual before workaround.
+- Included in 2.0.0 cut; deliver with `make release`. Hosts on 1.0.1 drop the
+  manual before workaround after upgrade.
 
 ## Source
 

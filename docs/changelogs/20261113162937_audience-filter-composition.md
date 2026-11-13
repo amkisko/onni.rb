@@ -1,6 +1,6 @@
 # Audience filter composition
 
-Working-tree implementation draft; no release has been cut.
+Included in gem cut 2.0.0.
 
 ## Participants
 
@@ -19,11 +19,11 @@ The runtime and admin editor support independent audience clauses and preserve
 settings on park. The implementation issue holds the claim audit, before/after
 spec evidence, persistence checks, visual assessment, and performance samples.
 The README and install template describe migration from the former types.
+Cut under `## 2.0.0 (2026-11-13)`.
 
 ## Next
 
-Review the breaking contract and select an appropriate release. Do not publish
-this change as an unchanged-contract patch.
+Deliver with `make release`. Hosts migrate YAML and call sites with the upgrade.
 
 ## Source
 

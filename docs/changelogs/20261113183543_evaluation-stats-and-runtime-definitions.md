@@ -1,6 +1,6 @@
 # Evaluation statistics and runtime definitions
 
-Working-tree implementation draft; no release has been cut.
+Included in gem cut 2.0.0.
 
 ## Participants
 
@@ -26,11 +26,11 @@ define! validates and copies a complete process-local definition. Reloads retain
 it and reject collisions with YAML names. Replacements preserve stored gates
 and counters. README and RFCs explain lifetime, strictness, and the preferred
 shared catalogue. No admin explanatory panels were added.
+Cut under `## 2.0.0 (2026-11-13)`.
 
 ## Next
 
-Review the contract changes and select a release. Assess the measured runtime
-cost and the earlier aggregate budget findings before publication.
+Deliver with `make release`.
 
 ## Source
 

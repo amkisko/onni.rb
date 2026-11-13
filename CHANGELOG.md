@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.0 (2026-11-13)
+
 - Compose audience groups, actor lists, excludes, and a percentage on one flag
 - Preserve rollout and experiment settings across `park!` and `ready!`; use `clear!` to reset
 - Replace ordinary YAML audience types with filters; require an explicit experiment audience (breaking)
@@ -9,7 +11,6 @@
 - Control statistics at each call site, in feature defaults, or through runtime settings
 - Preserve flags and counters when changing ordinary application settings
 - Define documented, expiring flags at runtime with `Onni.define!`; prefer the shared YAML catalogue
-
 - Fix `Onni::RSpec.install!` so the before hook calls `Onni::RSpec.reset!` under RSpec `instance_exec`
 
 ## 1.0.1 (2026-11-13)

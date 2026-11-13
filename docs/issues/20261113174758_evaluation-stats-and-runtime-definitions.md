@@ -105,10 +105,7 @@ RBENV_VERSION=3.4.11 ruby -Ilib -ronni -e 'Onni.configuration.features_path = ni
 
 ## Next
 
-- Review RFC-0006 and RFC-0007 and select a release together with RFC-0005.
-- Assess the measured runtime cost and the earlier aggregate timing/source-size
-  budget findings before publication. Do not infer database write latency from
-  the memory-adapter measurements.
+- Cut recorded as 2.0.0 together with RFC-0005; deliver with `make release`.
 - Initialize programmatic definitions consistently in every consuming worker,
   or retain the recommended YAML catalogue.
 
