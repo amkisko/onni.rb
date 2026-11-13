@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "recorded_at": "2026-11-13T16:48:44Z",
+    "ruby": "4.0.2",
+    "engine": "ruby",
+    "platform": "arm64-darwin24",
+    "polyrun_version": null
+  },
+  "results": [
+    {
+      "label": "gate_all_features_10000",
+      "ops": 10000,
+      "ops_per_s": 64470.79151422331,
+      "metrics": {
+        "wall_s": 0.15510899998480454,
+        "cpu_user_s": 0.15477600000000002,
+        "cpu_system_s": 0.00214700000000001,
+        "cpu_s": 0.15692300000000003,
+        "cpu_pct": 101.16950016786465,
+        "rss_bytes": 0,
+        "rss_delta_bytes": 0,
+        "heap_bytes": 5573477,
+        "heap_delta_bytes": 620216,
+        "gc": {
+          "count": 6,
+          "allocated_objects": 412250,
+          "heap_live_slots": 97460,
+          "heap_live_delta": 9229,
+          "major_gc_count": 0,
+          "minor_gc_count": 6
+        },
+        "storage_delta_bytes": 0,
+        "network_in_bytes": 0,
+        "network_out_bytes": 0
+      },
+      "targets": {
+        "wall_s": 0.208968749975611,
+        "cpu_s": 0.21075500000000003,
+        "heap_delta_bytes": 5358608.75
+      },
+      "pass": true
+    }
+  ],
+  "command": "make bench-gate",
+  "source_digest": "7889ec6e4b3e94ff6694905bc7f977cfdb6f373c016e6e0884590f7b20598da4"
+}

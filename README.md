@@ -120,23 +120,28 @@ Host apps that authorize ActiveAdmin page actions by name need `ready?` and `par
 
 ## YAML registry
 
-Every flag must be listed in `config/features.yml`:
+Keep the shared feature catalogue in `config/features.yml`. Document each flag's
+intent with a description and expiration so the whole team can review it:
 
 ```yaml
 new_checkout:
   expires_at: "2027-01-01"
   description: "Checkout redesign experiment"
+  stats:
+    enabled: true
+    sample_rate: 1.0
 ```
 
-Omitting `type` declares a `group` flag with an empty audience. Add a registered
+A flag without audience filters stays closed. Add a registered
 group with `Onni.visible_group!(:new_checkout, :beta_testers)` to make it visible
-to that group's actors. `ready!` alone leaves an empty group invisible.
+to that group's actors. `ready!` alone does not open an audience.
 
 For an experiment with variants, declare its type explicitly instead:
 
 ```yaml
 new_checkout:
   type: experiment
+  groups: [beta_testers]
   expires_at: "2027-01-01"
   description: "Checkout redesign experiment"
   variants:
@@ -151,7 +156,6 @@ Optional YAML `conditions` (checked after a gate matches, when an actor is prese
 
 ```yaml
 search_v2:
-  type: group
   groups: [beta_testers]
   expires_at: "2027-06-01"
   description: "New search UI for beta testers"
@@ -160,23 +164,50 @@ search_v2:
     - beta_testers   # registered Onni group name
 ```
 
+## Programmatic definitions
+
+Prefer `features.yml` as the shared, reviewable catalogue. When a feature must
+be declared in code, use the explicit API rather than editing registry internals:
+
+```ruby
+Onni.define!(:runtime_search,
+  description: "Search rollout",
+  expires_at: "2027-06-01",
+  groups: ["beta_testers"],
+  stats: {enabled: true})
+```
+
+`define!` requires a nonblank description and a parseable expiration string.
+A new feature starts pending. Repeating the command replaces its programmatic
+definition and retains stored power, runtime settings, and counters. Reusing
+a name with existing adapter rows also retains those rows. YAML-owned names
+cannot be shadowed. Unknown names still fail closed until explicitly defined.
+
+These definitions belong to the current process, survive `Registry.reload!`
+and adapter resets, and disappear at process exit. Define them in every worker
+that evaluates them, preferably during shared initialization. The host owns
+any durable source needed to recreate them. To move one into YAML, deploy its
+YAML definition with a process restart; a reload collision raises. Existing
+`Flag` instances remain metadata snapshots; request a fresh `Onni[name]` view
+after changing a definition. See [RFC-0007](rfcs/0007-programmatic-feature-definitions.md).
+
 ## Runtime API
 
 ```ruby
 Onni.visible?(:new_checkout, user)
 Onni.visible?(:new_checkout, record_stats: false) # inspect without recording
-Onni.ready!(:new_checkout) # power on with YAML type and defaults
-Onni.park!(:new_checkout) # hard-off; clear overrides; no evaluation stats
+Onni.ready!(:new_checkout) # power on with current settings
+Onni.park!(:new_checkout) # hard-off; retain settings; evaluations still count
 Onni.ready?(:new_checkout) # runtime power, independent of audience matching
 Onni.pending?(:new_checkout) # no power decision since creation or clear!
 Onni.parked?(:new_checkout) # explicit hard-off without evaluating an actor
 Onni.clear!(:new_checkout) # remove overrides and restore pending
-Onni.visible_group!(:search_v2, :beta_testers) # requires type: group
+Onni.visible_group!(:search_v2, :beta_testers)
 Onni.drop_group!(:search_v2, :beta_testers)
-Onni.level!(:homepage_banner, 25) # requires type: percentage
+Onni.level!(:homepage_banner, 25)
 Onni.level!(:homepage_banner, 0) # soft zero, still ready
 Onni.level(:homepage_banner)
-Onni.visible_actor!(:selected_audience, user) # requires type: actors
+Onni.visible_actor!(:selected_audience, user)
 Onni.drop_actor!(:selected_audience, user)
 Onni.variants!(:new_checkout, {control: 50, treatment: 50})
 Onni.variants(:new_checkout) # runtime override, then YAML default
@@ -184,41 +215,103 @@ Onni.variant(:new_checkout, user) # => :control / :treatment
 Onni.register_group(:beta_testers) { |actor, _| actor.beta_tester? }
 ```
 
-Each flag has one type: `group` (the default), `boolean`, `percentage`, `actors`,
-or `experiment`. Declare types other than group explicitly. Use `type: boolean`
-for a flag that is visible to everyone when ready. Defaults are `level: 0`
-for percentages, `groups: []`, `actors: []` (stable actor IDs), and `variants: {}`.
-Variant weights are relative nonnegative integers; a nonempty map needs a positive
-total. Malformed definitions fail at load. Mutations for a different type raise
-`ArgumentError` before writing.
+Ordinary flags have no type. Compose `everyone` (true/false), `groups`, `actors`,
+`excluded_groups`, `excluded_actors`, and `level` (integer 0..100). All configured
+filters must match. Entries within one include list are alternatives; any
+excluded match rejects the actor. Excludes alone do not open an audience.
 
-Flags start pending even when YAML defaults match. `ready!` starts the declared
-type; level zero, an empty audience, or empty experiment weights still make the
-flag visible to nobody. `ready?`, `pending?`, and `parked?` inspect runtime power
-without evaluating an actor or recording stats. A ready flag can return false
-from `visible?`; expiry and conditions constrain visibility without changing power.
+```ruby
+Onni.filters!(:new_checkout, groups: ["beta_testers"], level: 25)
+Onni.ready!(:new_checkout)
+Onni.park!(:new_checkout)  # retain the cohort, percentage, and variant weights
+Onni.ready!(:new_checkout) # resume the same rollout
+Onni.filters!(:new_checkout, excluded_actors: [Onni::Actor.id(user)])
+Onni.filters!(:new_checkout, level: nil) # remove only the percentage restriction
+Onni[:new_checkout].filters # effective configured filters
+```
 
-`park!` clears overrides and stores explicit parked hard-off. `clear!` clears
-overrides and the power decision, returning to pending. Here pending means no
-decision since creation or the latest clear, rather than a permanent history
-claim. `ready!` after either operation restores YAML defaults. Unknown names
-return false from all three power predicates and have no known power state.
+`filters!` atomically changes only the supplied filters without changing power.
+A nil removes that clause, including a YAML default. An empty include list is a
+configured clause that matches nobody; a zero percentage also matches nobody.
+An absent percentage imposes no percentage restriction. Dropping the last
+include value keeps an empty clause; remove that clause with `filters!(name,
+groups: nil)` or `actors: nil` when widening the audience is intended.
 
-Visible-slice commands also ready the flag. Drop-slice commands keep its current
-power state and mask defaults with an override. `level!` readies a percentage
-flag even at zero. `variants!` changes weights while preserving power, including
-pending or parked. `Onni[name].power_state` reports `:ready`, `:pending`, or
-`:parked`, and returns nil for unknown names.
+At least one positive opener is required: `everyone: true`, an include list,
+or a percentage. `everyone: true` still intersects other filters. To move a
+cohort rollout to everyone, explicitly remove restrictions that should no
+longer apply:
 
-Runtime settings override YAML defaults, including empty overrides. Existing
-gate keys remain readable during migration. Ready and park commands store explicit power;
-audience changes store complete overrides. Evaluation never ORs different audience types.
+```ruby
+Onni.filters!(:new_checkout, everyone: true, groups: nil, actors: nil, level: nil)
+```
+
+This keeps excludes. Any actor-scoped filter, including an empty exclude list
+or `level: 100`, requires an actor. Only the everyone opener without actor
+filters can pass without an actor. YAML `conditions` retain their separate
+actor-present behavior. Use filters for restrictions that must reject nil actors.
+
+Experiments declare `type: experiment` and an explicit audience. `variants`
+are relative nonnegative integer weights with a positive total, or an empty
+map. Weights do not open visibility. `variant` first checks the same audience,
+expiry, and conditions, then assigns a variant for an actor. Empty weights
+return nil. Global percentages limit the audience; they are not variants.
+Malformed definitions fail at load, and ordinary audience type names are rejected.
+
+Flags start pending even when YAML defaults match. `ready?`, `pending?`, and
+`parked?` inspect power without evaluating an actor or recording stats. A ready
+flag can still be invisible to an actor. `park!` stores explicit hard-off while
+retaining settings. `ready!` resumes those settings. `clear!` removes all
+runtime overrides and the power decision, restoring YAML defaults in pending.
+Unknown names return false from power predicates; `Onni[name].power_state`
+returns nil for unknown names and otherwise `:ready`, `:pending`, or `:parked`.
+
+Visible-slice commands add includes and ready the flag. Drops remove includes,
+preserve power, and are not deny filters. `level!` sets a percentage and readies
+the flag, even at zero. `variants!` preserves power and requires an experiment.
+Runtime settings override YAML defaults, including empty and removed filters.
+Existing gate keys remain readable; mixed audience gates now intersect.
 
 `Onni.exist?(name)` is adapter-backed (gates/feature rows). `Onni::Flag#exist?` is YAML-registry-backed.
 
 ## Stats
 
-Each ready `visible?` / `variant` evaluation can record `shown_count` or `skip_count` into hourly buckets. Pending, parked, and unknown flags do not record stats. A ready zero-level rollout records skips. Counts measure evaluation calls, including repeated calls in one request; request/actor deduplication is deferred. Pass `record_stats: false` for inspect-only checks (the ActiveAdmin index does this). View history on the feature detail page. Stats are operational telemetry for experiments, not an audit log for authorization decisions.
+By default, completed `visible?` calls for known flags record `shown_count` when
+true and `skip_count` when false. Pending, parked, expired, and audience misses
+all count as skips. Known `variant` calls count an assignment as shown and nil
+as skipped, including missing actors and non-experiment flags. Unknown names
+create no buckets. Power predicates and settings reads do not record calls.
+
+Counts measure evaluations, including repeated calls in one request. They are
+operational telemetry, not an authorization audit log or unique-actor analytics.
+Historical periods keep their earlier counting scope; off-state calls recorded
+from this change can lower `shown_share` relative to those periods.
+
+```ruby
+Onni.visible?(:new_checkout, user)                      # inherit collection settings
+Onni.visible?(:new_checkout, user, record_stats: false) # inspect without collecting
+Onni.visible?(:new_checkout, user, record_stats: true)  # opt in at this call site
+Onni.stats!(:new_checkout, enabled: false)
+Onni.stats!(:new_checkout, enabled: true, sample_rate: 0.25)
+Onni.stats!(:new_checkout, enabled: nil, sample_rate: nil) # restore inherited defaults
+Onni[:new_checkout].stats_settings
+```
+
+Feature YAML accepts `stats: {enabled: true, sample_rate: 1.0}`. Both fields are
+optional: collection defaults to enabled, and an omitted rate inherits the
+application rate. `stats!` changes only supplied fields atomically. Runtime nil
+removes that override, restoring YAML or application defaults. Park retains
+overrides; clear removes them. Field values are booleans and finite rates in
+0..1; malformed fields raise before writes.
+
+`record_stats: nil` inherits runtime feature enabled, then YAML enabled, then
+true. Explicit false skips the call; explicit true overrides a feature opt-out.
+The application `stats_enabled = false` and `stats_ignore` remain hard vetoes,
+and sampling still applies. Rate defaults resolve runtime feature, YAML, then
+application `stats_sample_rate`. A custom sampler may override the rate or
+return nil to keep that resolved default. `stats_settings` describes defaults;
+call-site choices and the custom sampler decide individual evaluations.
+See [RFC-0006](rfcs/0006-evaluation-statistics-policy.md).
 
 Rows are created only when an evaluation is recorded for that flag and hour. Quiet hours leave no row.
 
@@ -229,7 +322,7 @@ Load `onni/active_support` to publish these `ActiveSupport::Notifications` event
 
 - `stats.record.onni` — a recorded evaluation (`:name`, `:shown`, `:weight`)
 - `stats.purge.onni` — purge batch/drain result (`:deleted`, `:processed_count`, `:continued`)
-- `feature_operation.onni` - mutations (`:feature_name`, `:operation`, `:result`; optional `:actor_id`, `:group_name`, `:level`). Operations: `ready`, `park`, `clear`, `visible_actor`, `drop_actor`, `visible_group`, `drop_group`, `level`, `variants`
+- `feature_operation.onni` - mutations (`:feature_name`, `:operation`, `:result`; optional `:actor_id`, `:group_name`, `:level`). Operations: `ready`, `park`, `clear`, `visible_actor`, `drop_actor`, `visible_group`, `drop_group`, `level`, `variants`, `filters`, `stats`
 
 ```ruby
 require "onni/active_support"
@@ -249,7 +342,7 @@ objects and does not discover a framework's logger or notification bus.
 ### Sampling
 
 - `stats_sample_rate` is a float in `0.0..1.0` (clamped on assign). `1.0` records everything and skips `Random`.
-- `stats_sampler` is an optional callable `|ctx|` with `ctx[:name]` and `ctx[:shown]`; return a rate, `true`/`false`, or `nil` to fall back to `stats_sample_rate`.
+- `stats_sampler` is an optional callable `|ctx|` with `ctx[:name]` and `ctx[:shown]`; return a rate, `true`/`false`, or `nil` to keep the resolved feature/application sampling rate.
 - `stats_ignore` lists feature keys that never write buckets.
 - `stats_scale_sampled_hits` (default `true`): when a sample is kept at rate `r`, the bucket increments by about `1/r` so totals estimate full traffic. Set `false` to store raw kept-sample counts only.
 
@@ -263,7 +356,7 @@ end
 
 ### Request preload and stats buffer
 
-The Rails engine inserts `Onni::Middleware::RequestLifecycle`, which always calls `Onni.reset_request!` after each request (flushes `stats_buffer` when enabled, clears preload). Hosts that evaluate many flags per request can enable coalesced writes and optional preload:
+The Rails engine inserts `Onni::Middleware::RequestLifecycle`, which always calls `Onni.reset_request!` after each request (flushes accepted buffered counts and clears preload). Hosts that evaluate many flags per request can enable coalesced writes and optional preload:
 
 ```ruby
 Onni.configuration.stats_buffer = true
@@ -420,16 +513,23 @@ upgrade. `onni:stats_rename` maps `enabled_hits` / `disabled_hits` directly to
 `shown_count` / `skip_count`. `onni:shown_stats` maps only `show_count` to
 `shown_count` and preserves `skip_count`.
 Renaming preserves historical totals, including hard-off misses recorded by older
-releases. New evaluations record powered misses only.
+releases. New evaluations also record pending and parked misses unless collection is disabled.
 The migration is reversible. Coordinate rollback with the previous application
 code; old and new writers cannot share the renamed schema during deployment.
 
-Review every YAML flag before starting the updated application. A missing type
-now means group; declare `type: boolean` for flags that previously relied on
-global visibility from the implicit boolean type. Declare percentage, actors,
-and experiment types explicitly. Existing
-compatible legacy gates remain readable; incompatible audience gates do not grant
-visibility. Update custom adapters to accept `record_stat(..., shown:)`, batches
+Review every YAML flag before starting the updated application:
+
+- Replace `type: boolean` with `everyone: true`.
+- Remove `type: group`, `type: actors`, and `type: percentage`; retain their lists or level.
+- Keep `type: experiment` and add an explicit audience, such as `groups` or `everyone: true`.
+- Inspect stored mixed audiences: all present filters now intersect, including rows previously ignored by another type.
+- Use `clear!` for a destructive reset; `park!` now preserves overrides.
+
+No schema change is required for audience composition. Older library versions
+cannot interpret the new filter mapping; migrate code and definitions together
+and review stored filters before rollback. See [RFC-0005](rfcs/0005-audience-filter-composition.md).
+
+Update custom adapters to accept `record_stat(..., shown:)`, batches
 with `shown_count`/`skip_count`, and atomic `update_gates(name) { |gates| ... }`.
 The block receives mutable string-keyed rows and must commit them atomically.
 The ActiveRecord adapter serializes mutations with a feature-row transaction;
@@ -451,6 +551,28 @@ drop_percentage! is provided. Zero level is an explicit level!(name, 0).
 Existing empty gate sets cannot distinguish a historical hard-off from a never
 started flag and are classified as pending. New park! writes an explicit marker.
 No aliases remain for admin routes, stats columns, or event payloads.
+
+### Runtime application settings
+
+Global statistics settings are live configuration. For example:
+
+```ruby
+Onni.configure do |config|
+  config.stats_enabled = true
+  config.stats_sample_rate = 0.5
+end
+```
+
+Ordinary settings changes preserve the adapter, gates, and existing counts.
+Adapter selection and concurrency changes rebuild the adapter; arrange a
+deliberate transition and flush queued counts before changing their destination.
+Turning buffering off preserves already accepted counts until request cleanup
+or `flush_stats!`. Application-cache mutations advance generations even while
+caching is disabled, so reattaching a cache cannot restore a pre-mutation gate.
+Change `features_path` with a deliberate `Registry.reload!`; YAML file changes
+also require that reload. Configuration is process-local, so apply application
+changes in every worker. Persisted feature overrides retain the adapter's
+documented cross-process cache freshness limits.
 
 ## Concurrency
 
@@ -482,7 +604,7 @@ Onni::RSpec.install! # before each example: memory adapter + reset_request!
 
 ## Migrating from another feature-flag library
 
-Map your previous store into a source with `#feature_keys` and `#gates`, then import once. Keep `config/features.yml` keys aligned with the names you import. Unknown YAML keys are skipped. Declare one type per flag before importing. Unsupported, malformed, or type-incompatible gates are counted in `skipped_gates` and not written. Legacy boolean gates become explicit power (`powered`); compatible audience rows retain their values.
+Map your previous store into a source with `#feature_keys` and `#gates`, then import once. Keep `config/features.yml` keys aligned with the names you import. Unknown YAML keys are skipped. Declare the intended audience filters before importing. Unsupported or malformed gates are counted in `skipped_gates` and not written. Legacy boolean gates become explicit power (`powered`); audience rows retain their values and intersect.
 
 ```ruby
 source = Onni::Migrator::Snapshot.new(
@@ -505,16 +627,15 @@ Replace call sites with `Onni.*` and remove the previous library when ready.
 
 ### Cutover checklist
 
-Prior libraries often OR several gates on one feature. Onni has one YAML type per flag. "On for everyone" is `type: boolean` plus `ready!`, not default `type: group` plus `ready!` (an empty group stays invisible).
+If the previous store combined gates with OR, review that expression explicitly:
+Onni intersects all configured filters. Boolean source gates become power, not
+an everyone audience opener. A global flag needs `everyone: true` in YAML or
+`filters!(name, everyone: true)` after import.
 
-1. List prior features and active gates (`boolean`, `groups`, `actors`, `percentage_of_actors`). Skip or re-model gates Onni does not import (for example time-based percentage).
-2. Write matching keys in `config/features.yml` with an explicit type:
-   - everyone when powered -> `type: boolean`
-   - audience groups only -> `type: group` and register the same group names
-   - actor allowlist only -> `type: actors` (align actor ids with `feature_actor_id` or `Class;id`)
-   - percentage of actors -> `type: percentage`
-3. If the prior store combined boolean and groups (OR), pick one Onni type for the cutover intent. Mixed incompatible gates are skipped for the declared type.
-4. Early access then full rollout: change YAML to `type: boolean` and `ready!`. Audience gates may remain stored; boolean evaluation ignores them. There is no OR of boolean and group at evaluate time.
+1. List prior features and active gates (`boolean`, `groups`, `actors`, `percentage_of_actors`). Skip or re-model unsupported gates such as time-based percentages.
+2. Write matching YAML keys with the intended filters. Register group names and align actor identifiers with `feature_actor_id` or `Class;id`.
+3. Review mixed imported gates. Use `filters!` to remove clauses that should not restrict the target audience; no automatic OR conversion is provided.
+4. For early access followed by everyone, set `everyone: true` and remove the include and percentage clauses that should no longer apply. Preserve excludes if still needed.
 5. Import from two SQL tables (feature keys + gate rows) when the prior store used that shape:
 
 ```ruby
@@ -530,7 +651,7 @@ Onni.migrate!(
 
 Column defaults are `key` on the features table and `feature_key` / `key` / `value` on the gates table. Override via constructor keywords when names differ. Or build an in-memory `Snapshot` from any export.
 6. Compare `visible?` against the prior library for a sample of actors before removing old call sites.
-7. Production stats: prefer `stats_buffer` and a sample rate below `1.0` (the install generator defaults to buffer on and `0.1`).
+7. Production stats: prefer `stats_buffer` and a sample rate below `1.0` (the install generator defaults to buffer on and rate `1.0`; choose a lower rate explicitly).
 
 ## Development
 

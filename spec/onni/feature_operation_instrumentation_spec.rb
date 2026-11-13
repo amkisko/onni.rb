@@ -10,7 +10,7 @@ RSpec.describe "Onni feature_operation instrumentation" do
     allow(Onni::Registry).to receive(:require_definition!)
     allow(Onni::Registry).to receive(:known?).and_return(true)
     allow(Onni::Registry).to receive(:definition) do |name|
-      {"type" => {demo: "group", experiment: "experiment", rollout: "percentage"}.fetch(name)}
+      (name == :experiment) ? {"type" => "experiment"} : {}
     end
   end
 
@@ -46,5 +46,13 @@ RSpec.describe "Onni feature_operation instrumentation" do
 
     expect(events.map { |event| event.payload[:operation] }).to eq([:level, :drop_group])
     expect(events.first.payload[:level]).to eq(100)
+  end
+
+  it "publishes filter success after the updated audience is readable without including identities" do
+    Onni.ready!(:demo)
+    events = capture_operations { Onni.filters!(:demo, actors: ["User;7"], level: 100) }
+    expect(events.one?).to be(true)
+    expect(events.first.payload).to eq(feature_name: "demo", operation: :filters, result: true)
+    expect(Onni[:demo].filters).to include("actors" => ["User;7"], "level" => 100)
   end
 end

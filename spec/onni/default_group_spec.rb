@@ -43,7 +43,7 @@ RSpec.describe "Default group features" do
 
   it "accepts only metadata and requires a matching group for visibility" do
     flag = Onni[:new_checkout]
-    expect(flag.type).to eq("group")
+    expect(flag.type).to be_nil
     expect(flag.description).to eq("Checkout redesign experiment")
     expect(flag.expires_at).to eq("2027-01-01")
     expect(flag.groups).to eq([])

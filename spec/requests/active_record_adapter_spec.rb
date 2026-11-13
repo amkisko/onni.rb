@@ -60,7 +60,7 @@ RSpec.describe "Onni ActiveRecord adapter integration", type: :request do
 
     stats = Onni::Stats.for(:demo)
     expect(stats.sum { |bucket| bucket["shown_count"] }).to eq(1)
-    expect(stats.sum { |bucket| bucket["skip_count"] }).to eq(0)
+    expect(stats.sum { |bucket| bucket["skip_count"] }).to eq(1)
   end
 
   it "increments an existing hour bucket on later hits" do

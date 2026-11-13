@@ -43,36 +43,34 @@ module Onni
 
       FEATURES_YAML = <<~YAML
         flag_boolean:
-          type: boolean
+          everyone: true
           expires_at: "2099-01-01"
           description: "Global boolean"
         flag_actor:
-          type: actors
           expires_at: "2099-01-01"
           description: "Actor gate"
         flag_percentage:
-          type: percentage
           expires_at: "2099-01-01"
           description: "Percentage of actors"
         flag_group:
-          type: group
           expires_at: "2099-01-01"
           description: "Audience group"
         flag_variant:
           type: experiment
+          everyone: true
           expires_at: "2099-01-01"
           description: "A/B variants"
           variants:
             control: 50
             treatment: 50
         flag_conditions:
-          type: boolean
+          everyone: true
           expires_at: "2099-01-01"
           description: "Boolean plus conditions"
           conditions:
             - "beta_tester?"
         flag_stats:
-          type: boolean
+          everyone: true
           expires_at: "2099-01-01"
           description: "Hit stats path"
       YAML

@@ -10,6 +10,12 @@ Release scope for the next patch: ActiveAdmin `before_load` registration (alread
 
 Defer to later work: admin "Ready for everyone" control for empty group flags; runtime soft type upgrade API; deeper generator route/Tailwind patching beyond install reminders.
 
+The audience-related deferral is superseded by
+[RFC-0005](../../rfcs/0005-audience-filter-composition.md) and
+[the composition implementation](20261113162937_audience-filter-composition.md).
+Everyone and filter removal cover cohort-to-everyone changes without a separate
+soft type-upgrade API. Deeper generator patching remains deferred.
+
 ## Effects
 
 - Fact-checked against current tree and a common prior-store table shape (features key column; gates feature_key/key/value).
@@ -22,7 +28,7 @@ Defer to later work: admin "Ready for everyone" control for empty group flags; r
 ## Next
 
 - Cut 1.0.1 includes ActiveRecordTables, cutover README, install defaults, and `onni/rspec`; publish via `make release`.
-- Later: admin ready-for-everyone UX; document or add group->boolean soft upgrade without gate loss.
+- Audience follow-up: review RFC-0005 and its filter editor; do not add a parallel ready-for-everyone or soft type-upgrade path.
 
 ## Source
 

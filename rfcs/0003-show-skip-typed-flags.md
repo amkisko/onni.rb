@@ -5,6 +5,12 @@
 - Created: 2026-11-13
 - Author: Andrei Makarov
 
+RFC-0005 specifies the working-tree replacement for audience types and the park
+transition below. This document retains the released baseline for those parts;
+its remaining contracts still apply.
+RFC-0006 replaces the early-return statistics scope with counts for all known
+completed evaluations, including pending and parked misses.
+
 ## Summary
 
 Separate runtime power (ready/pending/parked), actor visibility (visible?),

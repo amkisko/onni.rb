@@ -1,0 +1,39 @@
+{
+  "command": "make bench-gate",
+  "product_digest": "f02f9c7c5e773dd522c58b172b8ce26af8a9f87cbdcbab018485d7840f39f64d",
+  "results": [
+    {
+      "label": "gate_all_features_10000",
+      "ops": 10000,
+      "metrics": {
+        "wall_s": 0.1717460000072606,
+        "cpu_user_s": 0.17101199999999994,
+        "cpu_system_s": 0.0025099999999999845,
+        "cpu_s": 0.17352199999999993,
+        "cpu_pct": 101.03408521459845,
+        "rss_bytes": 0,
+        "rss_delta_bytes": 0,
+        "heap_bytes": 5154671,
+        "heap_delta_bytes": 194328,
+        "gc": {
+          "count": 6,
+          "allocated_objects": 412328,
+          "heap_live_slots": 91292,
+          "heap_live_delta": 2884,
+          "major_gc_count": 0,
+          "minor_gc_count": 6
+        },
+        "storage_delta_bytes": 0,
+        "network_in_bytes": 0,
+        "network_out_bytes": 0
+      },
+      "pass": true,
+      "targets": {
+        "wall_s": 0.208968749975611,
+        "cpu_s": 0.21075500000000003,
+        "heap_delta_bytes": 5358608.75
+      }
+    }
+  ],
+  "rss_note": "rss_bytes=0 is unavailable; use native peak RSS in evaluation_stats_*_results.json"
+}

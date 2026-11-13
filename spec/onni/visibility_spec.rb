@@ -2,15 +2,15 @@
 
 require "spec_helper"
 
-RSpec.describe "Typed visibility" do
+RSpec.describe "Audience visibility" do
   let(:actor) { Struct.new(:id).new(7) }
   let(:definitions) do
     {
-      "new_checkout" => {"type" => "boolean"},
-      "search_v2" => {"type" => "percentage", "level" => 100},
-      "audience" => {"type" => "group", "groups" => ["beta_testers"]},
-      "selected" => {"type" => "actors", "actors" => [Onni::Actor.id(actor)]},
-      "experiment" => {"type" => "experiment", "variants" => {"control" => 100}}
+      "new_checkout" => {"everyone" => true},
+      "search_v2" => {"level" => 100},
+      "audience" => {"groups" => ["beta_testers"]},
+      "selected" => {"actors" => [Onni::Actor.id(actor)]},
+      "experiment" => {"type" => "experiment", "everyone" => true, "variants" => {"control" => 100}}
     }
   end
 
@@ -36,14 +36,14 @@ RSpec.describe "Typed visibility" do
     definitions.each_key do |name|
       expect(Onni.visible?(name, actor)).to be(false)
       expect(Onni.ready?(name)).to be(false)
-      expect(Onni::Stats.for(name)).to eq([])
+      expect(Onni::Stats.for(name).sum { |row| row.fetch("skip_count") }).to eq(1)
       Onni.ready!(name)
       expect(Onni.visible?(name, actor)).to be(true)
       expect(Onni.ready?(name)).to be(true)
     end
   end
 
-  it "parks before audience and conditions, without recording misses" do
+  it "parks before audience work while counting evaluation misses" do
     Onni.ready!(:audience)
     Onni.preload!(:audience)
     Onni.park!(:audience)
@@ -52,16 +52,16 @@ RSpec.describe "Typed visibility" do
     expect(Onni::Conditions).not_to receive(:met?)
     3.times { expect(Onni.visible?(:audience, actor)).to be(false) }
     expect(Onni.variant(:audience, actor)).to be_nil
-    expect(Onni::Stats.for(:audience)).to eq([])
+    expect(Onni::Stats.for(:audience).sum { |row| row.fetch("skip_count") }).to eq(4)
   end
 
-  it "records zero-percent soft misses but not hard-off misses" do
+  it "records zero-percent and parked misses" do
     Onni.level!(:search_v2, 0)
     expect(Onni.ready?(:search_v2)).to be(true)
     expect(Onni.visible?(:search_v2, actor)).to be(false)
     Onni.park!(:search_v2)
     expect(Onni.visible?(:search_v2, actor)).to be(false)
-    expect(Onni::Stats.for(:search_v2).sum { |row| row.fetch("skip_count") }).to eq(1)
+    expect(Onni::Stats.for(:search_v2).sum { |row| row.fetch("skip_count") }).to eq(2)
   end
 
   it "overrides defaults and restores them after clear then ready" do
@@ -105,9 +105,9 @@ RSpec.describe "Typed visibility" do
     expect(Onni.variant(:experiment, actor)).to be_nil
   end
 
-  it "rejects mismatched mutations before touching runtime state" do
-    expect { Onni.visible_group!(:new_checkout, :beta_testers) }.to raise_error(ArgumentError)
-    expect { Onni.level!(:selected, 100) }.to raise_error(ArgumentError)
+  it "rejects invalid slices and experiment-only mutations before touching runtime state" do
+    expect { Onni.visible_group!(:new_checkout, "") }.to raise_error(ArgumentError)
+    expect { Onni.visible_actor!(:selected, nil) }.to raise_error(ArgumentError)
     expect { Onni.variants!(:audience, control: -1) }.to raise_error(ArgumentError)
     expect(Onni.adapter.feature_keys).to eq([])
   end
@@ -118,11 +118,11 @@ RSpec.describe "Typed visibility" do
     expect { Onni.ready!(:missing) }.to raise_error(KeyError)
   end
 
-  it "does not promote legacy actor gates into a global boolean audience" do
+  it "intersects legacy actor gates with the everyone opener" do
     Onni.adapter.replace_gates(:new_checkout, [{key: "actors", value: Onni::Actor.id(actor)}])
-    expect(Onni.ready?(:new_checkout)).to be(false)
-    expect(Onni.visible?(:new_checkout, actor)).to be(false)
-    expect(Onni::Stats.for(:new_checkout)).to eq([])
+    expect(Onni.ready?(:new_checkout)).to be(true)
+    expect(Onni.visible?(:new_checkout, actor, record_stats: false)).to be(true)
+    expect(Onni.visible?(:new_checkout, nil, record_stats: false)).to be(false)
   end
 
   it "keeps a legacy audience powered when its last group is removed" do

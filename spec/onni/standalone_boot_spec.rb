@@ -12,6 +12,7 @@ RSpec.describe "Onni standard-library core" do
       file.write(<<~YAML)
         search_v2:
           type: experiment
+          everyone: true
           expires_at: "2099-01-01"
           variants:
             control: 100

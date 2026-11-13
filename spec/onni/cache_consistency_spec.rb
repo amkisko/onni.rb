@@ -16,7 +16,7 @@ RSpec.describe "Gate cache consistency" do
     Onni.configuration.cache = ActiveSupport::Cache::MemoryStore.new
     Onni.adapter = Onni::Adapters::Memory.new
     Onni.reset_request!
-    allow(Onni::Registry).to receive(:config).and_return("new_checkout" => {"type" => "boolean"})
+    allow(Onni::Registry).to receive(:config).and_return("new_checkout" => {"everyone" => true})
     Onni.ready!(:new_checkout)
   end
 
@@ -52,6 +52,15 @@ RSpec.describe "Gate cache consistency" do
     Onni.reset_request!
     expect(Onni.visible?(:new_checkout, record_stats: false)).to be(true)
     Onni.adapter = Onni::Adapters::Memory.new
+    expect(Onni.visible?(:new_checkout, record_stats: false)).to be(false)
+  end
+
+  it "does not resurrect old gates after temporarily disabling the application cache" do
+    cache = Onni.configuration.cache
+    expect(Onni.visible?(:new_checkout, record_stats: false)).to be(true)
+    Onni.configuration.cache = nil
+    Onni.park!(:new_checkout)
+    Onni.configuration.cache = cache
     expect(Onni.visible?(:new_checkout, record_stats: false)).to be(false)
   end
 

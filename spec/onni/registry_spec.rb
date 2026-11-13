@@ -71,29 +71,34 @@ RSpec.describe Onni::Registry do
     end
   end
 
-  it "defaults omitted types to group and loads every declared audience type" do
+  it "loads independent audience defaults without assigning an exclusive type" do
     Dir.mktmpdir do |directory|
       path = File.join(directory, "features.yml")
       File.write(path, YAML.dump(
-        "basic" => {}, "global" => {"type" => "boolean"},
-        "rollout" => {"type" => "percentage", "level" => 30},
-        "audience" => {"type" => "group", "groups" => ["beta_testers"]},
-        "selected" => {"type" => "actors", "actors" => ["User;1"]},
-        "experiment" => {"type" => "experiment", "variants" => {"control" => 100}}
+        "basic" => {}, "global" => {"everyone" => true},
+        "rollout" => {"level" => 30},
+        "audience" => {"groups" => ["beta_testers"]},
+        "selected" => {"actors" => ["User;1"]},
+        "experiment" => {"type" => "experiment", "everyone" => true, "variants" => {"control" => 100}}
       ))
       Onni.configuration.features_path = path
-      expect(described_class.reload!.transform_values { |definition| definition.fetch("type") }).to eq(
-        "basic" => "group", "global" => "boolean", "rollout" => "percentage", "audience" => "group",
-        "selected" => "actors", "experiment" => "experiment"
-      )
+      described_class.reload!
+      expect(described_class.definition(:basic)["type"]).to be_nil
+      expect(described_class.definition(:global)["everyone"]).to be(true)
+      expect(described_class.definition(:rollout)["level"]).to eq(30)
+      expect(described_class.definition(:audience)["groups"]).to eq(["beta_testers"])
+      expect(described_class.definition(:selected)["actors"]).to eq(["User;1"])
+      expect(described_class.definition(:experiment)["type"]).to eq("experiment")
     end
   end
 
-  [nil, {"type" => "unknown"}, {"type" => "percentage", "level" => 101},
-    {"type" => "percentage", "level" => "30"}, {"type" => "group", "groups" => "staff"},
-    {"type" => "actors", "actors" => [nil]}, {"conditions" => [1]},
-    {"type" => "experiment", "variants" => {"control" => -1}},
-    {"type" => "experiment", "variants" => {"control" => 0}}].each do |definition|
+  [nil, {"stats" => false}, {"stats" => {"enabled" => nil}}, {"stats" => {"sample_rate" => "0.5"}},
+    {"stats" => {"unknown" => true}}, *%w[unknown boolean percentage group actors].map { |type| {"type" => type} },
+    {"everyone" => "true"}, {"everyone" => nil}, {"excluded_groups" => "staff"}, {"level" => 101},
+    {"level" => "30"}, {"groups" => "staff"},
+    {"actors" => [nil]}, {"conditions" => [1]},
+    {"type" => "experiment", "everyone" => true, "variants" => {"control" => -1}},
+    {"type" => "experiment", "everyone" => true, "variants" => {"control" => 0}}].each do |definition|
     it "rejects malformed YAML definition #{definition.inspect}" do
       Dir.mktmpdir do |directory|
         path = File.join(directory, "features.yml")

@@ -7,11 +7,8 @@ module Onni
     # Imports: boolean, actors, groups, percentage_of_actors, variants.
     # Skips unknown registry keys and unsupported gate keys (counted in skipped_gates).
     class Importer
-      TYPE_GATES = {
-        "boolean" => [], "actors" => %w[actors actors_override],
-        "group" => %w[groups groups_override], "percentage" => %w[percentage_of_actors],
-        "experiment" => %w[variants]
-      }.freeze
+      SETTINGS_GATES = %w[boolean powered actors actors_override groups groups_override
+        percentage_of_actors audience_filters stats].freeze
 
       def initialize(source)
         @source = source
@@ -53,7 +50,7 @@ module Onni
 
       def supported?(feature_key, gate_key)
         type = Settings.type(Registry.definition(feature_key) || {})
-        (%w[boolean powered] + TYPE_GATES.fetch(type, [])).include?(gate_key)
+        SETTINGS_GATES.include?(gate_key) || (type == "experiment" && gate_key == "variants")
       end
 
       def write_gate(feature_key, gate_key, value)
@@ -70,9 +67,7 @@ module Onni
         case key
         when "boolean", "powered" then %w[true false].include?(value.to_s)
         when "percentage_of_actors" then Integer(value).between?(0, 100)
-        when "variants"
-          Registry.validate_variants!(JSON.parse(value))
-          true
+        when "variants", "audience_filters", "stats" then valid_settings?(key, value)
         when "actors_override", "groups_override"
           values = JSON.parse(value)
           values.is_a?(Array) && values.all? { |entry| entry.is_a?(String) && !entry.empty? }
@@ -80,6 +75,16 @@ module Onni
         end
       rescue ArgumentError, TypeError, JSON::ParserError
         false
+      end
+
+      def valid_settings?(key, value)
+        settings = JSON.parse(value)
+        case key
+        when "variants" then Registry.validate_variants!(settings)
+        when "audience_filters" then Registry.validate_filters!(settings)
+        when "stats" then Stats::Policy.validate!(settings)
+        end
+        true
       end
 
       def gate_field(row, name)

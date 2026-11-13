@@ -1,0 +1,196 @@
+{
+  "mode": "compare",
+  "started_at": "2026-11-13T16:46:40Z",
+  "machine_class": "arm64-darwin24/Ruby 4.0.2",
+  "probe": "all",
+  "count": 100000,
+  "samples": 3,
+  "network": "not_in_scope",
+  "memory": "process_lifetime",
+  "energy_proxy": "cpu_s",
+  "harness_digest": "7c14b40e3d8b2810def64a0156f05a38992bd7204983224c8ac8e3fc55122311",
+  "revision": "de1ff4e11cb4d62da4760fdb6e9b397d9f682546",
+  "source_digests": {
+    "before": "e1e13ecb47cf99c07b962842474470ecd3d2c73005d6936a313d5b96cc27e38d",
+    "after": "7889ec6e4b3e94ff6694905bc7f977cfdb6f373c016e6e0884590f7b20598da4"
+  },
+  "raw": {
+    "before": [
+      {
+        "wall_s": 1.4144649999798276,
+        "cpu_s": 1.411015,
+        "allocated_objects": 4419145,
+        "stats_rows": 7,
+        "store_bytes": 664,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 100813,
+        "stage_batch_p95_s": {
+          "boolean": 0.00010000000474974513,
+          "actor": 0.0001550000160932541,
+          "percentage": 0.000139000010676682,
+          "group": 0.00023100001271814108,
+          "variant": 0.0002739999908953905,
+          "conditions": 0.00021700002253055573,
+          "stats": 5.100003909319639e-05
+        },
+        "peak_rss_bytes": 40468480
+      },
+      {
+        "wall_s": 1.422885000007227,
+        "cpu_s": 1.4204139999999998,
+        "allocated_objects": 4419145,
+        "stats_rows": 7,
+        "store_bytes": 664,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 100813,
+        "stage_batch_p95_s": {
+          "boolean": 9.099999442696571e-05,
+          "actor": 0.00016300001880154014,
+          "percentage": 0.0002589999930933118,
+          "group": 0.0002400000230409205,
+          "variant": 0.0002999999560415745,
+          "conditions": 0.00014099996769800782,
+          "stats": 4.900002386420965e-05
+        },
+        "peak_rss_bytes": 40910848
+      },
+      {
+        "wall_s": 1.4097369999508373,
+        "cpu_s": 1.407412,
+        "allocated_objects": 4419145,
+        "stats_rows": 7,
+        "store_bytes": 664,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 100813,
+        "stage_batch_p95_s": {
+          "boolean": 9.799998952075839e-05,
+          "actor": 0.00015000003622844815,
+          "percentage": 0.00027900002896785736,
+          "group": 0.00020399998174980283,
+          "variant": 0.00020400003995746374,
+          "conditions": 0.00017499999376013875,
+          "stats": 4.4000043999403715e-05
+        },
+        "peak_rss_bytes": 41172992
+      }
+    ],
+    "after": [
+      {
+        "wall_s": 1.552148999995552,
+        "cpu_s": 1.544632,
+        "allocated_objects": 3919145,
+        "stats_rows": 7,
+        "store_bytes": 664,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 106094,
+        "stage_batch_p95_s": {
+          "boolean": 0.00013400003081187606,
+          "actor": 0.00015100004384294152,
+          "percentage": 0.00024199998006224632,
+          "group": 0.0002300000051036477,
+          "variant": 0.00022599997464567423,
+          "conditions": 0.0001860000193119049,
+          "stats": 4.499999340623617e-05
+        },
+        "peak_rss_bytes": 41795584
+      },
+      {
+        "wall_s": 1.5656859999871813,
+        "cpu_s": 1.563526,
+        "allocated_objects": 3919145,
+        "stats_rows": 7,
+        "store_bytes": 664,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 106094,
+        "stage_batch_p95_s": {
+          "boolean": 0.0001259999698959291,
+          "actor": 0.00015900004655122757,
+          "percentage": 0.0002859999658539891,
+          "group": 0.0002080000122077763,
+          "variant": 0.00027199997566640377,
+          "conditions": 0.00023300002794712782,
+          "stats": 4.0000013541430235e-05
+        },
+        "peak_rss_bytes": 42516480
+      },
+      {
+        "wall_s": 1.5306310000014491,
+        "cpu_s": 1.527369,
+        "allocated_objects": 3919145,
+        "stats_rows": 7,
+        "store_bytes": 664,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 106094,
+        "stage_batch_p95_s": {
+          "boolean": 0.00011600001016631722,
+          "actor": 0.00019799999427050352,
+          "percentage": 0.00023800000781193376,
+          "group": 0.0001759999431669712,
+          "variant": 0.00031599996145814657,
+          "conditions": 0.00021300005028024316,
+          "stats": 4.1000021155923605e-05
+        },
+        "peak_rss_bytes": 40370176
+      }
+    ]
+  },
+  "summary": {
+    "before": {
+      "cpu_s": 1.411015,
+      "wall_s": 1.4144649999798276,
+      "allocated_objects": 4419145,
+      "peak_rss_bytes": 41172992,
+      "store_bytes": 664,
+      "source_bytes": 100813
+    },
+    "after": {
+      "cpu_s": 1.544632,
+      "wall_s": 1.552148999995552,
+      "allocated_objects": 3919145,
+      "peak_rss_bytes": 42516480,
+      "store_bytes": 664,
+      "source_bytes": 106094
+    }
+  },
+  "ratios": {
+    "cpu_s": 1.0946956623423565,
+    "wall_s": 1.097339983681242,
+    "allocated_objects": 0.8868559415905113,
+    "peak_rss_bytes": 1.0326303223239157,
+    "store_bytes": 1.0,
+    "source_bytes": 1.0523841171277515
+  },
+  "primary": "cpu_s",
+  "noise_floor": 0.03,
+  "improved": false,
+  "finished_at": "2026-11-13T16:46:51Z",
+  "historical_aggregate_ceiling_comparison": {
+    "source": "benchmarks/show_skip_pressure_ceilings.json",
+    "limits": {
+      "cpu_s": 1.5332079,
+      "wall_s": 1.5369011500442866,
+      "allocated_objects": 6875650.85,
+      "peak_rss_bytes": 47989555.199999996,
+      "store_bytes": 755.55,
+      "source_bytes": 98108.85
+    },
+    "checks": {
+      "before": {
+        "cpu_s": true,
+        "wall_s": true,
+        "allocated_objects": true,
+        "peak_rss_bytes": true,
+        "store_bytes": true,
+        "source_bytes": false
+      },
+      "after": {
+        "cpu_s": false,
+        "wall_s": false,
+        "allocated_objects": true,
+        "peak_rss_bytes": true,
+        "store_bytes": true,
+        "source_bytes": false
+      }
+    }
+  }
+}

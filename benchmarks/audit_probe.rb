@@ -69,7 +69,7 @@ module AuditProbe
     probe = ENV.fetch("PROBE")
     count = Integer(ENV.fetch("N", "10000"))
     Tempfile.create(["onni-audit", ".yml"]) do |file|
-      file.write("new_checkout:\n  type: boolean\nsearch_v2:\n  type: percentage\n")
+      file.write("new_checkout:\n  everyone: true\nsearch_v2:\n  level: 0\n")
       file.flush
       Onni.configuration.features_path = file.path
       Onni::Registry.reload!

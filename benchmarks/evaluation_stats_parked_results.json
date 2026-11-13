@@ -1,0 +1,167 @@
+{
+  "mode": "compare",
+  "started_at": "2026-11-13T18:34:22Z",
+  "machine_class": "arm64-darwin24/Ruby 4.0.2",
+  "probe": "parked",
+  "count": 100000,
+  "samples": 3,
+  "network": "not_in_scope",
+  "memory": "process_lifetime",
+  "energy_proxy": "cpu_s",
+  "harness_digest": "30d8350803d4397202831377c444a16c85698488dfdffb32116cd2900ec7d3fb",
+  "revision": "de1ff4e11cb4d62da4760fdb6e9b397d9f682546",
+  "source_digests": {
+    "before": "7889ec6e4b3e94ff6694905bc7f977cfdb6f373c016e6e0884590f7b20598da4",
+    "after": "f02f9c7c5e773dd522c58b172b8ce26af8a9f87cbdcbab018485d7840f39f64d"
+  },
+  "raw": {
+    "before": [
+      {
+        "wall_s": 0.07083699997747317,
+        "cpu_s": 0.07073099999999999,
+        "allocated_objects": 200009,
+        "stats_rows": 0,
+        "store_bytes": 2,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 106094,
+        "stage_batch_p95_s": {
+          "boolean": 0.00010499998461455107,
+          "actor": 0.0001860000193119049,
+          "percentage": 0.00018400000408291817,
+          "group": 0.00011899997480213642,
+          "variant": 0.00029499997617676854,
+          "conditions": 0.00015999999595806003,
+          "stats": 0.00004600000102072954
+        },
+        "peak_rss_bytes": 40714240
+      },
+      {
+        "wall_s": 0.07217599998693913,
+        "cpu_s": 0.07209399999999999,
+        "allocated_objects": 200009,
+        "stats_rows": 0,
+        "store_bytes": 2,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 106094,
+        "stage_batch_p95_s": {
+          "boolean": 0.00013599998783320189,
+          "actor": 0.00014600000577047467,
+          "percentage": 0.00016599998343735933,
+          "group": 0.00010599999222904444,
+          "variant": 0.00033300003269687295,
+          "conditions": 0.00014299998292699456,
+          "stats": 0.00004099996294826269
+        },
+        "peak_rss_bytes": 41828352
+      },
+      {
+        "wall_s": 0.07177899999078363,
+        "cpu_s": 0.07167999999999997,
+        "allocated_objects": 200009,
+        "stats_rows": 0,
+        "store_bytes": 2,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 106094,
+        "stage_batch_p95_s": {
+          "boolean": 0.00011500000255182385,
+          "actor": 0.00016799999866634607,
+          "percentage": 0.0001889999839477241,
+          "group": 0.00010699999984353781,
+          "variant": 0.00029799999902024865,
+          "conditions": 0.0001449999981559813,
+          "stats": 0.00004099996294826269
+        },
+        "peak_rss_bytes": 43122688
+      }
+    ],
+    "after": [
+      {
+        "wall_s": 0.2198039999930188,
+        "cpu_s": 0.21955599999999997,
+        "allocated_objects": 800009,
+        "stats_rows": 1,
+        "store_bytes": 96,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 114099,
+        "stage_batch_p95_s": {
+          "boolean": 0.00017199997091665864,
+          "actor": 0.00018699996871873736,
+          "percentage": 0.00018400000408291817,
+          "group": 0.00007799995364621282,
+          "variant": 0.0002809999859891832,
+          "conditions": 0.00015600002370774746,
+          "stats": 0.0001829999964684248
+        },
+        "peak_rss_bytes": 41140224
+      },
+      {
+        "wall_s": 0.2167139999801293,
+        "cpu_s": 0.21638600000000002,
+        "allocated_objects": 800009,
+        "stats_rows": 1,
+        "store_bytes": 96,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 114099,
+        "stage_batch_p95_s": {
+          "boolean": 0.00017800001660361886,
+          "actor": 0.00015999999595806003,
+          "percentage": 0.0001990000018849969,
+          "group": 0.0000850000069476664,
+          "variant": 0.0002799999783746898,
+          "conditions": 0.00015400000847876072,
+          "stats": 0.0001479999627918005
+        },
+        "peak_rss_bytes": 41795584
+      },
+      {
+        "wall_s": 0.2213939999928698,
+        "cpu_s": 0.22102700000000003,
+        "allocated_objects": 800009,
+        "stats_rows": 1,
+        "store_bytes": 96,
+        "cache_accounted_bytes": 0,
+        "source_bytes": 114099,
+        "stage_batch_p95_s": {
+          "boolean": 0.00013399997260421515,
+          "actor": 0.00017200002912431955,
+          "percentage": 0.00022200000239536166,
+          "group": 0.00008600001456215978,
+          "variant": 0.00029500003438442945,
+          "conditions": 0.0001700000138953328,
+          "stats": 0.0001420000335201621
+        },
+        "peak_rss_bytes": 40828928
+      }
+    ]
+  },
+  "summary": {
+    "before": {
+      "cpu_s": 0.07167999999999997,
+      "wall_s": 0.07177899999078363,
+      "allocated_objects": 200009,
+      "peak_rss_bytes": 43122688,
+      "store_bytes": 2,
+      "source_bytes": 106094
+    },
+    "after": {
+      "cpu_s": 0.21955599999999997,
+      "wall_s": 0.2198039999930188,
+      "allocated_objects": 800009,
+      "peak_rss_bytes": 41795584,
+      "store_bytes": 96,
+      "source_bytes": 114099
+    }
+  },
+  "ratios": {
+    "cpu_s": 3.0630022321428583,
+    "wall_s": 3.0622326867362526,
+    "allocated_objects": 3.9998650060747267,
+    "peak_rss_bytes": 0.9692249240121581,
+    "store_bytes": 48.0,
+    "source_bytes": 1.0754519576978905
+  },
+  "primary": "cpu_s",
+  "noise_floor": 0.03,
+  "improved": false,
+  "finished_at": "2026-11-13T18:34:24Z"
+}

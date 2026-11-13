@@ -1,0 +1,50 @@
+<% filters = flag.filters %>
+<% update_path = admin_features_update_feature_path(key: flag.name) %>
+<section aria-labelledby="audience-title">
+  <h2 id="audience-title" class="text-lg font-bold mb-4">Audience filters</h2>
+  <p>All set filters must match. Within an include list, any value may match. Excluded matches are always hidden.</p>
+  <p>Set Everyone, an include list, or a percentage to open an audience. Saving filters preserves the current power state.</p>
+  <p>Park stops the flag and keeps these settings. Ready resumes it.</p>
+  <% if filters.empty? %>
+    <p>No audience filters are set. This flag is hidden from everyone.</p>
+  <% end %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+    <% Onni::RolloutForm::FILTER_LABELS.each do |key, label| %>
+      <% value = filters[key] %>
+      <section class="border rounded p-4" aria-labelledby="filter-title-<%= key %>">
+        <h3 id="filter-title-<%= key %>" class="font-bold"><%= label %></h3>
+        <div class="my-2" aria-label="Current <%= label.downcase %>">
+          <% if !filters.key?(key) %>
+            <span>Not set</span>
+          <% elsif value.is_a?(Array) %>
+            <% if value.empty? %>
+              <span><%= %w[groups actors].include?(key) ? "Empty list: matches nobody" : "Empty list: excludes nobody" %></span>
+            <% end %>
+            <% value.each do |entry| %>
+              <span class="inline-block border rounded px-2 py-1 mr-1 mb-1"><%= entry %></span>
+            <% end %>
+          <% else %>
+            <span><%= key == "everyone" ? (value ? "On" : "Off") : "#{value}%" %></span>
+          <% end %>
+        </div>
+        <%= form_tag update_path, method: :post, class: "space-y-2" do %>
+          <%= hidden_field_tag :filter, key, id: nil %>
+          <%= label_tag "filter-value-#{key}", label %>
+          <% if key == "everyone" %>
+            <%= select_tag :value, options_for_select([["On", "true"], ["Off", "false"]], value == true ? "true" : "false"), id: "filter-value-#{key}" %>
+          <% elsif key == "level" %>
+            <%= number_field_tag :value, value, min: 0, max: 100, required: true, id: "filter-value-#{key}" %>
+          <% else %>
+            <%= text_area_tag :value, Array(value).join("\n"), rows: 3, id: "filter-value-#{key}", "aria-describedby": "filter-help-#{key}" %>
+            <p id="filter-help-<%= key %>"><%= key.include?("groups") ? "Group names" : "Actor identifiers" %>, one per line.</p>
+          <% end %>
+          <%= submit_tag "Set #{label.downcase}", class: "action-item-button" %>
+        <% end %>
+        <% if filters.key?(key) %>
+          <%= button_to "Remove #{label.downcase} filter", update_path, method: :post,
+                params: {remove_filter: key}, class: "action-item-button mt-2" %>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+</section>

@@ -4,12 +4,15 @@ require "zlib"
 require "json"
 require "onni/version"
 require "onni/configuration"
+require "onni/stats/policy"
 require "onni/sync"
 require "onni/instrumenter"
 require "onni/registry"
 require "onni/actor"
 require "onni/group"
 require "onni/conditions"
+require "onni/gate_snapshot"
+require "onni/audience"
 require "onni/stats"
 require "onni/settings"
 require "onni/flag"
@@ -32,9 +35,9 @@ module Onni
     end
 
     def configure
+      selected_adapter = configuration.adapter
       yield configuration
-      Sync.reset!
-      @adapter = nil
+      @adapter = nil if selected_adapter != configuration.adapter
     end
 
     def adapter
@@ -47,7 +50,7 @@ module Onni
       @adapter = nil
     end
 
-    def visible?(name, actor = nil, record_stats: true)
+    def visible?(name, actor = nil, record_stats: nil)
       Store.visible?(name, actor, record_stats: record_stats)
     end
 
@@ -63,7 +66,7 @@ module Onni
       Store.power_state(name) == :parked
     end
 
-    def variant(name, actor = nil, record_stats: true)
+    def variant(name, actor = nil, record_stats: nil)
       Store.variant(name, actor, record_stats: record_stats)
     end
 
@@ -78,6 +81,10 @@ module Onni
     def add(name)
       Registry.require_definition!(name)
       adapter.add(name)
+    end
+
+    def define!(name, description:, expires_at:, **settings)
+      Registry.define!(name, description: description, expires_at: expires_at, **settings)
     end
 
     def exist?(name)
@@ -128,6 +135,7 @@ module Onni
         else
           keys.each_with_object({}) { |key, hash| hash[key] = adapter.gates_for(key) }
         end
+      loaded.transform_values! { |gates| GateSnapshot.wrap(gates) }
       RequestStore.gates = (RequestStore.gates || {}).merge(loaded)
       loaded.size
     end
@@ -137,7 +145,7 @@ module Onni
     end
 
     def reset_request!
-      Stats::Buffer.flush! if configuration.stats_buffer
+      Stats::Buffer.flush!
     rescue => error
       configuration.logger&.warn("Onni stats flush failed: #{error.class}")
     ensure

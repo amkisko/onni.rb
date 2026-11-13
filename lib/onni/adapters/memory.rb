@@ -83,9 +83,9 @@ module Onni
           list = @gates[key.to_s]
           next if list.nil?
 
-          @gates[key.to_s] = list.reject do |gate|
+          @gates[key.to_s] = GateSnapshot.new(list.reject do |gate|
             gate["key"] == gate_key.to_s && (value.nil? || gate["value"] == value.to_s)
-          end.freeze
+          end)
         end
       end
 
@@ -103,14 +103,14 @@ module Onni
       end
 
       def freeze_gates(gates)
-        gates.map do |gate|
+        GateSnapshot.new(gates.map do |gate|
           key = (gate[:key] || gate["key"]).to_s
           value = (gate[:value] || gate["value"]).to_s
           {
             "key" => key.frozen? ? key : key.dup.freeze,
             "value" => value.frozen? ? value : value.dup.freeze
           }.freeze
-        end.freeze
+        end)
       end
     end
   end

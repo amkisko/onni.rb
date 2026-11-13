@@ -64,7 +64,7 @@ RSpec.describe Onni::Sync do
   it "retains every audience update when writers share a flag" do
     Onni.configuration.concurrency = :mutex
     Onni.adapter = Onni::Adapters::Memory.new
-    allow(Onni::Registry).to receive(:config).and_return("demo" => {"type" => "group"})
+    allow(Onni::Registry).to receive(:config).and_return("demo" => {"groups" => []})
     threads = 8.times.map do |index|
       Thread.new { Onni.visible_group!(:demo, "group_#{index}") }
     end

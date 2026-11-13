@@ -10,8 +10,8 @@ RSpec.describe "Onni request preload" do
     allow(Onni::Registry).to receive(:require_definition!)
     allow(Onni::Registry).to receive_messages(
       known?: true,
-      definition: {"type" => "boolean", "description" => "Demo", "expires_at" => "2099-01-01"},
-      config: {"demo" => {"type" => "boolean"}, "search_v2" => {"type" => "boolean"}}
+      definition: {"everyone" => true, "description" => "Demo", "expires_at" => "2099-01-01"},
+      config: {"demo" => {"everyone" => true}, "search_v2" => {"everyone" => true}}
     )
     Onni.ready!(:demo)
     Onni.ready!(:search_v2)

@@ -1,0 +1,260 @@
+{
+  "command": "bundle exec ruby usr/scripts/check_audience_filter_matrix.rb",
+  "product_digest": "f02f9c7c5e773dd522c58b172b8ce26af8a9f87cbdcbab018485d7840f39f64d",
+  "test_digests": {
+    "spec/onni/audience_filter_matrix_spec.rb": "5936050c6d3d434a276ac9d0ff69ba5d3817da90c0b43a84d4c766945715dad9",
+    "spec/support/audience_filter_cases.rb": "97e50f91aa9812bdaabccf34bda8a4520aedb66cedbaaacd48edfd92e8a90281",
+    "usr/scripts/check_audience_filter_matrix.rb": "022529520de7485abb67c37ccb1d28b03ee06ec22bcc947e05304fabf0c8ba7d"
+  },
+  "dimensions": {
+    "everyone": [
+      "absent",
+      "off",
+      "on"
+    ],
+    "groups": [
+      "absent",
+      "empty",
+      "beta",
+      "staff",
+      "both"
+    ],
+    "actors": [
+      "absent",
+      "empty",
+      "beta",
+      "staff",
+      "both"
+    ],
+    "excluded_groups": [
+      "absent",
+      "empty",
+      "beta",
+      "staff",
+      "both"
+    ],
+    "excluded_actors": [
+      "absent",
+      "empty",
+      "beta",
+      "staff",
+      "both"
+    ],
+    "level": [
+      "absent",
+      "zero",
+      "below_both",
+      "beta_only",
+      "both",
+      "full"
+    ]
+  },
+  "unique_filter_combinations": 11250,
+  "profiles": {
+    "order": 9,
+    "restrictions": 9,
+    "composition": 18,
+    "precedence": 3
+  },
+  "case_counts": {
+    "composition": 202500,
+    "precedence": 2187,
+    "restrictions": 576,
+    "order": 6480
+  },
+  "park_cases": 67500,
+  "resume_cases": 135000,
+  "actor_cases": [
+    "anonymous",
+    "beta",
+    "staff"
+  ],
+  "apis": [
+    "visible?",
+    "variant"
+  ],
+  "configuration_readers": [
+    "Flag#power_state",
+    "Flag#filters",
+    "Flag#variants"
+  ],
+  "public_api_evaluations": 2485458,
+  "unmodified": {
+    "duration": 49.323526,
+    "example_count": 39,
+    "failure_count": 0,
+    "pending_count": 0,
+    "errors_outside_of_examples_count": 0
+  },
+  "mutations": [
+    {
+      "name": "everyone_bypasses_filters",
+      "detected": true,
+      "summary": {
+        "duration": 3.014834,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "missing_default_closed",
+      "detected": true,
+      "summary": {
+        "duration": 0.015191,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "empty_group_opens",
+      "detected": true,
+      "summary": {
+        "duration": 0.311183,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "group_excludes_ignored",
+      "detected": true,
+      "summary": {
+        "duration": 0.045799,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "actor_excludes_ignored",
+      "detected": true,
+      "summary": {
+        "duration": 0.027025,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "percentage_boundary_inclusive",
+      "detected": true,
+      "summary": {
+        "duration": 0.016109,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "assignment_bypasses_audience",
+      "detected": true,
+      "summary": {
+        "duration": 0.013253,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "ordinary_flag_assigns_variant",
+      "detected": true,
+      "summary": {
+        "duration": 0.013381,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "ordinary flag from runtime while ready"
+    },
+    {
+      "name": "update_readies_parked_flag",
+      "detected": true,
+      "summary": {
+        "duration": 0.013375,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while parked"
+    },
+    {
+      "name": "park_erases_settings",
+      "detected": true,
+      "summary": {
+        "duration": 0.013567,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "removed_filter_keeps_default",
+      "detected": true,
+      "summary": {
+        "duration": 0.014239,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "experiment with weights from runtime while ready"
+    },
+    {
+      "name": "partial_update_loses_filters",
+      "detected": true,
+      "summary": {
+        "duration": 0.020339,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "removed defaults for experiment with weights"
+    },
+    {
+      "name": "conditions_ignored",
+      "detected": true,
+      "summary": {
+        "duration": 0.012583,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "applies conditions to every filter-presence combination for experiment with weights"
+    },
+    {
+      "name": "expiry_ignored",
+      "detected": true,
+      "summary": {
+        "duration": 0.013556,
+        "example_count": 1,
+        "failure_count": 1,
+        "pending_count": 0,
+        "errors_outside_of_examples_count": 0
+      },
+      "example": "applies expired to every filter-presence combination for experiment with weights"
+    }
+  ],
+  "pass": true
+}

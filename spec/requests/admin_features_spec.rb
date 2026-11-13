@@ -37,7 +37,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
   end
 
   it "loads status gates once for a large registry" do
-    definitions = 50.times.to_h { |index| ["feature_#{index}", {"type" => "boolean"}] }
+    definitions = 50.times.to_h { |index| ["feature_#{index}", {"everyone" => true}] }
     allow(Onni::Registry).to receive(:config).and_return(definitions)
     queries = 0
     subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*arguments|
@@ -125,9 +125,9 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     end
   end
 
-  it "updates each type through its rollout form" do
+  it "configures filters independently of power and preserves them across park and ready" do
     Onni.register_group(:staff) { |_actor, _| true }
-    post admin_features_update_feature_path(key: "search_v2"), params: {level: "40"}
+    post admin_features_update_feature_path(key: "search_v2"), params: {filter: "level", value: "40"}
     expect(response).to redirect_to(admin_feature_path("search_v2"))
     expect(Onni.level(:search_v2)).to eq(40)
 
@@ -135,17 +135,23 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     expect(response).to redirect_to(admin_feature_path("demo"))
     expect(Onni.variants(:demo)).to eq("control" => 30, "treatment" => 70)
 
-    post admin_features_update_feature_path(key: "audience"), params: {group_name: "staff", group_action: "visible"}
+    post admin_features_update_feature_path(key: "audience"), params: {filter: "groups", value: "staff"}
+    expect(Onni.pending?(:audience)).to be(true)
+    Onni.ready!(:audience)
     expect(Onni.visible?(:audience, Object.new, record_stats: false)).to be(true)
-    post admin_features_update_feature_path(key: "audience"), params: {group_name: "staff", group_action: "drop"}
+    post admin_features_park_path(key: "audience")
+    expect(Onni[:audience].filters["groups"]).to eq(["staff"])
+    post admin_features_ready_path(key: "audience")
+    expect(Onni.visible?(:audience, Object.new, record_stats: false)).to be(true)
+    post admin_features_update_feature_path(key: "audience"), params: {filter: "groups", value: ""}
     expect(Onni.visible?(:audience, Object.new, record_stats: false)).to be(false)
   end
 
   it "rejects malformed settings without applying changes" do
-    post admin_features_update_feature_path(key: "search_v2"), params: {level: "invalid"}
+    post admin_features_update_feature_path(key: "search_v2"), params: {filter: "level", value: "invalid"}
     expect(response).to have_http_status(422)
     expect(Onni.ready?(:search_v2)).to be(false)
-    post admin_features_update_feature_path(key: "demo"), params: {level: "40", variants: {control: "invalid"}}
+    post admin_features_update_feature_path(key: "demo"), params: {variants: {control: "invalid"}}
     expect(response).to have_http_status(422)
     expect(Onni.variants(:demo)).to eq("control" => 50, "treatment" => 50)
   end
@@ -164,11 +170,11 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     expect(status.at_css("td").text.strip).to eq("Ready")
   end
 
-  it "renders only the controls for the declared type" do
+  it "renders editable filters for ordinary flags and experiments" do
     get admin_feature_path("search_v2")
     document = Nokogiri::HTML(response.body)
-    expect(document.at_css('input[name="level"]')).to be_present
-    expect(document.at_css('select[name="group_name"]')).to be_nil
+    expect(document.at_css('input[name="value"][type="number"]')).to be_present
+    expect(document.at_css('textarea[name="value"]')).to be_present
     expect(document.at_css('input[name="variants[control]"]')).to be_nil
   end
 
@@ -181,7 +187,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
   end
 
   it "uses the query-key detail route for reserved flag names" do
-    definitions = Onni::Registry.config.merge(%w[ready park pending visible show skip].to_h { |name| [name, {"type" => "boolean"}] })
+    definitions = Onni::Registry.config.merge(%w[ready park pending visible show skip].to_h { |name| [name, {"everyone" => true}] })
     allow(Onni::Registry).to receive(:config).and_return(definitions)
     get admin_features_path
     document = Nokogiri::HTML(response.body)

@@ -32,7 +32,7 @@ RSpec.describe "Onni ActiveAdmin visibility charts", type: :request do
 
     document = Nokogiri::HTML(response.body)
     expect(response).to have_http_status(:ok)
-    expect(document.at_css("option[selected]")["value"]).to eq("7d")
+    expect(document.at_css('select[name="range"] option[selected]')["value"]).to eq("7d")
     expect(document.at_css("[data-onni-shown-count]").text).to eq("9")
     expect(document.css("details table tbody tr").size).to eq(7)
   end

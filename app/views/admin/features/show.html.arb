@@ -2,7 +2,7 @@ flag = assigns.fetch(:flag)
 chart = assigns.fetch(:visibility_chart)
 variants = flag.variants
 feature_path = helpers.onni_feature_path(flag.name)
-rollout_form = Onni::RolloutForm.new(level: flag.level)
+rollout_form = Onni::RolloutForm.new
 
 div class: "main-content-container" do
   div class: "space-y-10" do
@@ -35,59 +35,26 @@ div class: "main-content-container" do
       end
     end
 
-    div do
-      h2 "Audience", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
-      attributes_table_for(flag) do
-        row("Type") { flag.type.capitalize }
-        case flag.type
-        when "percentage"
-          row("Level") { flag.level }
-        when "group"
-          row("Groups") { flag.groups.join(", ").presence || "None" }
-        when "actors"
-          row("Actors") { flag.actors.size }
-        end
-      end
-    end
+    text_node helpers.render(partial: "admin/features/audience", locals: {flag: flag})
 
-    if %w[percentage group experiment].include?(flag.type)
+    if flag.type == "experiment"
       div do
-        h2 "Rollout", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+        h2 "Variants", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
         active_admin_form_for(
           rollout_form,
           url: helpers.admin_features_update_feature_path(key: flag.name),
           method: :post
         ) do |f|
           f.inputs do
-            if flag.type == "percentage"
-              f.input :level,
+            variants.each_with_index do |(name, weight), index|
+              f.input :variant_weight,
                 as: :number,
-                label: "Level (0-100)",
-                input_html: {min: 0, max: 100, name: "level", id: "level"}
-            end
-            if flag.type == "group"
-              f.input :group_name,
-                as: :select,
-                collection: Onni::Group.names,
-                include_blank: true,
-                input_html: {name: "group_name", id: "group_name"}
-              f.input :group_action,
-                as: :select,
-                collection: [["Add group", "visible"], ["Remove group", "drop"]],
-                include_blank: "Action",
-                input_html: {name: "group_action", id: "group_action"}
-            end
-            if flag.type == "experiment"
-              variants.each_with_index do |(name, weight), index|
-                f.input :variant_weight,
-                  as: :number,
-                  label: "Variant #{name}",
-                  input_html: {min: 0, value: weight, name: "variants[#{name}]", id: "variant_#{index}"}
-              end
+                label: "Variant #{name}",
+                input_html: {min: 0, value: weight, name: "variants[#{name}]", id: "variant_#{index}"}
             end
           end
           f.actions do
-            f.action :submit, label: "Save"
+            f.action :submit, label: "Save variants"
           end
         end
       end

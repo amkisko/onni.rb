@@ -4,16 +4,25 @@ module Onni
   class RolloutForm
     include ActiveModel::Model
 
-    attr_accessor :level, :group_name, :group_action, :variant_weight
+    FILTER_LABELS = {
+      "everyone" => "Everyone", "groups" => "Include groups", "actors" => "Include actors",
+      "excluded_groups" => "Exclude groups", "excluded_actors" => "Exclude actors", "level" => "Percentage"
+    }.freeze
+
+    attr_accessor :variant_weight
 
     def apply!(name, parameters)
-      definition = Registry.require_definition!(name)
-      case Settings.type(definition)
-      when "percentage" then apply_level!(name, parameters)
-      when "group" then apply_group!(name, parameters)
-      when "experiment" then apply_variants!(name, parameters)
+      Registry.require_definition!(name)
+      if parameters[:remove_filter]
+        Onni.filters!(name, **{parameters[:remove_filter] => nil})
+      elsif parameters[:filter]
+        key = parameters[:filter].to_s
+        value = filter_value(key, parameters[:value])
+        Onni.filters!(name, **{key => value})
+      elsif parameters[:variants]
+        apply_variants!(name, parameters)
       else
-        raise ArgumentError, "No rollout settings for this type"
+        raise ArgumentError, "Choose a setting"
       end
     end
 
@@ -23,18 +32,16 @@ module Onni
 
     private
 
-    def apply_level!(name, parameters)
-      raise ArgumentError, "Choose a level" unless parameters[:level].present?
+    def filter_value(key, value)
+      raise ArgumentError, "Unknown audience filter" unless FILTER_LABELS.key?(key)
 
-      Onni.level!(name, parameters[:level])
-    end
+      case key
+      when "everyone"
+        raise ArgumentError, "Choose everyone setting" unless %w[true false].include?(value)
 
-    def apply_group!(name, parameters)
-      group = parameters[:group_name].to_s
-      case parameters[:group_action]
-      when "visible" then Onni.visible_group!(name, group)
-      when "drop" then Onni.drop_group!(name, group)
-      else raise ArgumentError, "Choose a group action"
+        value == "true"
+      when "level" then Integer(value, 10)
+      else value.to_s.split(/\r?\n/).map(&:strip).reject(&:empty?).uniq
       end
     end
 
@@ -42,7 +49,7 @@ module Onni
       weights = parameters[:variants]
       raise ArgumentError, "Choose variant weights" unless weights.respond_to?(:to_unsafe_h)
 
-      Onni.variants!(name, weights.to_unsafe_h.transform_values { |value| Integer(value) })
+      Onni.variants!(name, weights.to_unsafe_h.transform_values { |value| Integer(value, 10) })
     end
   end
 end

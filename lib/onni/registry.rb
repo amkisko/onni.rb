@@ -3,10 +3,12 @@
 require "time"
 require "yaml"
 require "onni/registry/validation"
+require "onni/registry/runtime"
 
 module Onni
   module Registry
     extend Validation
+    extend Runtime
 
     module_function
 
@@ -15,7 +17,7 @@ module Onni
       return loaded if loaded
 
       Sync.synchronize do
-        @config ||= load_config
+        @config ||= load_registry
       end
     end
 
@@ -39,10 +41,20 @@ module Onni
     end
 
     def raise_unknown!(name)
-      message = "Feature `#{name}` not found in features.yml"
+      message = "Feature `#{name}` is not defined"
       Onni.configuration.logger&.error(message)
       raise KeyError, message
     end
+
+    def load_registry
+      declared = load_config
+      runtime = @runtime_definitions || {}
+      collisions = declared.keys & runtime.keys
+      raise ArgumentError, "YAML and runtime definitions collide: #{collisions.join(", ")}" unless collisions.empty?
+
+      declared.merge(runtime)
+    end
+    private_class_method :load_registry
 
     def load_config
       path = Onni.configuration.features_path

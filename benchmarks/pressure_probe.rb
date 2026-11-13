@@ -71,6 +71,7 @@ module Onni
         Onni.configuration.cache = ActiveSupport::Cache::MemoryStore.new if probe == "cache"
         Onni.configuration.stats_enabled = %w[all parked pending ignored sampler buffer memory_write].include?(probe)
         Onni.configuration.stats_sample_rate = 1.0 if %w[sampler buffer memory_write].include?(probe)
+        Onni.configuration.stats_sample_rate = 1.0 if %w[parked pending].include?(probe)
         Onni.configuration.stats_sample_rate = 0.0 if probe == "ignored"
         Onni.configuration.stats_ignore = Array.new(100) { |index| "ignored_#{index}" } if probe == "ignored"
         if probe == "legacy_group"
@@ -89,8 +90,9 @@ module Onni
           1_000.times { call.call }
           metrics = measure { count.times { call.call } }
           if %w[parked pending].include?(probe)
-            raise "Hard-off contract failed" if Onni.visible?(:flag_group, actor)
-            raise "Hard-off stats contract failed" unless Onni::Stats.for(:flag_group).empty?
+            raise "Off-state visibility failed" if Onni.visible?(:flag_group, actor)
+            skips = Onni::Stats.for(:flag_group).sum { |row| row.fetch("skip_count") }
+            raise "Off-state stats failed" unless skips == count + 1_001
           end
           raise "Global contract failed" unless Onni.visible?(:flag_boolean, actor, record_stats: false)
           raise "Percentage contract failed" unless Onni.visible?(:flag_percentage, actor, record_stats: false)

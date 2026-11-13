@@ -1,0 +1,102 @@
+{
+  "mode": "compare",
+  "started_at": "2026-11-13T16:46:29Z",
+  "machine_class": "arm64-darwin24/Ruby 4.0.2",
+  "probe": "group",
+  "count": 100000,
+  "samples": 3,
+  "network": "not_in_scope",
+  "memory": "process_lifetime",
+  "energy_proxy": "cpu_s",
+  "harness_digest": "7c14b40e3d8b2810def64a0156f05a38992bd7204983224c8ac8e3fc55122311",
+  "probe_digest": "e89fed34ee394dea478963ac8eee3ebba4964ce94db441de336aade3de9f6d92",
+  "revision": "de1ff4e11cb4d62da4760fdb6e9b397d9f682546",
+  "source_digests": {
+    "before": "e1e13ecb47cf99c07b962842474470ecd3d2c73005d6936a313d5b96cc27e38d",
+    "after": "7889ec6e4b3e94ff6694905bc7f977cfdb6f373c016e6e0884590f7b20598da4"
+  },
+  "raw": {
+    "before": [
+      {
+        "cpu_s": 0.17808600000000002,
+        "wall_s": 0.17843700002413243,
+        "allocated_objects": 700011,
+        "store_bytes": 99,
+        "source_bytes": 100813,
+        "peak_rss_bytes": 34095104
+      },
+      {
+        "cpu_s": 0.182289,
+        "wall_s": 0.1825560000143014,
+        "allocated_objects": 700011,
+        "store_bytes": 99,
+        "source_bytes": 100813,
+        "peak_rss_bytes": 33243136
+      },
+      {
+        "cpu_s": 0.18397499999999997,
+        "wall_s": 0.1841880000429228,
+        "allocated_objects": 700011,
+        "store_bytes": 99,
+        "source_bytes": 100813,
+        "peak_rss_bytes": 33538048
+      }
+    ],
+    "after": [
+      {
+        "cpu_s": 0.16032599999999997,
+        "wall_s": 0.16061800002353266,
+        "allocated_objects": 300011,
+        "store_bytes": 113,
+        "source_bytes": 106094,
+        "peak_rss_bytes": 34652160
+      },
+      {
+        "cpu_s": 0.159436,
+        "wall_s": 0.1597360000014305,
+        "allocated_objects": 300011,
+        "store_bytes": 113,
+        "source_bytes": 106094,
+        "peak_rss_bytes": 33079296
+      },
+      {
+        "cpu_s": 0.16176300000000002,
+        "wall_s": 0.16204899997683242,
+        "allocated_objects": 300011,
+        "store_bytes": 113,
+        "source_bytes": 106094,
+        "peak_rss_bytes": 34586624
+      }
+    ]
+  },
+  "summary": {
+    "before": {
+      "cpu_s": 0.182289,
+      "wall_s": 0.1825560000143014,
+      "allocated_objects": 700011,
+      "peak_rss_bytes": 34095104,
+      "store_bytes": 99,
+      "source_bytes": 100813
+    },
+    "after": {
+      "cpu_s": 0.16032599999999997,
+      "wall_s": 0.16061800002353266,
+      "allocated_objects": 300011,
+      "peak_rss_bytes": 34652160,
+      "store_bytes": 113,
+      "source_bytes": 106094
+    }
+  },
+  "ratios": {
+    "cpu_s": 0.879515494626664,
+    "wall_s": 0.8798286553767057,
+    "allocated_objects": 0.42858040802215963,
+    "peak_rss_bytes": 1.0163382988947622,
+    "store_bytes": 1.1414141414141414,
+    "source_bytes": 1.0523841171277515
+  },
+  "primary": "cpu_s",
+  "noise_floor": 0.03,
+  "improved": true,
+  "finished_at": "2026-11-13T16:46:31Z"
+}

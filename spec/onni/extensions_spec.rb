@@ -26,7 +26,7 @@ RSpec.describe "Onni opt-in extensions" do
   it "persists gates and counters through ActiveRecord without loading Rails" do
     Dir.mktmpdir("onni-active-record") do |directory|
       path = File.join(directory, "features.yml")
-      File.write(path, "new_checkout:\n  type: boolean\n")
+      File.write(path, "new_checkout:\n  everyone: true\n")
       result = isolated_ruby(<<~RUBY, path, coverage_name: "active-record-extension")
         module RailsRequireGuard
           def require(name)
@@ -54,7 +54,7 @@ RSpec.describe "Onni opt-in extensions" do
   it "initializes Rails integration without loading persistence or admin plugins" do
     Dir.mktmpdir("onni-rails") do |directory|
       FileUtils.mkdir_p(File.join(directory, "config"))
-      File.write(File.join(directory, "config/features.yml"), "new_checkout:\n  type: boolean\n")
+      File.write(File.join(directory, "config/features.yml"), "new_checkout:\n  everyone: true\n")
       result = isolated_ruby(<<~RUBY, directory, coverage_name: "rails-extension")
         ENV["RAILS_ENV"] = "test"
         module PersistenceRequireGuard

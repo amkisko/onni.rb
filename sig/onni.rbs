@@ -6,13 +6,16 @@ module Onni
   def self.adapter: () -> untyped
   def self.adapter=: (untyped) -> untyped
   def self.reset_adapter!: () -> void
-  def self.visible?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
+  def self.visible?: (untyped name, ?untyped? actor, ?record_stats: bool?) -> bool
   def self.ready?: (untyped name) -> bool
   def self.pending?: (untyped name) -> bool
   def self.parked?: (untyped name) -> bool
   def self.ready!: (untyped name) -> true
   def self.park!: (untyped name) -> true
   def self.clear!: (untyped name) -> true
+  def self.filters!: (untyped name, **untyped filters) -> true
+  def self.stats!: (untyped name, **untyped settings) -> true
+  def self.define!: ((String | Symbol) name, description: String, expires_at: String, **untyped settings) -> true
   def self.visible_group!: (untyped name, untyped group_name) -> true
   def self.drop_group!: (untyped name, untyped group_name) -> true
   def self.visible_actor!: (untyped name, untyped actor) -> true
@@ -21,7 +24,7 @@ module Onni
   def self.level: (untyped name) -> Integer
   def self.variants!: (untyped name, untyped variants) -> true
   def self.variants: (untyped name) -> Hash[String, Integer]
-  def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool) -> untyped
+  def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool?) -> untyped
   def self.add: (untyped name) -> untyped
   def self.exist?: (untyped name) -> bool
   def self.features: () -> Array[Flag]
@@ -54,7 +57,7 @@ module Onni
     attr_accessor logger: untyped
     attr_accessor instrumenter: untyped
     attr_reader concurrency: Symbol
-    def concurrency=: (untyped) -> Symbol
+    def concurrency=: (untyped) -> void
   end
 
   module Middleware
@@ -90,12 +93,14 @@ module Onni
     attr_reader name: String
     def initialize: (untyped name) -> void
     def exist?: () -> bool
-    def visible?: (?untyped? actor, ?record_stats: bool) -> bool
+    def visible?: (?untyped? actor, ?record_stats: bool?) -> bool
     def power_state: () -> (:ready | :pending | :parked)?
     def ready?: () -> bool
     def pending?: () -> bool
     def parked?: () -> bool
-    def type: () -> String
+    def type: () -> String?
+    def filters: () -> Hash[String, untyped]
+    def stats_settings: () -> Hash[String, untyped]?
     def level: () -> Integer
     def groups: () -> Array[String]
     def actors: () -> Array[String]
@@ -122,8 +127,8 @@ module Onni
   end
 
   module Store
-    def self.visible?: (untyped name, ?untyped? actor, ?record_stats: bool) -> bool
-    def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool) -> untyped
+    def self.visible?: (untyped name, ?untyped? actor, ?record_stats: bool?) -> bool
+    def self.variant: (untyped name, ?untyped? actor, ?record_stats: bool?) -> untyped
     def self.power_state: (untyped name) -> (:ready | :pending | :parked)?
     def self.bust_cache!: (untyped name) -> untyped
   end
@@ -134,7 +139,9 @@ module Onni
     def self.known?: (untyped name) -> bool
     def self.definition: (untyped name) -> untyped
     def self.require_definition!: (untyped name) -> untyped
+    def self.define!: ((String | Symbol) name, description: String, expires_at: String, **untyped settings) -> true
     def self.validate_variants!: (untyped variants) -> void
+    def self.validate_filters!: (untyped filters, ?nullable: bool) -> void
   end
 
   module Group
@@ -156,7 +163,7 @@ module Onni
   end
 
   module Stats
-    def self.record: (untyped name, shown: bool) -> untyped
+    def self.record: (untyped name, shown: bool, ?record_stats: bool?, ?definition: Hash[String, untyped], ?gates: untyped) -> untyped
     def self.for: (untyped name, ?period: String, ?from: untyped, ?to: untyped) -> Array[Hash[String, untyped]]
     def self.purge!: (**untyped) -> Hash[Symbol, untyped]
     def self.overview: () -> Hash[Symbol, untyped]
@@ -169,7 +176,7 @@ module Onni
 
     module Sampler
       MAX_WEIGHT: Integer
-      def self.decide: (name: untyped, shown: bool) -> (:skip | Hash[Symbol, untyped])
+      def self.decide: (name: untyped, shown: bool, ?sample_rate: (Integer | Float)?) -> (:skip | Hash[Symbol, untyped])
       def self.coerce_rate: (untyped) -> Float
       def self.weight_for: (Float) -> Integer
     end

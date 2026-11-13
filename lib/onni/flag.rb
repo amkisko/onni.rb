@@ -14,7 +14,7 @@ module Onni
       Registry.known?(name)
     end
 
-    def visible?(actor = nil, record_stats: true)
+    def visible?(actor = nil, record_stats: nil)
       Onni.visible?(name, actor, record_stats: record_stats)
     end
 
@@ -90,6 +90,14 @@ module Onni
 
     def groups
       Settings.list("groups", definition, gates)
+    end
+
+    def filters
+      Settings.filters(definition, gates).slice(*Registry::Validation::FILTER_KEYS).compact
+    end
+
+    def stats_settings
+      Stats::Policy.settings(definition, gates) if exist?
     end
 
     def actors

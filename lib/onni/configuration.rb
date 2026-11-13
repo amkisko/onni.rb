@@ -56,6 +56,7 @@ module Onni
       unless CONCURRENCY_MODES.include?(mode)
         raise ArgumentError, "Unknown Onni concurrency #{value.inspect} (expected #{CONCURRENCY_MODES.join(", ")})"
       end
+      return if @concurrency == mode
 
       @concurrency = mode
       Sync.reset! if defined?(Onni::Sync)

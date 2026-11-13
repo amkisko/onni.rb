@@ -24,7 +24,7 @@ RSpec.describe Onni::Store do
     allow(Onni::Registry).to receive_messages(
       known?: true,
       definition: {
-        "type" => "experiment",
+        "type" => "experiment", "everyone" => true,
         "description" => "Demo",
         "expires_at" => "2099-01-01",
         "variants" => {"control" => 50, "treatment" => 50}
@@ -43,7 +43,7 @@ RSpec.describe Onni::Store do
 
   it "reads gate variants when YAML has none, still with one gates fetch" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "experiment",
+      "type" => "experiment", "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2099-01-01"
     )

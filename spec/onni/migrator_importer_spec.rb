@@ -25,7 +25,7 @@ RSpec.describe Onni::Migrator::Importer do
   before do
     Onni.adapter = Onni::Adapters::Memory.new
     Onni.configuration.stats_enabled = false
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "boolean")
+    allow(Onni::Registry).to receive(:definition).and_return("everyone" => true)
     allow(Onni::Registry).to receive(:known?) { |name| name.to_s == "demo" }
     allow(Onni::Registry).to receive(:require_definition!) { |name|
       raise KeyError unless name.to_s == "demo"
@@ -34,16 +34,16 @@ RSpec.describe Onni::Migrator::Importer do
 
   it "imports only known features and supported gates" do
     result = described_class.new(source).call
-    expect(result).to eq(features: 1, gates: 1, skipped_gates: 2)
-    expect(Onni.visible?(:demo)).to be(true)
+    expect(result).to eq(features: 1, gates: 2, skipped_gates: 1)
+    expect(Onni.visible?(:demo)).to be(false)
     gates = Onni.adapter.gates_for(:demo)
     expect(gates).to include({"key" => "powered", "value" => "true"})
-    expect(gates).not_to include(hash_including("key" => "actors"))
+    expect(Onni[:demo].actors).to eq(["User;1"])
     expect(gates).not_to include(hash_including("key" => "expression"))
   end
 
   it "imports variants gates" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "experiment")
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "experiment", "everyone" => true)
     variants_source = Onni::Migrator::Snapshot.new(
       feature_keys: %w[demo],
       gates: [
@@ -57,8 +57,17 @@ RSpec.describe Onni::Migrator::Importer do
     expect(Onni[:demo].variants).to eq("control" => 50, "treatment" => 50)
   end
 
+  it "imports validated feature statistics settings and skips malformed ones" do
+    source = Onni::Migrator::Snapshot.new(feature_keys: ["demo"], gates: [
+      {feature_key: "demo", key: "stats", value: JSON.generate("enabled" => false, "sample_rate" => 0.25)},
+      {feature_key: "demo", key: "stats", value: JSON.generate("sample_rate" => 2)}
+    ])
+    expect(Onni.migrate!(source)).to include(gates: 1, skipped_gates: 1)
+    expect(Onni[:demo].stats_settings).to eq("enabled" => false, "sample_rate" => 0.25)
+  end
+
   it "accepts string-keyed gate rows" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "group")
+    allow(Onni::Registry).to receive(:definition).and_return("groups" => [])
     string_source = Onni::Migrator::Snapshot.new(
       feature_keys: %w[demo],
       gates: [{"feature_key" => "demo", "key" => "groups", "value" => "beta_testers"}]
@@ -73,30 +82,30 @@ RSpec.describe Onni::Migrator::Importer do
 
   it "is reachable via Onni.migrate!" do
     result = Onni.migrate!(source)
-    expect(result).to eq(features: 1, gates: 1, skipped_gates: 2)
+    expect(result).to eq(features: 1, gates: 2, skipped_gates: 1)
   end
 
-  it "does not import a mixed legacy gate as an OR across types" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "percentage", "level" => 0)
+  it "imports mixed audience gates as an intersection" do
+    allow(Onni::Registry).to receive(:definition).and_return("level" => 0)
     mixed = Onni::Migrator::Snapshot.new(feature_keys: ["demo"], gates: [
       {feature_key: "demo", key: "boolean", value: "true"},
       {feature_key: "demo", key: "percentage_of_actors", value: "0"},
       {feature_key: "demo", key: "groups", value: "beta_testers"}
     ])
     result = Onni.migrate!(mixed)
-    expect(result).to include(gates: 2, skipped_gates: 1)
+    expect(result).to include(gates: 3, skipped_gates: 0)
     expect(Onni.ready?(:demo)).to be(true)
     expect(Onni.visible?(:demo, Struct.new(:id).new(1), record_stats: false)).to be(false)
   end
 
   it "skips malformed imported variant weights instead of breaking evaluation" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "experiment")
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "experiment", "everyone" => true)
     malformed = Onni::Migrator::Snapshot.new(feature_keys: ["demo"], gates: [
       {feature_key: "demo", key: "boolean", value: "true"},
       {feature_key: "demo", key: "variants", value: JSON.generate("control" => {"weight" => 100})}
     ])
     expect(Onni.migrate!(malformed)).to include(gates: 1, skipped_gates: 1)
-    expect(Onni.visible?(:demo, record_stats: false)).to be(false)
+    expect(Onni.variant(:demo, Struct.new(:id).new(7), record_stats: false)).to be_nil
   end
 
   it "imports boolean false from symbol-keyed rows as explicit parked power" do
@@ -119,7 +128,7 @@ RSpec.describe Onni::Migrator::Importer do
   end
 
   it "stores imported percentage levels with the same integer interpretation as validation" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "percentage")
+    allow(Onni::Registry).to receive(:definition).and_return("level" => 0)
     ["0x32", "1_0", "050", 25.9].each do |value|
       snapshot = Onni::Migrator::Snapshot.new(feature_keys: ["demo"], gates: [
         {feature_key: "demo", key: "percentage_of_actors", value: value}

@@ -7,20 +7,20 @@ require "securerandom"
 
 module Onni
   module Store
-    CACHE_KEY_PREFIX = "onni/gates/v2/"
+    CACHE_KEY_PREFIX = "onni/gates/v4/"
 
     @cache_states = ObjectSpace::WeakKeyMap.new
 
     module_function
 
-    def visible?(name, actor = nil, record_stats: true)
+    def visible?(name, actor = nil, record_stats: nil)
+      Stats::Policy.validate_option!(record_stats)
       definition = Registry.definition(name)
       return false unless definition
 
       gates = cached_gates(name)
-      return false unless Settings.powered?(gates, definition)
-      result = matches?(name, actor, definition, gates)
-      Stats.record(name, shown: result) if record_stats
+      result = Settings.powered?(gates, definition) && matches?(name, actor, definition, gates)
+      Stats.record(name, shown: result, record_stats: record_stats, definition: definition, gates: gates) unless record_stats == false
       result
     end
 
@@ -31,21 +31,27 @@ module Onni
       Settings.power_state(cached_gates(name), definition)
     end
 
-    def variant(name, actor = nil, record_stats: true)
+    def variant(name, actor = nil, record_stats: nil)
+      Stats::Policy.validate_option!(record_stats)
       definition = Registry.definition(name)
       return unless definition
-      return if actor.nil?
 
       gates = cached_gates(name)
+      result = assignment(name, actor, definition, gates)
+      Stats.record(name, shown: !result.nil?, record_stats: record_stats, definition: definition, gates: gates) unless record_stats == false
+      result
+    end
+
+    def assignment(name, actor, definition, gates)
+      return if actor.nil?
       return unless Settings.powered?(gates, definition)
       return unless Settings.type(definition) == "experiment"
 
       weights = Settings.variants(definition, gates)
-      matched = weights.values.sum.positive? && !expired?(definition) &&
-        Conditions.met?(name, actor, definition: definition)
-      Stats.record(name, shown: matched) if record_stats
+      matched = weights.values.sum.positive? && matches?(name, actor, definition, gates)
       Actor.variant_for(actor, name, weights) if matched
     end
+    private_class_method :assignment
 
     def matches?(name, actor, definition, gates)
       return false if expired?(definition)
@@ -56,16 +62,7 @@ module Onni
     private_class_method :matches?
 
     def audience_matches?(name, actor, definition, gates)
-      case Settings.type(definition)
-      when "boolean" then true
-      when "experiment" then Settings.variants(definition, gates).values.sum.positive?
-      when "actors" then Settings.list("actors", definition, gates).include?(Actor.id(actor))
-      when "group"
-        !actor.nil? && Settings.list("groups", definition, gates).any? { |group| Group.member?(group, actor) }
-      when "percentage"
-        !actor.nil? && Actor.percentage_value(actor, name) < Settings.level(definition, gates)
-      else false
-      end
+      Audience.matches?(name, actor, Settings.filters(definition, gates))
     end
     private_class_method :audience_matches?
 
@@ -90,7 +87,7 @@ module Onni
     def cached_gates(name)
       key = name.to_s
       preloaded = RequestStore.gates
-      return preloaded[key] if preloaded&.key?(key)
+      return GateSnapshot.wrap(preloaded[key]) if preloaded&.key?(key)
 
       cache = Onni.configuration.cache
       return read_gates(key) unless cache
@@ -103,17 +100,16 @@ module Onni
 
     def read_gates(name)
       adapter = Onni.adapter
-      return adapter.gates_snapshot_for(name) if adapter.respond_to?(:gates_snapshot_for)
-
-      adapter.gates_for(name)
+      gates = adapter.respond_to?(:gates_snapshot_for) ? adapter.gates_snapshot_for(name) : adapter.gates_for(name)
+      GateSnapshot.wrap(gates)
     end
     private_class_method :read_gates
 
     def bust_cache!(name)
       key = name.to_s
       cache = Onni.configuration.cache
+      old_key = cache_key(key, advance: true)
       if cache
-        old_key = cache_key(key, advance: true)
         begin
           cache.delete(old_key)
         rescue => error

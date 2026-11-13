@@ -1,0 +1,102 @@
+{
+  "mode": "compare",
+  "started_at": "2026-11-13T16:46:36Z",
+  "machine_class": "arm64-darwin24/Ruby 4.0.2",
+  "probe": "composed",
+  "count": 100000,
+  "samples": 3,
+  "network": "not_in_scope",
+  "memory": "process_lifetime",
+  "energy_proxy": "cpu_s",
+  "harness_digest": "7c14b40e3d8b2810def64a0156f05a38992bd7204983224c8ac8e3fc55122311",
+  "probe_digest": "e89fed34ee394dea478963ac8eee3ebba4964ce94db441de336aade3de9f6d92",
+  "revision": "de1ff4e11cb4d62da4760fdb6e9b397d9f682546",
+  "source_digests": {
+    "before": "e1e13ecb47cf99c07b962842474470ecd3d2c73005d6936a313d5b96cc27e38d",
+    "after": "7889ec6e4b3e94ff6694905bc7f977cfdb6f373c016e6e0884590f7b20598da4"
+  },
+  "raw": {
+    "before": [
+      {
+        "cpu_s": 0.730054,
+        "wall_s": 0.7315159999998286,
+        "allocated_objects": 3100011,
+        "store_bytes": 429,
+        "source_bytes": 100813,
+        "peak_rss_bytes": 32604160
+      },
+      {
+        "cpu_s": 0.727984,
+        "wall_s": 0.7292860000161454,
+        "allocated_objects": 3100011,
+        "store_bytes": 429,
+        "source_bytes": 100813,
+        "peak_rss_bytes": 32227328
+      },
+      {
+        "cpu_s": 0.73542,
+        "wall_s": 0.7364740000339225,
+        "allocated_objects": 3100011,
+        "store_bytes": 429,
+        "source_bytes": 100813,
+        "peak_rss_bytes": 31735808
+      }
+    ],
+    "after": [
+      {
+        "cpu_s": 0.23946699999999999,
+        "wall_s": 0.23975200002314523,
+        "allocated_objects": 600011,
+        "store_bytes": 219,
+        "source_bytes": 106094,
+        "peak_rss_bytes": 32931840
+      },
+      {
+        "cpu_s": 0.241562,
+        "wall_s": 0.24229700001887977,
+        "allocated_objects": 600011,
+        "store_bytes": 219,
+        "source_bytes": 106094,
+        "peak_rss_bytes": 33112064
+      },
+      {
+        "cpu_s": 0.239455,
+        "wall_s": 0.24009199999272823,
+        "allocated_objects": 600011,
+        "store_bytes": 219,
+        "source_bytes": 106094,
+        "peak_rss_bytes": 33243136
+      }
+    ]
+  },
+  "summary": {
+    "before": {
+      "cpu_s": 0.730054,
+      "wall_s": 0.7315159999998286,
+      "allocated_objects": 3100011,
+      "peak_rss_bytes": 32604160,
+      "store_bytes": 429,
+      "source_bytes": 100813
+    },
+    "after": {
+      "cpu_s": 0.23946699999999999,
+      "wall_s": 0.24009199999272823,
+      "allocated_objects": 600011,
+      "peak_rss_bytes": 33243136,
+      "store_bytes": 219,
+      "source_bytes": 106094
+    }
+  },
+  "ratios": {
+    "cpu_s": 0.32801272234656614,
+    "wall_s": 0.32821154970333455,
+    "allocated_objects": 0.19355124868911755,
+    "peak_rss_bytes": 1.0195979899497487,
+    "store_bytes": 0.5104895104895105,
+    "source_bytes": 1.0523841171277515
+  },
+  "primary": "cpu_s",
+  "noise_floor": 0.03,
+  "improved": true,
+  "finished_at": "2026-11-13T16:46:40Z"
+}

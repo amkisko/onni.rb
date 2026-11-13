@@ -37,7 +37,7 @@ module Onni
         say "Onni install notes:", :green
         say "  - After ActiveAdmin.routes(self), add Onni::ActiveAdminRoutes.draw(self)"
         say "  - Tailwind @source the gem app/admin and app/views paths with ActiveAdmin"
-        say "  - Production stats: template uses stats_buffer and stats_sample_rate 0.1"
+        say "  - Stats: template buffers evaluations and collects all calls"
         say "  - Prior-library import: Onni::Migrator::ActiveRecordTables or Snapshot; see README"
       end
     end

@@ -7,14 +7,28 @@ module Onni
     end
 
     def park!(name)
-      mutate(name, :park) do |gates, _|
-        gates.clear
-        set_gate(gates, "powered", "false")
-      end
+      mutate(name, :park) { |gates, _| set_gate(gates, "powered", "false") }
     end
 
     def clear!(name)
       mutate(name, :clear) { |gates, _| gates.clear }
+    end
+
+    def filters!(name, **filters)
+      changes = filters.transform_keys(&:to_s)
+      Registry.validate_filters!(changes)
+      mutate(name, :filters) do |gates, _|
+        write_filters(gates, changes)
+      end
+    end
+
+    def stats!(name, **settings)
+      changes = settings.transform_keys(&:to_s)
+      Stats::Policy.validate!(changes, nullable: true)
+      mutate(name, :stats) do |gates, _|
+        current = GateSnapshot.wrap(gates).stats || {"enabled" => false}
+        set_gate(gates, "stats", JSON.generate(current.merge(changes).compact))
+      end
     end
 
     def visible_group!(name, group)
@@ -35,8 +49,9 @@ module Onni
 
     def level!(name, value)
       level = Integer(value).clamp(0, 100)
-      mutate(name, :level, type: "percentage", level: level) do |gates, _|
+      mutate(name, :level, level: level) do |gates, _|
         set_gate(gates, "percentage_of_actors", level.to_s)
+        write_filters(gates, "level" => level)
         power(gates)
       end
     end
@@ -53,10 +68,9 @@ module Onni
     def audience_mutation(name, key, value, visible:)
       raise ArgumentError, "Audience must not be empty" if value.nil? || value.empty?
 
-      type = (key == "groups") ? "group" : "actors"
       operation = :"#{visible ? "visible" : "drop"}_#{(key == "groups") ? "group" : "actor"}"
       fields = (key == "groups") ? {group_name: value} : {actor_id: value}
-      mutate(name, operation, type: type, **fields) do |gates, definition|
+      mutate(name, operation, **fields) do |gates, definition|
         set_audience(gates, definition, key, value, visible: visible)
       end
     end
@@ -66,7 +80,13 @@ module Onni
       visible ? list.push(value).uniq! : list.delete(value)
       gates.reject! { |gate| gate["key"] == key }
       set_gate(gates, "#{key}_override", JSON.generate(list))
+      write_filters(gates, key => list)
       power(gates) if visible
+    end
+
+    def write_filters(gates, changes)
+      filters = GateSnapshot.wrap(gates).filters.merge(changes)
+      set_gate(gates, "audience_filters", JSON.generate(filters))
     end
 
     def mutate(name, operation, type: nil, **fields)

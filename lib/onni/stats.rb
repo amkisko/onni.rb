@@ -9,10 +9,14 @@ module Onni
   module Stats
     module_function
 
-    def record(name, shown:)
+    def record(name, shown:, record_stats: nil, definition: Policy::EMPTY, gates: nil)
       return unless Onni.configuration.stats_enabled
+      return if record_stats == false
 
-      decision = Sampler.decide(name: name, shown: shown)
+      policy = Policy.effective(definition, gates)
+      return unless Policy.enabled?(policy, record_stats)
+
+      decision = Sampler.decide(name: name, shown: shown, sample_rate: policy["sample_rate"])
       return if decision == :skip
 
       Instrumenter.instrument("stats.record", name: name.to_s, shown: shown, weight: decision[:weight]) do

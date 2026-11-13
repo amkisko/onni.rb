@@ -5,8 +5,7 @@ Onni.configure do |config|
   config.cache = Rails.cache
   config.cache_ttl = 15.minutes
   config.stats_enabled = true
-  # Prefer buffer + sample in production; 1.0 records every visible?/variant call.
-  config.stats_sample_rate = 0.1 # float 0.0..1.0 (clamped); 1.0 skips Random
+  config.stats_sample_rate = 1.0
   config.stats_scale_sampled_hits = true # kept samples increment by ~1/rate
   # Engine installs RequestLifecycle middleware (always reset_request! after each request).
   config.stats_buffer = true # coalesce hits; middleware flushes at request end
@@ -30,7 +29,7 @@ Onni.register_group(:beta_testers) do |actor, _|
   actor.respond_to?(:beta_tester?) && actor.beta_tester?
 end
 
-# One-time import from a prior feature-flag store. Declare YAML types first; see README cutover.
+# One-time import from a prior feature-flag store. Declare YAML audience filters first; see README cutover.
 # Onni.migrate!(Onni::Migrator::ActiveRecordTables.new(
 #   connection: ActiveRecord::Base.connection,
 #   features_table: "legacy_features",

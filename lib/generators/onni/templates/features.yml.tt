@@ -2,30 +2,38 @@
 # new_checkout:
 #   expires_at: "2027-01-01"
 #   description: "Checkout redesign experiment"
+#   stats:
+#     enabled: true
+#     sample_rate: 1.0
 #
-# Omitting type defaults to group with an empty audience.
-#
+# No positive audience opener means hidden, even after ready!.
+# All configured filters must match; entries within each include list are alternatives.
 # Do not use Onni flags as authorization. Keep access control in your policy layer.
 #
 # search_v2:
-#   type: percentage
-#   level: 0
-#
-# beta_search:
-#   type: group
+#   description: "Search rollout for beta testers"
+#   expires_at: "2027-06-01"
 #   groups: [beta_testers]
+#   excluded_groups: [staff]
+#   level: 25
 #
 # selected_audience:
-#   type: actors
+#   description: "Selected audience rollout"
+#   expires_at: "2027-06-01"
 #   actors: []
 #
 # simple_feature:
-#   type: boolean
+#   description: "General feature rollout"
+#   expires_at: "2027-06-01"
+#   everyone: true
 #
 # checkout_experiment:
+#   description: "Checkout variant experiment"
+#   expires_at: "2027-06-01"
 #   type: experiment
+#   groups: [beta_testers]
 #   variants:
 #     control: 50
 #     treatment: 50
 #
-# YAML defaults apply only after Onni.ready!; Onni.park! clears overrides and power.
+# park! retains settings; ready! resumes them; clear! resets overrides and power.

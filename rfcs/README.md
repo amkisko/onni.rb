@@ -9,6 +9,9 @@ rule or separate RFC-only test suite.
 - [RFC-0002: ActiveAdmin hit charts](0002-activeadmin-hit-charts.md)
 - [RFC-0003: Typed flags with ready, park, and visible layers](0003-show-skip-typed-flags.md)
 - [RFC-0004: Standard-library core and opt-in extensions](0004-stdlib-core-and-opt-in-extensions.md)
+- [RFC-0005: Audience filter composition](0005-audience-filter-composition.md)
+- [RFC-0006: Evaluation statistics policy](0006-evaluation-statistics-policy.md)
+- [RFC-0007: Programmatic feature definitions](0007-programmatic-feature-definitions.md)
 
 Use [the template](0000-template.md), omit unused sections, and preserve existing
 identifiers. Implementation changes cite their RFC and prove behavior with specs.

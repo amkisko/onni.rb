@@ -83,7 +83,7 @@ RSpec.describe Onni::Migrator::ActiveRecordTables do
   it "imports through Onni.migrate! with boolean mapped to powered" do
     Onni.adapter = Onni::Adapters::Memory.new
     Onni.configuration.stats_enabled = false
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "boolean")
+    allow(Onni::Registry).to receive(:definition).and_return("everyone" => true)
     allow(Onni::Registry).to receive(:known?) { |name| name.to_s == "new_checkout" }
     allow(Onni::Registry).to receive(:require_definition!) { |name|
       raise KeyError unless name.to_s == "new_checkout"

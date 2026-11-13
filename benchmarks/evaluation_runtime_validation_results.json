@@ -1,0 +1,228 @@
+{
+  "recorded_at": "2026-11-13T18:39:05Z",
+  "product_digest": "f02f9c7c5e773dd522c58b172b8ce26af8a9f87cbdcbab018485d7840f39f64d",
+  "spec_digests": {
+    "spec/generators/install_generator_spec.rb": "4ea8e934418c10ed92f38b8ff7de4342e8a13023708ea512762eea1c22822ace",
+    "spec/generators/shown_stats_generator_spec.rb": "650545f8aed2702c6e36010cb9a61b7fd59273b0c56255edca6a3ef5fabba2c1",
+    "spec/generators/stats_rename_generator_spec.rb": "240bed8cac49b85754fb0ec71b42e237c98a493b7e5269a1dd6d2e3940be5acc",
+    "spec/onni/active_admin_load_path_spec.rb": "98cdf8c5b12448de058fb1353c7692343469ea34325d609ae0a32ec7bb77db8a",
+    "spec/onni/actor_spec.rb": "7be9451db741d8a61589f182a784ea8c72ce913c3fb371bc72353a2a03056c74",
+    "spec/onni/adapter_registry_spec.rb": "cbb2c22fc71e0f36740d2a568232a81259b1bbb29a94896b237723447d0af3ba",
+    "spec/onni/adapters/active_record_stats_batch_spec.rb": "3ade7722b051409281d1764d5780e31e9c517c965cf7b36f079bb7ef88aec0ea",
+    "spec/onni/admin/flags_query_spec.rb": "82ad68693c96e61473440065cc35cd8ebfc65ccb37e4004c9c66aea531f5d2a4",
+    "spec/onni/audience_composition_spec.rb": "d0374e43a98fcfc70512be03c6ae41c602080bee7af9d159b1d3a2828a5e8772",
+    "spec/onni/audience_filter_matrix_spec.rb": "5936050c6d3d434a276ac9d0ff69ba5d3817da90c0b43a84d4c766945715dad9",
+    "spec/onni/cache_consistency_spec.rb": "bd8e032568dc78215844fed0db4a0506f452c4e57a1547adb9282578578fd03b",
+    "spec/onni/conditions_spec.rb": "a649f301ea53826be208dbb6736444f414e2c759f6bf328f8707c95e00d45a9c",
+    "spec/onni/configuration_spec.rb": "69887fb27d06ca44da9ede964cc9780da021accb09ea63e56a9cc2e5cf73b543",
+    "spec/onni/default_group_spec.rb": "ef94bb17fa8e74fc45952aa6a6791e3c9b04d2f866c0c130f22dc6da162c3028",
+    "spec/onni/engine_spec.rb": "eb8628010f05b606809f723425e4e186e6aaaa03639aa7f3218a1fbf07115529",
+    "spec/onni/evaluation_stats_policy_spec.rb": "93e0d562f4f305d1d6675744bbe91edcdf64deb2a601fa56ef72f62035bc93c1",
+    "spec/onni/extensions_spec.rb": "07a1edd1ac3f6e0129fc21d61dc96056848439f2fca4af9198131fb73a72710b",
+    "spec/onni/feature_operation_instrumentation_spec.rb": "70d64be8fc7dca7be17e18f8d5f5d6f05210dbeb6d430e69c42c5b6efb74269f",
+    "spec/onni/flag_spec.rb": "3016b79466a499895843dc17a90ec6062145afb8beed6b56211b1942a1db5baa",
+    "spec/onni/group_concurrency_spec.rb": "d407aeed7ec526391fa0f336953e49d2c0bb362b20ea63f3f6e330eba41c8bab",
+    "spec/onni/group_spec.rb": "194c34311f98c0b1c845bd52a872ff0cdc1377b6c3bdde8af64a6b53bc5f83a2",
+    "spec/onni/instrumenter_spec.rb": "ca5c20982e292295e67280ef6f8e129a771547a186bddb223857795d4782cbf5",
+    "spec/onni/memory_adapter_spec.rb": "bb0b05c6808427aa9531f6a894457daf711cbec4d2951399dadba1ff54c891fc",
+    "spec/onni/middleware/request_lifecycle_spec.rb": "ccff54bfa5b0ec018e5936a351cc80a45de8c389c5f733c52c4f383d6ea7f6f0",
+    "spec/onni/migrator_active_record_tables_spec.rb": "9c504a72b98a0968aef2cda912e234eb1515ff91012d40e59df4bbfb4e2a1dd6",
+    "spec/onni/migrator_importer_spec.rb": "f4d4e39cb498fb5a5825a899b0902c058e19328a157b4133742af9994ca77a34",
+    "spec/onni/power_state_spec.rb": "73bcb99acfd5c51eb0003762099973eafe78d3eaad10c0c5875468110df53585",
+    "spec/onni/programmatic_definition_spec.rb": "b28ce2f48fe389895bc6b2b1e158475883ff863541a147898f5b079e1d5051af",
+    "spec/onni/registry_spec.rb": "48b1a9fb46de94cfaf0bfcbd67f542d239ee14a3d8570481e5d0ab8881e54071",
+    "spec/onni/request_preload_spec.rb": "a1a97012c52431d0dc6a63ef0edb971aa944d80c932daf77a83d5c4dc2d916ff",
+    "spec/onni/rspec_helper_spec.rb": "637be62ef274bf5c7e13e14f5bded8482e015c00018947101e5363637afecc74",
+    "spec/onni/standalone_boot_spec.rb": "031829cec2b263f130c06cb36c6dc8f525e1796e93fd24de9d740f1aa28153cd",
+    "spec/onni/stats_buffer_spec.rb": "d816405ec1b581cf04791ffae3f2e46998e5d271dbeac2ec1abd74affe381f4f",
+    "spec/onni/stats_instrumentation_spec.rb": "989ec35d0a80ea80d1cd0a63e124c755844af7ded4990f8203820ff7cdecbc06",
+    "spec/onni/stats_overview_spec.rb": "3602716253250d507af19c8a600ac93f3e2b69bdc404178101e70eeff8f4cd09",
+    "spec/onni/stats_purge_spec.rb": "2db4ae03313d38c66dfb0578a25ac33da555d55231f7581c60dd9b9f33d00a43",
+    "spec/onni/stats_record_spec.rb": "a04f1aed852d37b45b6bfe5bbd67819899180cbbf2481d776e48db15019d7cd0",
+    "spec/onni/stats_sampler_spec.rb": "43803d5e2ac9611330e68cc727af8fba6c9e32a76284ba7f235d77de70582483",
+    "spec/onni/store_spec.rb": "94c970c569b94642f81451d00a0967c5583dac63653376a81ee76e26dc44f466",
+    "spec/onni/store_variant_spec.rb": "7b549d414ca262fd8a51e95ec3a70a5e98fbdfc8400249305b746c8752d2ecdf",
+    "spec/onni/sync_spec.rb": "3ab9e41135f938f82fd446597e3c3242029c69bbb9b073d9f53509a0d5e5ce6c",
+    "spec/onni/v1_api_spec.rb": "19d20c9a6d10f0b2b2729f801a6dad35f6a2789543e6d994faebe31c7dedbc70",
+    "spec/onni/visibility_chart_spec.rb": "7f72e40d0733fe98cd030d26a13b8d2424bf985a4d0cdeecd6c4750dcfd8ce75",
+    "spec/onni/visibility_spec.rb": "fa28183113dd9e77f754b7099b735b002b49964df7b4434c7e5c9716f0e340cb",
+    "spec/requests/active_record_adapter_spec.rb": "02fc68b65ecb07bfc417f47594dca75fad5f594f132b8618224bf0586cf0f94c",
+    "spec/requests/admin_assets_spec.rb": "a01ff2a24d5e9b3b98cbe0c6fc28abacb7bb6691f05c33a10c8a6dd603a1bf4e",
+    "spec/requests/admin_features_spec.rb": "1c5e65ba3d5f2f0a02630050ac60e847dda1258f477d3401cc627320b548c2aa",
+    "spec/requests/audience_composition_spec.rb": "1758318ec4f201e6bb2c51c00d8c64a65b064ca831507f853f83a42a118d81e8",
+    "spec/requests/feature_stats_settings_spec.rb": "71fbc7babc823bdd2055a1d48cab08d006cca8b9b89fd0ee707930b7a4c25fe4",
+    "spec/requests/gates_for_many_spec.rb": "43bdc390588593feff4765fbe9ee768605e116a59db4649215990e7d98c84bf0",
+    "spec/requests/sqlite_support_spec.rb": "1beb7c6fdae3b214a365bad9eaa472fc676e77735f60a8328f936ca9c6c90775",
+    "spec/requests/stats_overview_admin_spec.rb": "1dcb889442e6a7e34c87539cfdfcc51155ab2760725caec04ea7b7b1d9be90ff",
+    "spec/requests/stats_purge_active_record_spec.rb": "6896edcf5534eeabad72a3c71b89a712616a5259df674ee59da7d726c5bde161",
+    "spec/requests/visibility_charts_admin_spec.rb": "c598d0a0c79f2cb768fa1380a01903327c2d6b40bd4b8aef8da9908fffbafcca",
+    "spec/support/audience_filter_cases.rb": "97e50f91aa9812bdaabccf34bda8a4520aedb66cedbaaacd48edfd92e8a90281",
+    "spec/support/isolated_ruby.rb": "c724f2d19339395c2bf80174f4970de452647af25b6d432c861bc47cd502fd40",
+    "spec/usr/release_version_check_spec.rb": "f44af066df933dec939417fcc513581cb83488dd0f96f4daa25ec231199aa723"
+  },
+  "full_suite": {
+    "command": "bundle exec rspec --format progress --format json --out tmp/evaluation-runtime-rspec.json",
+    "exit_code": 0,
+    "summary": {
+      "duration": 50.776789,
+      "example_count": 331,
+      "failure_count": 0,
+      "pending_count": 0,
+      "errors_outside_of_examples_count": 0
+    }
+  },
+  "parallel_coverage": {
+    "command": "POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures",
+    "exit_code": 0,
+    "workers": 5,
+    "fragments": [
+      "polyrun-fragment-active-record-extension.json",
+      "polyrun-fragment-active-support-extension.json",
+      "polyrun-fragment-generated-install.json",
+      "polyrun-fragment-rails-extension.json",
+      "polyrun-fragment-runtime-definition-reload-collision.json",
+      "polyrun-fragment-runtime-definition-replacement.json",
+      "polyrun-fragment-runtime-definition-shadow.json",
+      "polyrun-fragment-runtime-definition-validation.json",
+      "polyrun-fragment-runtime-definitions.json",
+      "polyrun-fragment-standalone.json",
+      "polyrun-fragment-worker0.json",
+      "polyrun-fragment-worker1.json",
+      "polyrun-fragment-worker2.json",
+      "polyrun-fragment-worker3.json",
+      "polyrun-fragment-worker4.json"
+    ],
+    "covered_lines": 1532,
+    "executable_lines": 1567,
+    "line_percent": 97.76643267389917
+  },
+  "lint": {
+    "command": "RUBOCOP_CACHE_ROOT=tmp/rubocop-cache make lint",
+    "exit_code": 0,
+    "ruby_files": 117,
+    "offenses": 0,
+    "rbs": "pass",
+    "locale_keys": 2,
+    "loc_warnings": {
+      "app/admin/features.rb": 212,
+      "lib/onni.rb": 171,
+      "usr/lib/release_version_check.rb": 177
+    }
+  },
+  "matrix": {
+    "command": "bundle exec ruby usr/scripts/check_audience_filter_matrix.rb",
+    "path": "benchmarks/audience_filter_matrix_results.json",
+    "filter_combinations": 11250,
+    "public_api_evaluations": 2485458,
+    "summary": {
+      "duration": 49.323526,
+      "example_count": 39,
+      "failure_count": 0,
+      "pending_count": 0,
+      "errors_outside_of_examples_count": 0
+    },
+    "injected_faults_detected": 14,
+    "injected_faults_total": 14
+  },
+  "comparison_results": {
+    "all": {
+      "path": "benchmarks/evaluation_stats_all_results.json",
+      "summary": {
+        "before": {
+          "cpu_s": 1.4802529999999998,
+          "wall_s": 1.4813269999576733,
+          "allocated_objects": 3919145,
+          "peak_rss_bytes": 42352640,
+          "store_bytes": 664,
+          "source_bytes": 106094
+        },
+        "after": {
+          "cpu_s": 1.696015,
+          "wall_s": 1.6973209999850951,
+          "allocated_objects": 3919145,
+          "peak_rss_bytes": 41484288,
+          "store_bytes": 664,
+          "source_bytes": 114099
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.1457602180167852,
+        "wall_s": 1.1458111544808092,
+        "allocated_objects": 1.0,
+        "peak_rss_bytes": 0.9794970986460348,
+        "store_bytes": 1.0,
+        "source_bytes": 1.0754519576978905
+      }
+    },
+    "pending": {
+      "path": "benchmarks/evaluation_stats_pending_results.json",
+      "summary": {
+        "before": {
+          "cpu_s": 0.05752400000000002,
+          "wall_s": 0.05759600002784282,
+          "allocated_objects": 200009,
+          "peak_rss_bytes": 42041344,
+          "store_bytes": 2,
+          "source_bytes": 106094
+        },
+        "after": {
+          "cpu_s": 0.20015900000000003,
+          "wall_s": 0.20044400001643226,
+          "allocated_objects": 800009,
+          "peak_rss_bytes": 42188800,
+          "store_bytes": 96,
+          "source_bytes": 114099
+        }
+      },
+      "ratios": {
+        "cpu_s": 3.4795737431333,
+        "wall_s": 3.480172232785861,
+        "allocated_objects": 3.9998650060747267,
+        "peak_rss_bytes": 1.0035074045206547,
+        "store_bytes": 48.0,
+        "source_bytes": 1.0754519576978905
+      }
+    },
+    "parked": {
+      "path": "benchmarks/evaluation_stats_parked_results.json",
+      "summary": {
+        "before": {
+          "cpu_s": 0.07167999999999997,
+          "wall_s": 0.07177899999078363,
+          "allocated_objects": 200009,
+          "peak_rss_bytes": 43122688,
+          "store_bytes": 2,
+          "source_bytes": 106094
+        },
+        "after": {
+          "cpu_s": 0.21955599999999997,
+          "wall_s": 0.2198039999930188,
+          "allocated_objects": 800009,
+          "peak_rss_bytes": 41795584,
+          "store_bytes": 96,
+          "source_bytes": 114099
+        }
+      },
+      "ratios": {
+        "cpu_s": 3.0630022321428583,
+        "wall_s": 3.0622326867362526,
+        "allocated_objects": 3.9998650060747267,
+        "peak_rss_bytes": 0.9692249240121581,
+        "store_bytes": 48.0,
+        "source_bytes": 1.0754519576978905
+      }
+    }
+  },
+  "delivery_gate": "benchmarks/evaluation_stats_delivery_gate_results.json",
+  "stdlib_smoke": {
+    "runtime": "Ruby 3.4.11",
+    "result": "pass",
+    "scenarios": [
+      "define",
+      "pending",
+      "ready",
+      "stats_override",
+      "parked_inline_opt_in"
+    ]
+  }
+}

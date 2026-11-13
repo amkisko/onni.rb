@@ -1,0 +1,13 @@
+{
+  "command": "bundle exec rspec --format progress --format json --out tmp/audience-composition-rspec.json",
+  "summary": {
+    "duration": 52.864083,
+    "example_count": 308,
+    "failure_count": 0,
+    "pending_count": 0,
+    "errors_outside_of_examples_count": 0
+  },
+  "source_digest": "7889ec6e4b3e94ff6694905bc7f977cfdb6f373c016e6e0884590f7b20598da4",
+  "spec_digest": "8b69062b7122b9a4fc4dab0c0833cb32f1fb2e7c3d2fa3a486905a457f5d709d",
+  "report_digest": "d70e49183d2030546510af8568d35c3b0c6e8da7484fe3f37fd215236f933e74"
+}

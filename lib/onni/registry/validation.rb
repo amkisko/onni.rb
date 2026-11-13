@@ -3,18 +3,33 @@
 module Onni
   module Registry
     module Validation
-      TYPES = %w[boolean percentage group actors experiment].freeze
+      FILTER_KEYS = %w[everyone groups actors excluded_groups excluded_actors level].freeze
 
       def validate_definition!(name, definition)
         raise ArgumentError, "Feature #{name} must be a mapping" unless definition.is_a?(Hash)
 
-        type = definition.fetch("type", "group")
-        raise ArgumentError, "Unknown feature type #{type.inspect} for #{name}" unless TYPES.include?(type)
+        if definition.key?("type") && definition["type"] != "experiment"
+          raise ArgumentError, "Feature #{name} uses audience filters; only type: experiment is supported"
+        end
 
-        definition["type"] = type
-        validate_level!(definition["level"]) if definition.key?("level")
-        validate_lists!(name, definition)
-        validate_variants!(definition["variants"]) if definition.key?("variants")
+        validate_defaults!(name, definition)
+      end
+
+      def validate_filters!(filters, nullable: true)
+        unless filters.is_a?(Hash) && (filters.keys - FILTER_KEYS).empty?
+          raise ArgumentError, "Unknown audience filter"
+        end
+
+        filters.each do |key, value|
+          next if value.nil? && nullable
+
+          case key
+          when "everyone"
+            raise ArgumentError, "Everyone must be true or false" unless value == true || value == false
+          when "level" then validate_level!(value)
+          else validate_strings!("audience", key, value)
+          end
+        end
       end
 
       def validate_variants!(variants)
@@ -25,10 +40,11 @@ module Onni
 
       private
 
-      def validate_lists!(name, definition)
-        %w[groups actors conditions].each do |key|
-          validate_strings!(name, key, definition[key]) if definition.key?(key)
-        end
+      def validate_defaults!(name, definition)
+        validate_filters!(definition.slice(*FILTER_KEYS), nullable: false)
+        validate_strings!(name, "conditions", definition["conditions"]) if definition.key?("conditions")
+        validate_variants!(definition["variants"]) if definition.key?("variants")
+        Stats::Policy.validate!(definition["stats"]) if definition.key?("stats")
       end
 
       def valid_weight?(key, weight)

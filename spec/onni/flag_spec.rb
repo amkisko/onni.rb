@@ -17,7 +17,7 @@ RSpec.describe Onni::Flag do
     allow(Onni::Registry).to receive_messages(
       known?: true,
       definition: {
-        "type" => "experiment",
+        "type" => "experiment", "everyone" => true,
         "description" => "Demo",
         "expires_at" => "2099-01-01",
         "variants" => {"control" => 40, "treatment" => 60}
@@ -32,11 +32,11 @@ RSpec.describe Onni::Flag do
     expect(flag.exist?).to be(true)
   end
 
-  it "defaults a definition without an explicit type to an empty group audience" do
+  it "defaults a definition without openers to an empty audience" do
     allow(Onni::Registry).to receive(:definition).and_return("description" => "Checkout redesign experiment")
 
     flag = described_class.new(:new_checkout)
-    expect(flag.type).to eq("group")
+    expect(flag.type).to be_nil
     expect(flag.groups).to eq([])
   end
 
@@ -48,7 +48,7 @@ RSpec.describe Onni::Flag do
 
   it "falls back to gate variants when YAML has none" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "experiment",
+      "type" => "experiment", "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2099-01-01"
     )
@@ -59,7 +59,7 @@ RSpec.describe Onni::Flag do
 
   it "treats invalid gate variant JSON as empty" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "experiment",
+      "type" => "experiment", "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2099-01-01"
     )
@@ -78,7 +78,7 @@ RSpec.describe Onni::Flag do
 
   it "summarizes expiry as days or years with a full date" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "experiment",
+      "type" => "experiment", "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2099-01-01"
     )
@@ -90,14 +90,14 @@ RSpec.describe Onni::Flag do
 
   it "summarizes near expiry in days and past expiry as ago" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "experiment",
+      "type" => "experiment", "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2026-12-12"
     )
     expect(described_class.new(:demo).expires_summary(now: Time.utc(2026, 11, 12))).to eq("in 30 days")
 
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "experiment",
+      "type" => "experiment", "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2026-10-12"
     )
@@ -110,7 +110,7 @@ RSpec.describe Onni::Flag do
     expect(described_class.new(:demo).expires_full).to be_nil
 
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "experiment",
+      "type" => "experiment", "everyone" => true,
       "description" => "Demo",
       "expires_at" => "not-a-date"
     )

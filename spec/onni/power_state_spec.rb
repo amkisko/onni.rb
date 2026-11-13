@@ -9,10 +9,10 @@ RSpec.describe "Ready, pending, and parked power" do
     Onni.adapter = Onni::Adapters::Memory.new
     Onni.reset_request!
     allow(Onni::Registry).to receive(:config).and_return(
-      "new_checkout" => {"type" => "boolean"},
-      "search_v2" => {"type" => "percentage", "level" => 100},
-      "audience" => {"type" => "group", "groups" => ["beta_testers"]},
-      "experiment" => {"type" => "experiment", "variants" => {"control" => 100}}
+      "new_checkout" => {"everyone" => true},
+      "search_v2" => {"level" => 100},
+      "audience" => {"groups" => ["beta_testers"]},
+      "experiment" => {"type" => "experiment", "everyone" => true, "variants" => {"control" => 100}}
     )
   end
 
@@ -52,7 +52,7 @@ RSpec.describe "Ready, pending, and parked power" do
     expect(Onni.visible?(:search_v2, actor)).to be(false)
     Onni.park!(:search_v2)
     expect_state(:search_v2, :parked)
-    expect(Onni.level(:search_v2)).to eq(100)
+    expect(Onni.level(:search_v2)).to eq(0)
     Onni.clear!(:search_v2)
     expect_state(:search_v2, :pending)
     Onni.ready!(:search_v2)

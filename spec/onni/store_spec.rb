@@ -40,7 +40,7 @@ RSpec.describe Onni do
     described_class.configuration.stats_enabled = false
     Onni::Group.clear!
     allow(Onni::Registry).to receive(:require_definition!)
-    allow(Onni::Registry).to receive_messages(known?: true, definition: {"type" => "boolean", "description" => "Demo",
+    allow(Onni::Registry).to receive_messages(known?: true, definition: {"everyone" => true, "description" => "Demo",
                                                                          "expires_at" => "2099-01-01",
                                                                          "variants" => {"control" => 50, "treatment" => 50}})
   end
@@ -62,14 +62,14 @@ RSpec.describe Onni do
     described_class.ready!(:demo)
     expect(described_class.visible?(:demo)).to be(true)
     described_class.park!(:demo)
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "actors")
+    allow(Onni::Registry).to receive(:definition).and_return("actors" => [])
     described_class.visible_actor!(:demo, user)
     expect(described_class.visible?(:demo, user)).to be(true)
     expect(described_class.visible?(:demo, user_class.new(99))).to be(false)
   end
 
   it "makes a registered audience group visible" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "group")
+    allow(Onni::Registry).to receive(:definition).and_return("groups" => [])
     described_class.register_group(:beta_testers) { |actor, _| actor.beta_tester? }
     described_class.visible_group!(:demo, :beta_testers)
     expect(described_class.visible?(:demo, user_class.new(1, beta_tester: true))).to be(true)
@@ -77,7 +77,7 @@ RSpec.describe Onni do
   end
 
   it "rolls out by percentage of actors" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "percentage")
+    allow(Onni::Registry).to receive(:definition).and_return("level" => 0)
     described_class.level!(:demo, 100)
     expect(described_class.visible?(:demo, user_class.new(1))).to be(true)
     described_class.level!(:demo, 0)
@@ -85,7 +85,7 @@ RSpec.describe Onni do
   end
 
   it "assigns a stable A/B variant when ready" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "experiment")
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "experiment", "everyone" => true)
     user = user_class.new(7)
     described_class.ready!(:demo)
     described_class.variants!(:demo, {control: 50, treatment: 50})
@@ -96,7 +96,7 @@ RSpec.describe Onni do
 
   it "applies YAML conditions after a gate matches" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "boolean",
+      "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2099-01-01",
       "conditions" => ["beta_tester?"]
@@ -109,7 +109,7 @@ RSpec.describe Onni do
 
   it "fails closed when expires_at is in the past" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "boolean",
+      "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2000-01-01"
     )
@@ -120,7 +120,7 @@ RSpec.describe Onni do
 
   it "fails closed when expires_at cannot be parsed" do
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "boolean",
+      "everyone" => true,
       "description" => "Demo",
       "expires_at" => "not-a-date"
     )
@@ -129,7 +129,7 @@ RSpec.describe Onni do
   end
 
   it "drops a registered audience group visible" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "group")
+    allow(Onni::Registry).to receive(:definition).and_return("groups" => [])
     described_class.register_group(:beta_testers) { |actor, _| actor.beta_tester? }
     described_class.visible_group!(:demo, :beta_testers)
     described_class.drop_group!(:demo, :beta_testers)
@@ -137,7 +137,7 @@ RSpec.describe Onni do
   end
 
   it "clamps percentage rollout to 0..100" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "percentage")
+    allow(Onni::Registry).to receive(:definition).and_return("level" => 0)
     described_class.level!(:demo, 250)
     expect(described_class.adapter.gates_for("demo")).to include(
       hash_including("key" => "percentage_of_actors", "value" => "100")
@@ -148,7 +148,7 @@ RSpec.describe Onni do
     )
   end
 
-  it "records shown evaluations and omits hard-off misses" do
+  it "records shown evaluations and parked misses" do
     described_class.configuration.stats_enabled = true
     described_class.configuration.stats_sample_rate = 1.0
     described_class.ready!(:demo)
@@ -157,7 +157,7 @@ RSpec.describe Onni do
     described_class.visible?(:demo)
     stats = Onni::Stats.for(:demo)
     expect(stats.sum { |bucket| bucket["shown_count"] }).to eq(1)
-    expect(stats.sum { |bucket| bucket["skip_count"] }).to eq(0)
+    expect(stats.sum { |bucket| bucket["skip_count"] }).to eq(1)
   end
 
   it "skips hit stats when record_stats is false" do
@@ -186,7 +186,7 @@ RSpec.describe Onni do
   end
 
   it "removes a single actor gate when disabling for that actor" do
-    allow(Onni::Registry).to receive(:definition).and_return("type" => "actors")
+    allow(Onni::Registry).to receive(:definition).and_return("actors" => [])
     user = user_class.new(42)
     other = user_class.new(99)
     described_class.visible_actor!(:demo, user)
@@ -234,7 +234,7 @@ RSpec.describe Onni do
       raise ArgumentError, "bad deadline"
     end
     allow(Onni::Registry).to receive(:definition).and_return(
-      "type" => "boolean",
+      "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2099-01-01",
       "expires_at_time" => bad_deadline
