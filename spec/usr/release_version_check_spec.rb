@@ -1,0 +1,77 @@
+# frozen_string_literal: true
+
+require "tmpdir"
+require_relative "../../usr/lib/release_version_check"
+
+RSpec.describe ReleaseVersionCheck do
+  def write_changelog(content)
+    path = File.join(Dir.mktmpdir, "CHANGELOG.md")
+    File.write(path, content)
+    path
+  end
+
+  describe ".changelog_notes_for" do
+    it "returns the body under the matching version heading" do
+      path = write_changelog(<<~MARKDOWN)
+        # CHANGELOG
+
+        ## Unreleased
+
+        ## 1.0.0 (2026-11-13)
+
+        - First change
+        - Second change
+
+        ## 0.1.3 (2026-11-12)
+
+        - Older change
+      MARKDOWN
+
+      expect(described_class.changelog_notes_for("1.0.0", path: path)).to eq(
+        "- First change\n- Second change\n"
+      )
+    end
+
+    it "matches Keep a Changelog bracket headings" do
+      path = write_changelog(<<~MARKDOWN)
+        ## [1.2.3] - 2026-10-27
+
+        - Bracketed notes
+      MARKDOWN
+
+      expect(described_class.changelog_notes_for("1.2.3", path: path)).to eq("- Bracketed notes\n")
+    end
+
+    it "returns nil when the version heading is absent" do
+      path = write_changelog("## 0.1.0\n\n- Only this\n")
+
+      expect(described_class.changelog_notes_for("9.9.9", path: path)).to be_nil
+    end
+  end
+
+  describe ".require_changelog_notes!" do
+    it "returns stripped notes for a present version section" do
+      path = write_changelog(<<~MARKDOWN)
+        ## 1.0.0
+
+        - Ship it
+      MARKDOWN
+
+      expect(described_class.require_changelog_notes!(version: "1.0.0", path: path)).to eq("- Ship it")
+    end
+
+    it "aborts when the version section has no notes" do
+      path = write_changelog(<<~MARKDOWN)
+        ## 1.0.0
+
+        ## 0.1.0
+
+        - Prior
+      MARKDOWN
+
+      expect do
+        described_class.require_changelog_notes!(version: "1.0.0", path: path)
+      end.to raise_error(SystemExit)
+    end
+  end
+end
