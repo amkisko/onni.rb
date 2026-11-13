@@ -9,6 +9,8 @@ RSpec.describe "Audience filter contract matrix" do
     "experiment with weights" => [{"type" => "experiment", "variants" => {"treatment" => 100}}, :treatment],
     "experiment without weights" => [{"type" => "experiment", "variants" => {}}, nil]
   }.freeze
+  # Keep each example under polyrun's default 30s timeout on slower CI runners.
+  ROW_SLICE = 1_500
 
   let(:definitions) { {} }
   let(:actors) do
@@ -71,28 +73,30 @@ RSpec.describe "Audience filter contract matrix" do
   PROFILES.each do |kind, (metadata, assignment)|
     %i[defaults runtime].each do |source|
       %i[pending ready parked].each do |power|
-        it "checks #{AudienceFilterCases::ROWS.size} combinations for #{kind} from #{source} while #{power}" do
-          AudienceFilterCases::ROWS.each do |row|
-            Onni.adapter.clear!
-            Onni.reset_request!
-            runtime_weights = source == :runtime && metadata["type"] == "experiment"
-            stored_metadata = runtime_weights ? metadata.merge("variants" => {"control" => 100}) : metadata
-            define_feature((source == :defaults) ? row.filters.compact : defaults, stored_metadata)
-            Onni.ready!(:new_checkout) if power == :ready
-            Onni.park!(:new_checkout) if power == :parked
-            Onni.variants!(:new_checkout, metadata["variants"]) if runtime_weights
-            Onni.filters!(:new_checkout, **row.filters) if source == :runtime
-            expect(state).to eq(expected_state(power, row, metadata, assignment)),
-              -> { "#{kind}/#{source}/#{power}: #{row.description}" }
-            if power == :ready
-              Onni.park!(:new_checkout)
-              expect(state).to eq(expected_state(:parked, row, metadata, assignment)),
-                -> { "#{kind}/#{source}/park: #{row.description}" }
-            end
-            unless power == :pending
-              Onni.ready!(:new_checkout)
-              expect(state).to eq(expected_state(:ready, row, metadata, assignment)),
-                -> { "#{kind}/#{source}/resume: #{row.description}" }
+        AudienceFilterCases::ROWS.each_slice(ROW_SLICE).with_index do |rows, slice_index|
+          it "checks combination slice #{slice_index} (#{rows.size}/#{AudienceFilterCases::ROWS.size}) for #{kind} from #{source} while #{power}" do
+            rows.each do |row|
+              Onni.adapter.clear!
+              Onni.reset_request!
+              runtime_weights = source == :runtime && metadata["type"] == "experiment"
+              stored_metadata = runtime_weights ? metadata.merge("variants" => {"control" => 100}) : metadata
+              define_feature((source == :defaults) ? row.filters.compact : defaults, stored_metadata)
+              Onni.ready!(:new_checkout) if power == :ready
+              Onni.park!(:new_checkout) if power == :parked
+              Onni.variants!(:new_checkout, metadata["variants"]) if runtime_weights
+              Onni.filters!(:new_checkout, **row.filters) if source == :runtime
+              expect(state).to eq(expected_state(power, row, metadata, assignment)),
+                -> { "#{kind}/#{source}/#{power}: #{row.description}" }
+              if power == :ready
+                Onni.park!(:new_checkout)
+                expect(state).to eq(expected_state(:parked, row, metadata, assignment)),
+                  -> { "#{kind}/#{source}/park: #{row.description}" }
+              end
+              unless power == :pending
+                Onni.ready!(:new_checkout)
+                expect(state).to eq(expected_state(:ready, row, metadata, assignment)),
+                  -> { "#{kind}/#{source}/resume: #{row.description}" }
+              end
             end
           end
         end
