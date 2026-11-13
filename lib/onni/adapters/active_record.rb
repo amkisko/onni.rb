@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "onni/adapters/active_record/stat_writes"
+
 module Onni
   module Adapters
     class ActiveRecord
+      include StatWrites
+
       def add(key)
         ::Onni::Feature.find_or_create_by!(key: key.to_s)
       end
@@ -52,23 +56,6 @@ module Onni
         ::Onni::Gate.where(feature_key: key.to_s).delete_all
       end
 
-      def record_stat(key, enabled:, weight: 1)
-        weight = weight.to_i.clamp(1, Stats::Sampler::MAX_WEIGHT)
-        upsert_stat_row(key.to_s, enabled: enabled, weight: weight)
-      end
-
-      def record_stats_batch(buckets)
-        ::Onni::StatBucket.transaction do
-          buckets.each do |feature_key, counts|
-            enabled_weight = counts[:enabled].to_i
-            disabled_weight = counts[:disabled].to_i
-            upsert_stat_row(feature_key, enabled: true, weight: enabled_weight) if enabled_weight.positive?
-            upsert_stat_row(feature_key, enabled: false, weight: disabled_weight) if disabled_weight.positive?
-          end
-        end
-        buckets.size
-      end
-
       def stats_for(key, period: "hour", from: 24.hours.ago, to: Time.current)
         ::Onni::StatBucket.where(feature_key: key.to_s, period: period, period_start: from..to)
           .order(:period_start).map do |bucket|
@@ -99,34 +86,6 @@ module Onni
           bucket_count: ::Onni::StatBucket.count,
           oldest_period_start: ::Onni::StatBucket.minimum(:period_start)
         }
-      end
-
-      private
-
-      def upsert_stat_row(key, enabled:, weight:)
-        weight = weight.to_i.clamp(1, Stats::Sampler::MAX_WEIGHT)
-        period_start = Time.current.utc.beginning_of_hour
-        now = Time.current
-        column = enabled ? "enabled_hits" : "disabled_hits"
-        table = ::Onni::StatBucket.table_name
-        # Intent: unique_by matches index_onni_feature_stats_unique. Qualify the existing-row
-        # column on the RHS; bare names are ambiguous with excluded on PostgreSQL ON CONFLICT.
-        # SET targets stay bare (PostgreSQL rejects table-qualified assignment targets).
-        ::Onni::StatBucket.upsert(
-          {
-            feature_key: key.to_s,
-            period: "hour",
-            period_start: period_start,
-            enabled_hits: enabled ? weight : 0,
-            disabled_hits: enabled ? 0 : weight,
-            created_at: now,
-            updated_at: now
-          },
-          unique_by: %i[feature_key period period_start],
-          on_duplicate: ::Arel.sql(
-            "#{column} = #{table}.#{column} + #{weight}, updated_at = excluded.updated_at"
-          )
-        )
       end
     end
   end

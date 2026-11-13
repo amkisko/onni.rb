@@ -40,10 +40,18 @@ module Onni
     attr_accessor stats_ignore: untyped
     attr_accessor stats_scale_sampled_hits: bool
     attr_accessor stats_buffer: bool
+    attr_accessor request_preload: bool
     attr_accessor adapter: untyped
     attr_accessor admin_authorized: untyped
     attr_reader concurrency: Symbol
     def concurrency=: (untyped) -> Symbol
+  end
+
+  module Middleware
+    class RequestLifecycle
+      def initialize: (untyped app) -> void
+      def call: (untyped env) -> untyped
+    end
   end
 
   module RequestStore

@@ -1,4 +1,4 @@
-.PHONY: release lint audit test clean bench-calibrate bench-matrix bench-gate
+.PHONY: release lint audit test clean bench-calibrate bench-matrix bench-gate bench-stats-calibrate bench-stats-ladder bench-stats-gate
 
 bench-calibrate:
 	SCENARIO=calibrate bundle exec ruby benchmarks/load.rb
@@ -8,6 +8,15 @@ bench-matrix:
 
 bench-gate:
 	SCENARIO=gate bundle exec ruby benchmarks/load.rb
+
+bench-stats-calibrate:
+	SCENARIO=calibrate bundle exec ruby benchmarks/stats_write.rb
+
+bench-stats-ladder:
+	SCENARIO=ladder bundle exec ruby benchmarks/stats_write.rb
+
+bench-stats-gate:
+	SCENARIO=gate WRITERS_L1=8 OPS=200 bundle exec ruby benchmarks/stats_write.rb
 
 
 release:

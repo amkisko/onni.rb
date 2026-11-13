@@ -4,6 +4,7 @@ return unless defined?(Rails::Engine)
 
 require "onni/active_admin_routes"
 require "onni/admin/flags_query"
+require "onni/middleware/request_lifecycle"
 
 module Onni
   class Engine < ::Rails::Engine
@@ -15,6 +16,12 @@ module Onni
         config.cache = Rails.cache
         config.adapter = Rails.env.test? ? :memory : :active_record
       end
+    end
+
+    # Always wrap requests so stats_buffer / preload clear via reset_request!.
+    # Work stays cheap when buffer and request_preload are off.
+    initializer "onni.request_middleware" do |app|
+      app.middleware.use Onni::Middleware::RequestLifecycle
     end
 
     # Rails engines eager-load every app/* directory. ActiveAdmin DSL files are

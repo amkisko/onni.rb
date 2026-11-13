@@ -9,7 +9,8 @@ module Onni
     CONCURRENCY_MODES = %i[mutex none].freeze
 
     attr_accessor :features_path, :cache, :cache_ttl, :stats_enabled, :stats_retention,
-      :stats_sampler, :stats_ignore, :stats_scale_sampled_hits, :stats_buffer, :adapter, :admin_authorized
+      :stats_sampler, :stats_ignore, :stats_scale_sampled_hits, :stats_buffer,
+      :request_preload, :adapter, :admin_authorized
     attr_reader :stats_sample_rate, :concurrency
 
     def initialize
@@ -26,6 +27,8 @@ module Onni
       @stats_scale_sampled_hits = true
       # When true, hit stats coalesce in the fiber-local buffer until Onni.flush_stats! / reset_request!.
       @stats_buffer = false
+      # When true, RequestLifecycle middleware calls Onni.preload! at request start.
+      @request_preload = false
       # How long hourly hit buckets are kept. Used by Onni::Stats::Purge / the cleanup job.
       @stats_retention = 90.days
       # :mutex covers threads and fibers on Ruby 3.4+; :none skips locking.

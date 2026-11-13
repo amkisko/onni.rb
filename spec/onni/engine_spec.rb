@@ -7,10 +7,15 @@ RSpec.describe Onni::Engine do
     names = described_class.initializers.map(&:name)
     expect(names).to include(
       "onni.configure",
+      "onni.request_middleware",
       "onni.configure_zeitwerk",
       "onni.load_active_admin",
       "onni.i18n"
     )
+  end
+
+  it "inserts RequestLifecycle into the Rails middleware stack" do
+    expect(Rails.application.middleware).to include(Onni::Middleware::RequestLifecycle)
   end
 
   describe ".boot_sync_registry!" do

@@ -51,6 +51,7 @@ RSpec.configure do |config|
     Onni.configuration.stats_ignore = []
     Onni.configuration.stats_scale_sampled_hits = true
     Onni.configuration.stats_buffer = false
+    Onni.configuration.request_preload = false
     Onni.configuration.concurrency = :mutex
     Onni.configuration.cache = nil
     Onni.configuration.admin_authorized = -> { true }

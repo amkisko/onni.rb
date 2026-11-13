@@ -7,11 +7,12 @@ Onni.configure do |config|
   config.stats_enabled = true
   config.stats_sample_rate = 1.0 # float 0.0..1.0 (clamped); 1.0 skips Random
   config.stats_scale_sampled_hits = true # kept samples increment by ~1/rate
-  # config.stats_buffer = true # coalesce hits until Onni.reset_request! / flush_stats!
+  # Engine installs RequestLifecycle middleware (always reset_request! after each request).
+  # config.stats_buffer = true # coalesce hits; middleware flushes at request end
+  # config.request_preload = true # middleware calls Onni.preload! at request start
   # config.stats_ignore = %w[health_probe_flag]
   # config.stats_sampler = ->(ctx) { ctx[:name] == "busy_flag" ? 0.01 : nil }
   config.stats_retention = 90.days
-  # Per request: Onni.preload! then Onni.reset_request! in middleware / around_action
   # :mutex (default) is safe across threads and fibers on Ruby 3.4+; :none skips locks.
   config.concurrency = :mutex
   config.adapter = Rails.env.test? ? :memory : :active_record

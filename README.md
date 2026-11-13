@@ -154,20 +154,37 @@ end
 
 ### Request preload and stats buffer
 
-Hosts that evaluate many flags per request can cut adapter reads and coalesce hit writes:
+The Rails engine inserts `Onni::Middleware::RequestLifecycle`, which always calls `Onni.reset_request!` after each request (flushes `stats_buffer` when enabled, clears preload). Hosts that evaluate many flags per request can enable coalesced writes and optional preload:
 
 ```ruby
-# Once per request (middleware / around_action), after configure:
-Onni.preload!                 # all YAML keys, or Onni.preload!(:new_checkout, :search_v2)
 Onni.configuration.stats_buffer = true
-
-# ... enabled? / variant calls use the fiber-local gate map ...
-
-Onni.reset_request!           # flushes buffered stats (when enabled) and clears preload
-# or: Onni.flush_stats!
+Onni.configuration.request_preload = true # middleware calls Onni.preload! at request start
+# Or preload a subset yourself: Onni.preload!(:new_checkout, :search_v2)
 ```
 
-`gates_for_many` loads ActiveRecord gates in one `WHERE feature_key IN (...)` query. Memory adapter uses one lock section. Preload is fiber-local (safe with threads and fibers on Ruby 3.4+).
+Manual `Onni.flush_stats!` / `Onni.reset_request!` remain available for non-Rails hosts or jobs. `gates_for_many` loads ActiveRecord gates in one `WHERE feature_key IN (...)` query. Memory adapter uses one lock section. Preload is fiber-local (safe with threads and fibers on Ruby 3.4+).
+
+### Concurrent hit writes (lock pressure)
+
+Each kept sample upserts one hour bucket row keyed by `(feature_key, period, period_start)`. Concurrent writers that land on the same hour for the same flag serialize on that row (SQLite write lock / PostgreSQL row lock).
+
+Measured on SQLite WAL (`benchmarks/stats_write.rb`, one hot key, 200 upserts per writer, median of 3 samples):
+
+- W=1: direct ~0.036s (~5600 ops/s); buffer ~0.003s; sample 0.1 ~0.006s
+- W=2: direct ~0.071s (~5600 ops/s); buffer ~0.004s; sample 0.1 ~0.009s
+- W=8: direct ~0.275s (~5800 ops/s); buffer ~0.011s; sample 0.1 ~0.033s
+- W=16: direct ~0.575s (~5600 ops/s); buffer ~0.023s; sample 0.1 ~0.064s
+
+Inflection: from the second concurrent writer, wall time scales about linearly with writer count while direct upsert throughput stays flat (~5.5k-5.8k ops/s). That is lock queueing, not parallel write scaling. Busy/timeout errors need a short `busy_timeout` relative to queue depth; with a 5s timeout the usual symptom is latency bloat, not failed upserts.
+
+For high request volume, prefer in order:
+
+1. `stats_buffer = true` (engine middleware flushes at request end; measured ~25x less wall at 8 writers vs direct).
+2. Lower `stats_sample_rate` or a per-flag `stats_sampler` / `stats_ignore` for the hottest keys.
+3. Host DB settings: SQLite `timeout` + WAL; PostgreSQL pool sized for concurrency; never point many processes at one SQLite file without WAL.
+4. Turn stats off (`stats_enabled = false`) when hit counts are not worth the write load.
+
+Pressure binding: `benchmarks/stats_write_binding.md`.
 
 ### Stats growth and cleanup
 

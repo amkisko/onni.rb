@@ -1,0 +1,7 @@
+{
+  "wall_s": 0.3419837500041467,
+  "cpu_s": 0.3469999999999998,
+  "heap_delta_bytes": 9135585.0,
+  "lock_waits": 0,
+  "write_errors": 0
+}

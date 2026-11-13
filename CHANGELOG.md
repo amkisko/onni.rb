@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## Unreleased
+
+- Document concurrent hit-stat write lock pressure and host levers (`stats_buffer`, sample, ignore)
+- Add ActiveRecord stats-write pressure probe (`benchmarks/stats_write.rb`) and L1 direct ceilings
+- Rails `RequestLifecycle` middleware always `reset_request!`; optional `request_preload`
+- ActiveRecord `record_stats_batch` uses one `upsert_all` for multi-flag flush (both hit columns)
+
 ## 0.1.3 (2026-11-12)
 
 - ActiveAdmin Features index is Flags: search, expiry filters, pagination, All/Enabled/Disabled scope tabs with counts
