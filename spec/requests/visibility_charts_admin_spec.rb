@@ -65,14 +65,12 @@ RSpec.describe "Onni ActiveAdmin visibility charts", type: :request do
 
   it "lets the host replace the chart partial while retaining the statistics" do
     Onni.adapter.record_stat("demo", shown: true, weight: 5)
-    original_paths = Admin::FeaturesController.view_paths
+    original_paths = Admin::FeaturesController.view_paths.to_a
     Dir.mktmpdir("onni-host-views") do |root|
       directory = File.join(root, "admin/features")
       FileUtils.mkdir_p(directory)
       File.write(File.join(directory, "_chart.html.erb"), '<p id="host-chart">Custom chart: <%= chart.shown_count %></p>')
-      Admin::FeaturesController.view_paths = original_paths.map do |resolver|
-        (resolver.to_path == Rails.root.join("app/views").to_s) ? root : resolver
-      end
+      Admin::FeaturesController.prepend_view_path(root)
 
       get admin_features_feature_path(key: "demo")
 

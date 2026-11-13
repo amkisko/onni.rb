@@ -57,13 +57,17 @@ RSpec.describe "Onni opt-in extensions" do
       File.write(File.join(directory, "config/features.yml"), "new_checkout:\n  everyone: true\n")
       result = isolated_ruby(<<~RUBY, directory, coverage_name: "rails-extension")
         ENV["RAILS_ENV"] = "test"
-        module PersistenceRequireGuard
+        # Alias before Zeitwerk loads; prepend+super breaks once Zeitwerk redefines require.
+        module Kernel
+          alias_method :onni_extensions_original_require, :require
           def require(name)
-            raise LoadError, "Unexpected persistence/admin " + name if %w[active_record activeadmin].include?(name.split("/").first)
-            super
+            feature = name.is_a?(String) ? name : name.to_s
+            if %w[active_record activeadmin].include?(feature.split("/").first)
+              raise LoadError, "Unexpected persistence/admin " + feature
+            end
+            onni_extensions_original_require(name)
           end
         end
-        Kernel.prepend(PersistenceRequireGuard)
         require "onni/rails"
         application = Class.new(Rails::Application)
         application.config.root = ARGV.fetch(0)
