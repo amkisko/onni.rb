@@ -1,0 +1,2082 @@
+{
+  "operator": "Andrei Makarov (@amkisko)",
+  "contract": "RFC-0004",
+  "sampling": "Seven alternating fresh child processes per side, warm filesystem caches, Bundler setup and optional host preloads outside the timed region; native process-lifetime peak RSS.",
+  "energy_proxy": "CPU seconds; joules and co-location effects not measured",
+  "units": "Compressed .gem bytes, raw package file bytes, logical installed files of the runtime dependency graph; Ruby and its provided standard libraries are outside the external dependency graph.",
+  "commands": {
+    "standalone": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=standalone N=1 SAMPLES=7 BOOT_FEATURES=tmp/stdlib-core/features.yml BEFORE=tmp/package-boot/final-extracted AFTER=tmp/stdlib-core/after-extracted OUT=tmp/stdlib-core/standalone.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "standalone_ready": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=standalone_ready N=1 SAMPLES=7 BOOT_FEATURES=tmp/stdlib-core/features.yml BEFORE=tmp/package-boot/final-extracted AFTER=tmp/stdlib-core/after-extracted OUT=tmp/stdlib-core/standalone_ready.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "active_support": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=active_support N=1 SAMPLES=7 BOOT_FEATURES=tmp/stdlib-core/features.yml BEFORE=tmp/package-boot/final-extracted AFTER=tmp/stdlib-core/after-extracted OUT=tmp/stdlib-core/active_support.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "rails_extension": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=rails_extension N=1 SAMPLES=7 BOOT_FEATURES=tmp/stdlib-core/features.yml BEFORE=tmp/package-boot/final-extracted AFTER=tmp/stdlib-core/after-extracted OUT=tmp/stdlib-core/rails_extension.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "active_admin_extension": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=active_admin_extension N=1 SAMPLES=7 BOOT_FEATURES=tmp/stdlib-core/features.yml BEFORE=tmp/package-boot/final-extracted AFTER=tmp/stdlib-core/after-extracted OUT=tmp/stdlib-core/active_admin_extension.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "package_before": "SOURCE_DATE_EPOCH=1794528000 bundle exec ruby benchmarks/package_footprint.rb tmp/package-boot/final tmp/stdlib-core/before-footprint.json",
+    "package_after": "SOURCE_DATE_EPOCH=1794528000 bundle exec ruby benchmarks/package_footprint.rb tmp/stdlib-core/after tmp/stdlib-core/after-footprint.json",
+    "evaluation_gate": "PROBE=all N=100000 SAMPLES=5 AFTER=tmp/stdlib-core/after-extracted CEILINGS=benchmarks/show_skip_pressure_ceilings.json OUT=tmp/stdlib-core/evaluation-gate.json bundle exec ruby benchmarks/pressure_runner.rb gate"
+  },
+  "before": {
+    "source_digest": "eb20bedf5f43c2fee7eaf20554cdd3ebb43ee1a286eaba62a0c64ade062f616c",
+    "gem_name": "onni",
+    "version": "1.0.0",
+    "source_date_epoch": "1794528000",
+    "builds": [
+      {
+        "bytes": 44544,
+        "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+      },
+      {
+        "bytes": 44544,
+        "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+      },
+      {
+        "bytes": 44544,
+        "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+      }
+    ],
+    "reproducible": true,
+    "archive_parts": {
+      "metadata.gz": {
+        "compressed_bytes": 1723,
+        "uncompressed_bytes": 10756
+      },
+      "data.tar.gz": {
+        "compressed_bytes": 39212,
+        "uncompressed_bytes": 180224
+      },
+      "checksums.yaml.gz": {
+        "compressed_bytes": 297,
+        "uncompressed_bytes": 468
+      }
+    },
+    "package_files": 64,
+    "package_file_bytes": 132029,
+    "by_directory": {
+      "root": {
+        "files": 8,
+        "bytes": 36042
+      },
+      "app": {
+        "files": 11,
+        "bytes": 21994
+      },
+      "config": {
+        "files": 2,
+        "bytes": 181
+      },
+      "lib": {
+        "files": 42,
+        "bytes": 64566
+      },
+      "sig": {
+        "files": 1,
+        "bytes": 9246
+      }
+    },
+    "largest_files": {
+      "README.md": 23685,
+      "sig/onni.rbs": 9246,
+      "app/admin/features.rb": 7193,
+      "CHANGELOG.md": 4671,
+      "lib/onni/store.rb": 4173,
+      "lib/onni.rb": 3912,
+      "app/views/admin/features/show.html.arb": 3473,
+      "lib/onni/adapters/active_record.rb": 3083,
+      "lib/onni/admin/flags_query.rb": 3058,
+      "lib/onni/adapters/memory.rb": 3016,
+      "lib/onni/adapters/active_record/stat_writes.rb": 2998,
+      "lib/onni/migrator/importer.rb": 2963
+    },
+    "dependencies": {
+      "runtime": {
+        "activesupport": {
+          "files": 293,
+          "logical_bytes": 1055729,
+          "version": "8.1.4.1"
+        },
+        "base64": {
+          "files": 6,
+          "logical_bytes": 35899,
+          "version": "0.3.0"
+        },
+        "bigdecimal": {
+          "files": 29,
+          "logical_bytes": 604052,
+          "version": "4.1.3"
+        },
+        "concurrent-ruby": {
+          "files": 139,
+          "logical_bytes": 1140562,
+          "version": "1.3.8"
+        },
+        "connection_pool": {
+          "files": 9,
+          "logical_bytes": 26829,
+          "version": "3.0.2"
+        },
+        "drb": {
+          "files": 15,
+          "logical_bytes": 92190,
+          "version": "2.2.3"
+        },
+        "i18n": {
+          "files": 48,
+          "logical_bytes": 171141,
+          "version": "1.15.2"
+        },
+        "json": {
+          "files": 27,
+          "logical_bytes": 593323,
+          "version": "3.1.0"
+        },
+        "logger": {
+          "files": 10,
+          "logical_bytes": 40807,
+          "version": "1.7.0"
+        },
+        "minitest": {
+          "files": 41,
+          "logical_bytes": 367453,
+          "version": "6.1.0"
+        },
+        "prism": {
+          "files": 231,
+          "logical_bytes": 10411843,
+          "version": "2.1.0"
+        },
+        "securerandom": {
+          "files": 4,
+          "logical_bytes": 7937,
+          "version": "0.4.1"
+        },
+        "tzinfo": {
+          "files": 53,
+          "logical_bytes": 338995,
+          "version": "2.0.6"
+        },
+        "uri": {
+          "files": 21,
+          "logical_bytes": 131243,
+          "version": "1.1.2"
+        }
+      },
+      "runtime_logical_bytes": 15018003,
+      "checkout_graph_gems": 113,
+      "checkout_graph_logical_bytes": 87109748
+    }
+  },
+  "after": {
+    "source_digest": "861a84c4f879f05074deca51ab798772cbe9df8789280612f3d8a590c7a8c366",
+    "gem_name": "onni",
+    "version": "1.0.0",
+    "source_date_epoch": "1794528000",
+    "builds": [
+      {
+        "bytes": 46080,
+        "sha256": "07333305618c61aad5e450c1aa9d4125b2b02134ad4f950c93c53ba5b63470c1"
+      },
+      {
+        "bytes": 46080,
+        "sha256": "07333305618c61aad5e450c1aa9d4125b2b02134ad4f950c93c53ba5b63470c1"
+      },
+      {
+        "bytes": 46080,
+        "sha256": "07333305618c61aad5e450c1aa9d4125b2b02134ad4f950c93c53ba5b63470c1"
+      }
+    ],
+    "reproducible": true,
+    "archive_parts": {
+      "metadata.gz": {
+        "compressed_bytes": 1716,
+        "uncompressed_bytes": 10515
+      },
+      "data.tar.gz": {
+        "compressed_bytes": 40480,
+        "uncompressed_bytes": 187904
+      },
+      "checksums.yaml.gz": {
+        "compressed_bytes": 297,
+        "uncompressed_bytes": 468
+      }
+    },
+    "package_files": 68,
+    "package_file_bytes": 135984,
+    "by_directory": {
+      "root": {
+        "files": 8,
+        "bytes": 38816
+      },
+      "app": {
+        "files": 8,
+        "bytes": 20808
+      },
+      "config": {
+        "files": 2,
+        "bytes": 181
+      },
+      "lib": {
+        "files": 48,
+        "bytes": 66695
+      },
+      "sig": {
+        "files": 2,
+        "bytes": 9484
+      }
+    },
+    "largest_files": {
+      "README.md": 26260,
+      "sig/onni.rbs": 9396,
+      "app/admin/features.rb": 7193,
+      "CHANGELOG.md": 4923,
+      "lib/onni/store.rb": 4168,
+      "lib/onni.rb": 3594,
+      "app/views/admin/features/show.html.arb": 3473,
+      "lib/onni/adapters/active_record.rb": 3083,
+      "lib/onni/admin/flags_query.rb": 3058,
+      "lib/onni/adapters/memory.rb": 3016,
+      "lib/onni/adapters/active_record/stat_writes.rb": 2998,
+      "lib/onni/migrator/importer.rb": 2963
+    },
+    "dependencies": {
+      "runtime": {},
+      "runtime_logical_bytes": 0,
+      "checkout_graph_gems": 113,
+      "checkout_graph_logical_bytes": 87109748
+    }
+  },
+  "comparisons": {
+    "standalone": {
+      "mode": "compare",
+      "started_at": "2026-11-13T12:03:30Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "standalone",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "33afd413d5468fd754ca37ecf2a25eb0d0402847f2561645ae97f5f1a9848679",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb",
+        "after": "fa71528a9ae7aaa9f01e9df8b6b64bf92a15745f374d14f231ea622bc74aa827"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.09036099998047575,
+            "cpu_s": 0.090339,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92340,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35405824
+          },
+          {
+            "wall_s": 0.09792199998628348,
+            "cpu_s": 0.09787599999999999,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92340,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36339712
+          },
+          {
+            "wall_s": 0.0982549999607727,
+            "cpu_s": 0.09821799999999999,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92340,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37175296
+          },
+          {
+            "wall_s": 0.09048700000857934,
+            "cpu_s": 0.090483,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92341,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36093952
+          },
+          {
+            "wall_s": 0.09622399997897446,
+            "cpu_s": 0.09620100000000001,
+            "allocated_objects": 42755,
+            "loaded_files": 309,
+            "live_heap_slots": 92354,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36323328
+          },
+          {
+            "wall_s": 0.0932780000148341,
+            "cpu_s": 0.09323600000000001,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92347,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36192256
+          },
+          {
+            "wall_s": 0.0980880000279285,
+            "cpu_s": 0.098026,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92345,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36667392
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.019158999959472567,
+            "cpu_s": 0.019144999999999995,
+            "allocated_objects": 8524,
+            "loaded_files": 72,
+            "live_heap_slots": 70846,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 29016064
+          },
+          {
+            "wall_s": 0.01704299997072667,
+            "cpu_s": 0.017017000000000004,
+            "allocated_objects": 8524,
+            "loaded_files": 72,
+            "live_heap_slots": 70847,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 27901952
+          },
+          {
+            "wall_s": 0.01759400003356859,
+            "cpu_s": 0.017595,
+            "allocated_objects": 8524,
+            "loaded_files": 72,
+            "live_heap_slots": 70845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 28786688
+          },
+          {
+            "wall_s": 0.020235000003594905,
+            "cpu_s": 0.020223000000000005,
+            "allocated_objects": 8524,
+            "loaded_files": 72,
+            "live_heap_slots": 70845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 27754496
+          },
+          {
+            "wall_s": 0.01927699998486787,
+            "cpu_s": 0.019265000000000004,
+            "allocated_objects": 8524,
+            "loaded_files": 72,
+            "live_heap_slots": 70846,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 29048832
+          },
+          {
+            "wall_s": 0.018057999957818538,
+            "cpu_s": 0.018056000000000003,
+            "allocated_objects": 8524,
+            "loaded_files": 72,
+            "live_heap_slots": 70845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 28049408
+          },
+          {
+            "wall_s": 0.017536999948788434,
+            "cpu_s": 0.017535999999999996,
+            "allocated_objects": 8524,
+            "loaded_files": 72,
+            "live_heap_slots": 70845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 28622848
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.09620100000000001,
+          "wall_s": 0.09622399997897446,
+          "allocated_objects": 42756,
+          "peak_rss_bytes": 37175296,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        },
+        "after": {
+          "cpu_s": 0.018056000000000003,
+          "wall_s": 0.018057999957818538,
+          "allocated_objects": 8524,
+          "peak_rss_bytes": 29048832,
+          "store_bytes": 0,
+          "source_bytes": 96987
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.1876903566490993,
+        "wall_s": 0.1876662782857117,
+        "allocated_objects": 0.19936383197679858,
+        "peak_rss_bytes": 0.7814014984574702,
+        "store_bytes": null,
+        "source_bytes": 1.012326994133979
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": true,
+      "finished_at": "2026-11-13T12:03:33Z"
+    },
+    "standalone_ready": {
+      "mode": "compare",
+      "started_at": "2026-11-13T12:03:33Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "standalone_ready",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "33afd413d5468fd754ca37ecf2a25eb0d0402847f2561645ae97f5f1a9848679",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb",
+        "after": "fa71528a9ae7aaa9f01e9df8b6b64bf92a15745f374d14f231ea622bc74aa827"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.09764900000300258,
+            "cpu_s": 0.097631,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94223,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37781504
+          },
+          {
+            "wall_s": 0.10298500000499189,
+            "cpu_s": 0.10294,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94215,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37191680
+          },
+          {
+            "wall_s": 0.09208199998829514,
+            "cpu_s": 0.09208300000000001,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94199,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36356096
+          },
+          {
+            "wall_s": 0.08976499998243526,
+            "cpu_s": 0.089766,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94206,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36175872
+          },
+          {
+            "wall_s": 0.09673600003588945,
+            "cpu_s": 0.09642699999999998,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94204,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36667392
+          },
+          {
+            "wall_s": 0.09725400002207607,
+            "cpu_s": 0.09724000000000001,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94224,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35536896
+          },
+          {
+            "wall_s": 0.09101199998985976,
+            "cpu_s": 0.091008,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94204,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36470784
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.019988999993074685,
+            "cpu_s": 0.019990000000000008,
+            "allocated_objects": 9293,
+            "loaded_files": 76,
+            "live_heap_slots": 71614,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 29212672
+          },
+          {
+            "wall_s": 0.021544999966863543,
+            "cpu_s": 0.021540000000000004,
+            "allocated_objects": 9293,
+            "loaded_files": 76,
+            "live_heap_slots": 71616,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 29507584
+          },
+          {
+            "wall_s": 0.018895999994128942,
+            "cpu_s": 0.018897999999999998,
+            "allocated_objects": 9293,
+            "loaded_files": 76,
+            "live_heap_slots": 71616,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 28786688
+          },
+          {
+            "wall_s": 0.018417999963276088,
+            "cpu_s": 0.018419000000000005,
+            "allocated_objects": 9293,
+            "loaded_files": 76,
+            "live_heap_slots": 71615,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 27754496
+          },
+          {
+            "wall_s": 0.018626999983098358,
+            "cpu_s": 0.018629000000000007,
+            "allocated_objects": 9293,
+            "loaded_files": 76,
+            "live_heap_slots": 71614,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 29245440
+          },
+          {
+            "wall_s": 0.018764999986160547,
+            "cpu_s": 0.018766000000000005,
+            "allocated_objects": 9293,
+            "loaded_files": 76,
+            "live_heap_slots": 71614,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 28655616
+          },
+          {
+            "wall_s": 0.01986100000794977,
+            "cpu_s": 0.019863000000000006,
+            "allocated_objects": 9293,
+            "loaded_files": 76,
+            "live_heap_slots": 71614,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 29048832
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.09642699999999998,
+          "wall_s": 0.09673600003588945,
+          "allocated_objects": 44615,
+          "peak_rss_bytes": 37781504,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        },
+        "after": {
+          "cpu_s": 0.018897999999999998,
+          "wall_s": 0.018895999994128942,
+          "allocated_objects": 9293,
+          "peak_rss_bytes": 29507584,
+          "store_bytes": 0,
+          "source_bytes": 96987
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.19598245304738302,
+        "wall_s": 0.195335759046461,
+        "allocated_objects": 0.20829317494116328,
+        "peak_rss_bytes": 0.7810060711188205,
+        "store_bytes": null,
+        "source_bytes": 1.012326994133979
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": true,
+      "finished_at": "2026-11-13T12:03:35Z"
+    },
+    "active_support": {
+      "mode": "compare",
+      "started_at": "2026-11-13T12:03:35Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "active_support",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "33afd413d5468fd754ca37ecf2a25eb0d0402847f2561645ae97f5f1a9848679",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb",
+        "after": "fa71528a9ae7aaa9f01e9df8b6b64bf92a15745f374d14f231ea622bc74aa827"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.00794300000416115,
+            "cpu_s": 0.007934999999999998,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83823,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35815424
+          },
+          {
+            "wall_s": 0.0073880000272765756,
+            "cpu_s": 0.007388000000000006,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83823,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34062336
+          },
+          {
+            "wall_s": 0.007374999986495823,
+            "cpu_s": 0.007377000000000022,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83823,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36700160
+          },
+          {
+            "wall_s": 0.007436999992933124,
+            "cpu_s": 0.007438,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83822,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35782656
+          },
+          {
+            "wall_s": 0.007592000009026378,
+            "cpu_s": 0.007593000000000016,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83822,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36126720
+          },
+          {
+            "wall_s": 0.007499999948777258,
+            "cpu_s": 0.007502000000000009,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35766272
+          },
+          {
+            "wall_s": 0.0077729999902658165,
+            "cpu_s": 0.007773000000000002,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83859,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36339712
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.007813000003807247,
+            "cpu_s": 0.007812999999999987,
+            "allocated_objects": 3548,
+            "loaded_files": 30,
+            "live_heap_slots": 83834,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 34242560
+          },
+          {
+            "wall_s": 0.00749099999666214,
+            "cpu_s": 0.007491999999999999,
+            "allocated_objects": 3548,
+            "loaded_files": 30,
+            "live_heap_slots": 83834,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 35684352
+          },
+          {
+            "wall_s": 0.007415000000037253,
+            "cpu_s": 0.007415999999999978,
+            "allocated_objects": 3548,
+            "loaded_files": 30,
+            "live_heap_slots": 83834,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 34619392
+          },
+          {
+            "wall_s": 0.007722000009380281,
+            "cpu_s": 0.007724999999999982,
+            "allocated_objects": 3548,
+            "loaded_files": 30,
+            "live_heap_slots": 83834,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 35258368
+          },
+          {
+            "wall_s": 0.007423999952152371,
+            "cpu_s": 0.007425999999999988,
+            "allocated_objects": 3548,
+            "loaded_files": 30,
+            "live_heap_slots": 83834,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 35389440
+          },
+          {
+            "wall_s": 0.007583999948110431,
+            "cpu_s": 0.007584999999999981,
+            "allocated_objects": 3548,
+            "loaded_files": 30,
+            "live_heap_slots": 83836,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 34390016
+          },
+          {
+            "wall_s": 0.007450000033713877,
+            "cpu_s": 0.007451999999999986,
+            "allocated_objects": 3548,
+            "loaded_files": 30,
+            "live_heap_slots": 83834,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 37879808
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.007502000000000009,
+          "wall_s": 0.007499999948777258,
+          "allocated_objects": 3535,
+          "peak_rss_bytes": 36700160,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        },
+        "after": {
+          "cpu_s": 0.007491999999999999,
+          "wall_s": 0.00749099999666214,
+          "allocated_objects": 3548,
+          "peak_rss_bytes": 37879808,
+          "store_bytes": 0,
+          "source_bytes": 96987
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.9986670221274313,
+        "wall_s": 0.9988000063764553,
+        "allocated_objects": 1.0036775106082036,
+        "peak_rss_bytes": 1.0321428571428573,
+        "store_bytes": null,
+        "source_bytes": 1.012326994133979
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T12:03:38Z"
+    },
+    "rails_extension": {
+      "mode": "compare",
+      "started_at": "2026-11-13T12:03:38Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "rails_extension",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "33afd413d5468fd754ca37ecf2a25eb0d0402847f2561645ae97f5f1a9848679",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb",
+        "after": "fa71528a9ae7aaa9f01e9df8b6b64bf92a15745f374d14f231ea622bc74aa827"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.005427999945823103,
+            "cpu_s": 0.005431000000000019,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 83099648
+          },
+          {
+            "wall_s": 0.004425999999511987,
+            "cpu_s": 0.0044279999999999875,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 86360064
+          },
+          {
+            "wall_s": 0.0048470000037923455,
+            "cpu_s": 0.004848000000000019,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85229568
+          },
+          {
+            "wall_s": 0.00519599998369813,
+            "cpu_s": 0.005198000000000036,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153846,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 86507520
+          },
+          {
+            "wall_s": 0.004928000038489699,
+            "cpu_s": 0.00492999999999999,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 84426752
+          },
+          {
+            "wall_s": 0.004281000001356006,
+            "cpu_s": 0.0042819999999999525,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153847,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 86654976
+          },
+          {
+            "wall_s": 0.004638999991584569,
+            "cpu_s": 0.0046399999999999775,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153848,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 88457216
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.005089999991469085,
+            "cpu_s": 0.005091000000000012,
+            "allocated_objects": 2890,
+            "loaded_files": 27,
+            "live_heap_slots": 153965,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/rails",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 85852160
+          },
+          {
+            "wall_s": 0.005089999991469085,
+            "cpu_s": 0.005091999999999985,
+            "allocated_objects": 2890,
+            "loaded_files": 27,
+            "live_heap_slots": 153965,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/rails",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 86163456
+          },
+          {
+            "wall_s": 0.004859000036958605,
+            "cpu_s": 0.0048599999999999755,
+            "allocated_objects": 2890,
+            "loaded_files": 27,
+            "live_heap_slots": 153965,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/rails",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 86179840
+          },
+          {
+            "wall_s": 0.00526999996509403,
+            "cpu_s": 0.005271000000000026,
+            "allocated_objects": 2890,
+            "loaded_files": 27,
+            "live_heap_slots": 153964,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/rails",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 88342528
+          },
+          {
+            "wall_s": 0.005387999990489334,
+            "cpu_s": 0.005390000000000006,
+            "allocated_objects": 2890,
+            "loaded_files": 27,
+            "live_heap_slots": 153963,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/rails",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 88211456
+          },
+          {
+            "wall_s": 0.004696999967563897,
+            "cpu_s": 0.004699999999999982,
+            "allocated_objects": 2890,
+            "loaded_files": 27,
+            "live_heap_slots": 153965,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/rails",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 88408064
+          },
+          {
+            "wall_s": 0.005410999990999699,
+            "cpu_s": 0.005404999999999993,
+            "allocated_objects": 2890,
+            "loaded_files": 27,
+            "live_heap_slots": 153963,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/rails",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 85065728
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.004848000000000019,
+          "wall_s": 0.0048470000037923455,
+          "allocated_objects": 2772,
+          "peak_rss_bytes": 88457216,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        },
+        "after": {
+          "cpu_s": 0.005091999999999985,
+          "wall_s": 0.005089999991469085,
+          "allocated_objects": 2890,
+          "peak_rss_bytes": 88408064,
+          "store_bytes": 0,
+          "source_bytes": 96987
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.0503300330032932,
+        "wall_s": 1.0501341009875416,
+        "allocated_objects": 1.0425685425685425,
+        "peak_rss_bytes": 0.9994443415447305,
+        "store_bytes": null,
+        "source_bytes": 1.012326994133979
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T12:03:44Z"
+    },
+    "active_admin_extension": {
+      "mode": "compare",
+      "started_at": "2026-11-13T12:03:45Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "active_admin_extension",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "33afd413d5468fd754ca37ecf2a25eb0d0402847f2561645ae97f5f1a9848679",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb",
+        "after": "fa71528a9ae7aaa9f01e9df8b6b64bf92a15745f374d14f231ea622bc74aa827"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.004538999986834824,
+            "cpu_s": 0.004540999999999962,
+            "allocated_objects": 2797,
+            "loaded_files": 26,
+            "live_heap_slots": 175559,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 86523904
+          },
+          {
+            "wall_s": 0.004530000034719706,
+            "cpu_s": 0.004530999999999952,
+            "allocated_objects": 2797,
+            "loaded_files": 26,
+            "live_heap_slots": 175557,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 90112000
+          },
+          {
+            "wall_s": 0.00490699999500066,
+            "cpu_s": 0.00490999999999997,
+            "allocated_objects": 2797,
+            "loaded_files": 26,
+            "live_heap_slots": 175559,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85491712
+          },
+          {
+            "wall_s": 0.004575999977532774,
+            "cpu_s": 0.004576999999999942,
+            "allocated_objects": 2797,
+            "loaded_files": 26,
+            "live_heap_slots": 175558,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 87195648
+          },
+          {
+            "wall_s": 0.0043750000186264515,
+            "cpu_s": 0.004376999999999964,
+            "allocated_objects": 2797,
+            "loaded_files": 26,
+            "live_heap_slots": 175556,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 87834624
+          },
+          {
+            "wall_s": 0.004672000010032207,
+            "cpu_s": 0.004673000000000038,
+            "allocated_objects": 2797,
+            "loaded_files": 26,
+            "live_heap_slots": 175556,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 93110272
+          },
+          {
+            "wall_s": 0.004768000042531639,
+            "cpu_s": 0.004768999999999912,
+            "allocated_objects": 2797,
+            "loaded_files": 26,
+            "live_heap_slots": 175556,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 86720512
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.006099999998696148,
+            "cpu_s": 0.006095000000000073,
+            "allocated_objects": 3460,
+            "loaded_files": 31,
+            "live_heap_slots": 176222,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 86999040
+          },
+          {
+            "wall_s": 0.005771999945864081,
+            "cpu_s": 0.005774999999999975,
+            "allocated_objects": 3460,
+            "loaded_files": 31,
+            "live_heap_slots": 176220,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 88817664
+          },
+          {
+            "wall_s": 0.005338999966625124,
+            "cpu_s": 0.00534100000000004,
+            "allocated_objects": 3460,
+            "loaded_files": 31,
+            "live_heap_slots": 176222,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 87326720
+          },
+          {
+            "wall_s": 0.005981000023894012,
+            "cpu_s": 0.005983999999999989,
+            "allocated_objects": 3460,
+            "loaded_files": 31,
+            "live_heap_slots": 176222,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 89751552
+          },
+          {
+            "wall_s": 0.005032000015489757,
+            "cpu_s": 0.005037000000000069,
+            "allocated_objects": 3460,
+            "loaded_files": 31,
+            "live_heap_slots": 176220,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 88211456
+          },
+          {
+            "wall_s": 0.0055599999614059925,
+            "cpu_s": 0.005561999999999956,
+            "allocated_objects": 3460,
+            "loaded_files": 31,
+            "live_heap_slots": 176219,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 88555520
+          },
+          {
+            "wall_s": 0.005174999998416752,
+            "cpu_s": 0.005177000000000098,
+            "allocated_objects": 3460,
+            "loaded_files": 31,
+            "live_heap_slots": 176219,
+            "contract": {
+              "version_loaded": true
+            },
+            "entry": "onni/active_admin",
+            "store_bytes": 0,
+            "source_bytes": 96987,
+            "peak_rss_bytes": 86786048
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.004576999999999942,
+          "wall_s": 0.004575999977532774,
+          "allocated_objects": 2797,
+          "peak_rss_bytes": 93110272,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        },
+        "after": {
+          "cpu_s": 0.005561999999999956,
+          "wall_s": 0.0055599999614059925,
+          "allocated_objects": 3460,
+          "peak_rss_bytes": 89751552,
+          "store_bytes": 0,
+          "source_bytes": 96987
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.2152064671182055,
+        "wall_s": 1.2150349625665335,
+        "allocated_objects": 1.23703968537719,
+        "peak_rss_bytes": 0.9639275030793595,
+        "store_bytes": null,
+        "source_bytes": 1.012326994133979
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T12:03:52Z"
+    }
+  },
+  "evaluation_gate": {
+    "mode": "gate",
+    "started_at": "2026-11-13T12:03:52Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "all",
+    "count": 100000,
+    "samples": 5,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+    "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+    "source_digests": {
+      "after": "fa71528a9ae7aaa9f01e9df8b6b64bf92a15745f374d14f231ea622bc74aa827"
+    },
+    "raw": {
+      "after": [
+        {
+          "wall_s": 1.2257620000164025,
+          "cpu_s": 1.225603,
+          "allocated_objects": 4419145,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 96987,
+          "stage_batch_p95_s": {
+            "boolean": 0.00010000000474974513,
+            "actor": 0.00012900005094707012,
+            "percentage": 0.00023200002033263445,
+            "group": 0.0001639999682083726,
+            "variant": 0.000265000038780272,
+            "conditions": 0.00014899997040629387,
+            "stats": 0.00004600000102072954
+          },
+          "peak_rss_bytes": 40239104
+        },
+        {
+          "wall_s": 1.2250919999787584,
+          "cpu_s": 1.224834,
+          "allocated_objects": 4419145,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 96987,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009799998952075839,
+            "actor": 0.0001449999981559813,
+            "percentage": 0.00021500000730156898,
+            "group": 0.00020700000459328294,
+            "variant": 0.0003029999788850546,
+            "conditions": 0.00013099994976073503,
+            "stats": 0.000036999990697950125
+          },
+          "peak_rss_bytes": 40550400
+        },
+        {
+          "wall_s": 1.2459410000010394,
+          "cpu_s": 1.245594,
+          "allocated_objects": 4419145,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 96987,
+          "stage_batch_p95_s": {
+            "boolean": 0.00008999998681247234,
+            "actor": 0.0001770000089891255,
+            "percentage": 0.00015799998072907329,
+            "group": 0.0002400000230409205,
+            "variant": 0.00024500000290572643,
+            "conditions": 0.0001829999964684248,
+            "stats": 0.00004499999340623617
+          },
+          "peak_rss_bytes": 40075264
+        },
+        {
+          "wall_s": 1.2168930000043474,
+          "cpu_s": 1.216678,
+          "allocated_objects": 4419145,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 96987,
+          "stage_batch_p95_s": {
+            "boolean": 0.0000879999715834856,
+            "actor": 0.0001330000231973827,
+            "percentage": 0.0002340000355616212,
+            "group": 0.0001509999856352806,
+            "variant": 0.0002620000159367919,
+            "conditions": 0.00014600000577047467,
+            "stats": 0.00004700000863522291
+          },
+          "peak_rss_bytes": 41025536
+        },
+        {
+          "wall_s": 1.2404150000074878,
+          "cpu_s": 1.240159,
+          "allocated_objects": 4419145,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 96987,
+          "stage_batch_p95_s": {
+            "boolean": 0.00008100003469735384,
+            "actor": 0.0001289999927394092,
+            "percentage": 0.00014399999054148793,
+            "group": 0.0002120000426657498,
+            "variant": 0.0002210000529885292,
+            "conditions": 0.00015999999595806003,
+            "stats": 0.000036999990697950125
+          },
+          "peak_rss_bytes": 39845888
+        }
+      ]
+    },
+    "summary": {
+      "after": {
+        "cpu_s": 1.225603,
+        "wall_s": 1.2257620000164025,
+        "allocated_objects": 4419145,
+        "peak_rss_bytes": 41025536,
+        "store_bytes": 664,
+        "source_bytes": 96987
+      }
+    },
+    "gates": {
+      "cpu_s": true,
+      "wall_s": true,
+      "allocated_objects": true,
+      "peak_rss_bytes": true,
+      "store_bytes": true,
+      "source_bytes": true
+    },
+    "pass": true,
+    "finished_at": "2026-11-13T12:04:00Z"
+  },
+  "consumer": {
+    "ruby": "4.0.2",
+    "visible": true,
+    "shown_count": 1,
+    "runtime_dependencies": [],
+    "bundle": [
+      "bundler",
+      "onni"
+    ],
+    "framework_loaded": false
+  },
+  "entry_notes": "rails_extension selects the old implicit onni entry before and explicit onni/rails after. active_admin_extension uses onni/active_admin on both sides. Neither is a complete Rails application startup.",
+  "lock_version_comparison": {
+    "Gemfile.lock": {
+      "third_party_nodes": 133,
+      "versions_unchanged": true
+    },
+    "gemfiles/rails72.gemfile.lock": {
+      "third_party_nodes": 133,
+      "versions_unchanged": true
+    },
+    "gemfiles/rails8ruby34.gemfile.lock": {
+      "third_party_nodes": 133,
+      "versions_unchanged": true
+    },
+    "gemfiles/rails8ruby4.gemfile.lock": {
+      "third_party_nodes": 133,
+      "versions_unchanged": true
+    }
+  },
+  "advisory_database": {
+    "revision": "4d71b123428e33f694e805ce15351ee3d8d62ef7",
+    "advisories": 1359,
+    "last_updated": "2026-11-11"
+  },
+  "advisory_scans": {
+    "Gemfile.lock": {
+      "exit": 0,
+      "matches": []
+    },
+    "gemfiles/rails72.gemfile.lock": {
+      "exit": 1,
+      "matches": [
+        {
+          "gem": {
+            "name": "actionmailbox",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-5957-c7qm-m469",
+            "ghsa": "5957-c7qm-m469",
+            "title": "Possible signature replay in Action Mailbox Mailgun ingress",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-5957-c7qm-m469",
+            "criticality": "low",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionpack",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-2586-8ghr-69fj",
+            "ghsa": "2586-8ghr-69fj",
+            "title": "Possible restoration of destroyed sessions in Action Dispatch CacheStore",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-2586-8ghr-69fj",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionpack",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-gmj8-hvj3-49mw",
+            "ghsa": "gmj8-hvj3-49mw",
+            "title": "Missing SameSite attribute on session cookies from Action Pack session stores",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-gmj8-hvj3-49mw",
+            "criticality": "low",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionpack",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-r9jg-fmfx-2gv6",
+            "ghsa": "r9jg-fmfx-2gv6",
+            "title": "Possible cache poisoning in Action Pack content negotiation",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-r9jg-fmfx-2gv6",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionpack",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-rwvh-fw6r-pwvp",
+            "ghsa": "rwvh-fw6r-pwvp",
+            "title": "Possible DoS vulnerability in Action Controller Live streaming",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-rwvh-fw6r-pwvp",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionpack",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-wm3x-v3qw-4jh3",
+            "ghsa": "wm3x-v3qw-4jh3",
+            "title": "Possible Strong Parameters bypass in Parameters#each_key in Action Pack",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-wm3x-v3qw-4jh3",
+            "criticality": "high",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionpack",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-x6mj-8jx9-qhqv",
+            "ghsa": "x6mj-8jx9-qhqv",
+            "title": "Possible sensitive session information leak in Active Storage proxy mode",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-x6mj-8jx9-qhqv",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionview",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-2p2f-4rq4-gjwc",
+            "ghsa": "2p2f-4rq4-gjwc",
+            "title": "Possible XSS vulnerability in Action View text helpers",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-2p2f-4rq4-gjwc",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionview",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-68p9-83h6-5wpj",
+            "ghsa": "68p9-83h6-5wpj",
+            "title": "Possible XSS vulnerability in Action View tag helpers",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-68p9-83h6-5wpj",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionview",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-rq8q-p985-fjq7",
+            "ghsa": "rq8q-p985-fjq7",
+            "title": "Possible XSS vulnerability in Action View strip_tags",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-rq8q-p985-fjq7",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "actionview",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-v6rj-xm57-3p59",
+            "ghsa": "v6rj-xm57-3p59",
+            "title": "Possible XSS vulnerability in Action View highlight helper",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-v6rj-xm57-3p59",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "activestorage",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-3f4q-8x5m-76v8",
+            "ghsa": "3f4q-8x5m-76v8",
+            "title": "Possible local file disclosure in Active Storage video previews and analysis",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-3f4q-8x5m-76v8",
+            "criticality": "low",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "activestorage",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-3w93-6hmw-whh4",
+            "ghsa": "3w93-6hmw-whh4",
+            "title": "Unsigned Content-Type in Active Storage GCS direct uploads with cache_control",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-3w93-6hmw-whh4",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "activestorage",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-f3w6-w445-fwh9",
+            "ghsa": "f3w6-w445-fwh9",
+            "title": "Possible arbitrary file write and read in Active Storage image analysis",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-f3w6-w445-fwh9",
+            "criticality": "critical",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "activestorage",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-hfr4-8rjc-97m2",
+            "ghsa": "hfr4-8rjc-97m2",
+            "title": "Possible circumvention of file size limits in Active Storage direct uploads to Google Cloud Storage",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-hfr4-8rjc-97m2",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "activestorage",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-p2pm-g2h6-7j5j",
+            "ghsa": "p2pm-g2h6-7j5j",
+            "title": "Possible DoS vulnerability in Active Storage filename handling",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-p2pm-g2h6-7j5j",
+            "criticality": "medium",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "activestorage",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-v924-7rp8-4mxh",
+            "ghsa": "v924-7rp8-4mxh",
+            "title": "Possible arbitrary file read and remote code execution in Active Storage video previews, analysis and image processing",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-v924-7rp8-4mxh",
+            "criticality": "high",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        },
+        {
+          "gem": {
+            "name": "activesupport",
+            "version": "7.2.4"
+          },
+          "advisory": {
+            "id": "GHSA-8474-xrp6-wh69",
+            "ghsa": "8474-xrp6-wh69",
+            "title": "Possible DoS vulnerability in Active Support safe_constantize",
+            "url": "https://github.com/rails/rails/security/advisories/GHSA-8474-xrp6-wh69",
+            "criticality": "high",
+            "patched_versions": [
+              "~> 8.0.5, >= 8.0.5.2",
+              ">= 8.1.4.1"
+            ]
+          }
+        }
+      ]
+    },
+    "gemfiles/rails8ruby34.gemfile.lock": {
+      "exit": 0,
+      "matches": []
+    },
+    "gemfiles/rails8ruby4.gemfile.lock": {
+      "exit": 0,
+      "matches": []
+    }
+  },
+  "advisory_disposition": "Core consumer: component absent for framework matches. Rails 7.2 compatibility graph: 18 matches remain under investigation; no downstream host exploitation claim or risk acceptance.",
+  "validation": {
+    "bundle exec rspec": {
+      "examples": 231,
+      "failures": 0,
+      "seed": 9563
+    },
+    "BUNDLE_GEMFILE=gemfiles/rails72.gemfile bundle exec rspec": {
+      "ruby": "4.0.2",
+      "examples": 231,
+      "failures": 0,
+      "seed": 35551
+    },
+    "BUNDLE_GEMFILE=gemfiles/rails8ruby34.gemfile bundle exec rspec": {
+      "ruby": "4.0.2",
+      "examples": 231,
+      "failures": 0,
+      "seed": 62302
+    },
+    "BUNDLE_GEMFILE=gemfiles/rails8ruby4.gemfile bundle exec rspec": {
+      "ruby": "4.0.2",
+      "examples": 231,
+      "failures": 0,
+      "seed": 53220
+    },
+    "POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures": {
+      "workers": 5,
+      "exit": 0,
+      "coverage_fragments": 9
+    },
+    "bundle exec polyrun report-coverage -i coverage/merged.json -o coverage --basename stdlib-core --format json,console": {
+      "covered_lines": 1288,
+      "executable_lines": 1319,
+      "files": 43
+    },
+    "RUBOCOP_CACHE_ROOT=tmp/rubocop-cache bundle exec rubocop": {
+      "files": 100,
+      "offenses": 0
+    },
+    "bundle exec rbs validate": {
+      "exit": 0
+    },
+    "ruby usr/bin/check_locale_parity.rb": {
+      "exit": 0,
+      "keys": 2
+    },
+    "ruby usr/bin/check_loc.rb": {
+      "exit": 0,
+      "warnings": {
+        "app/admin/features.rb": 212,
+        "lib/onni.rb": 162
+      }
+    },
+    "RBENV_VERSION=3.4.11 BUNDLE_GEMFILE=tmp/stdlib-core/consumer/Gemfile ruby -rbundler/setup -ronni": {
+      "isolated_boolean_evaluation": true
+    },
+    "git diff --check": {
+      "exit": 0
+    }
+  },
+  "scope_limits": "External host applications, a full Ruby 3.4 Rails test matrix, packet traces, and all Rails 7.2 advisory exploit conditions were not assessed. No third-party package version or runtime pin was upgraded."
+}

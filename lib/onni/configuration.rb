@@ -1,20 +1,18 @@
 # frozen_string_literal: true
 
-require "active_support"
-require "active_support/core_ext/numeric/time"
 require "onni/stats/sampler"
 
 module Onni
   class Configuration
     CONCURRENCY_MODES = %i[mutex none].freeze
 
-    attr_accessor :features_path, :cache, :cache_ttl, :stats_enabled, :stats_retention,
+    attr_accessor :features_path, :cache, :cache_ttl, :stats_enabled,
       :stats_sampler, :stats_ignore, :stats_scale_sampled_hits, :stats_buffer,
-      :request_preload, :adapter, :admin_authorized
-    attr_reader :stats_sample_rate, :concurrency
+      :request_preload, :adapter, :logger, :instrumenter
+    attr_reader :stats_sample_rate, :concurrency, :stats_retention
 
     def initialize
-      @features_path = nil
+      @features_path = "config/features.yml"
       @cache = nil
       @cache_ttl = 15 * 60
       @stats_enabled = true
@@ -30,13 +28,23 @@ module Onni
       # When true, RequestLifecycle middleware calls Onni.preload! at request start.
       @request_preload = false
       # How long hourly hit buckets are kept. Used by Onni::Stats::Purge / the cleanup job.
-      @stats_retention = 90.days
+      @stats_retention = 90 * 86_400
       # :mutex covers threads and fibers on Ruby 3.4+; :none skips locking.
       @concurrency = :mutex
       @adapter = :memory
-      # Who may open the Onni ActiveAdmin dashboard (not application authorization).
-      # Called with the ActiveAdmin page controller as receiver (instance_exec).
-      @admin_authorized = -> { true }
+    end
+
+    def stats_retention=(value)
+      valid = case value
+      when nil then true
+      when Integer then value >= 0
+      else false
+      end
+      unless valid
+        raise ArgumentError, "Stats retention must be nonnegative integer seconds or nil"
+      end
+
+      @stats_retention = value
     end
 
     def stats_sample_rate=(value)

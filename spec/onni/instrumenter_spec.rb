@@ -4,6 +4,13 @@ require "spec_helper"
 require "active_support/notifications"
 
 RSpec.describe Onni::Instrumenter do
+  around do |example|
+    previous = Onni.configuration.instrumenter
+    example.run
+  ensure
+    Onni.configuration.instrumenter = previous
+  end
+
   it "publishes ActiveSupport::Notifications under the .onni suffix" do
     events = []
     subscription = ActiveSupport::Notifications.subscribe(/\.onni$/) do |*args|
@@ -19,8 +26,8 @@ RSpec.describe Onni::Instrumenter do
     ActiveSupport::Notifications.unsubscribe(subscription)
   end
 
-  it "yields the payload when ActiveSupport::Notifications is unavailable" do
-    allow(described_class).to receive(:notifications_bus).and_return(nil)
+  it "yields the payload when no backend is configured" do
+    Onni.configuration.instrumenter = nil
 
     captured = nil
     result = described_class.instrument("stats.record", name: "demo") { |payload|

@@ -58,6 +58,7 @@ module Onni
 
       def write_gate(feature_key, gate_key, value)
         gate_key = "powered" if gate_key == "boolean"
+        value = Integer(value).to_s if gate_key == "percentage_of_actors"
         Onni.adapter.update_gates(feature_key) do |entries|
           entries.reject! { |gate| gate["key"] == gate_key } unless %w[actors groups].include?(gate_key)
           entry = {"key" => gate_key, "value" => value.to_s}
@@ -82,7 +83,8 @@ module Onni
       end
 
       def gate_field(row, name)
-        row[name] || row[name.to_s]
+        value = row[name]
+        value.nil? ? row[name.to_s] : value
       end
     end
   end

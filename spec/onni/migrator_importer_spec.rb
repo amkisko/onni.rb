@@ -98,4 +98,35 @@ RSpec.describe Onni::Migrator::Importer do
     expect(Onni.migrate!(malformed)).to include(gates: 1, skipped_gates: 1)
     expect(Onni.visible?(:demo, record_stats: false)).to be(false)
   end
+
+  it "imports boolean false from symbol-keyed rows as explicit parked power" do
+    Onni.ready!(:demo)
+    snapshot = Onni::Migrator::Snapshot.new(feature_keys: ["demo"], gates: [
+      {feature_key: "demo", key: "boolean", value: false}
+    ])
+
+    expect(Onni.migrate!(snapshot)).to include(gates: 1, skipped_gates: 0)
+    expect(Onni.parked?(:demo)).to be(true)
+    expect(Onni.visible?(:demo, record_stats: false)).to be(false)
+  end
+
+  it "imports source rows that provide indexed fields without Hash methods" do
+    row = Struct.new(:feature_key, :key, :value).new("demo", "boolean", "true")
+    snapshot = Onni::Migrator::Snapshot.new(feature_keys: ["demo"], gates: [row])
+
+    expect(Onni.migrate!(snapshot)).to include(gates: 1, skipped_gates: 0)
+    expect(Onni.visible?(:demo, record_stats: false)).to be(true)
+  end
+
+  it "stores imported percentage levels with the same integer interpretation as validation" do
+    allow(Onni::Registry).to receive(:definition).and_return("type" => "percentage")
+    ["0x32", "1_0", "050", 25.9].each do |value|
+      snapshot = Onni::Migrator::Snapshot.new(feature_keys: ["demo"], gates: [
+        {feature_key: "demo", key: "percentage_of_actors", value: value}
+      ])
+
+      expect(Onni.migrate!(snapshot)).to include(gates: 1, skipped_gates: 0)
+      expect(Onni.level(:demo)).to eq(Integer(value))
+    end
+  end
 end

@@ -40,16 +40,12 @@ module Onni
 
     def raise_unknown!(name)
       message = "Feature `#{name}` not found in features.yml"
-      if defined?(Rails)
-        Rails.logger.error(message)
-        ActionReporter.notify(message) if defined?(ActionReporter) && Rails.env.production?
-      end
+      Onni.configuration.logger&.error(message)
       raise KeyError, message
     end
 
     def load_config
       path = Onni.configuration.features_path
-      path ||= default_features_path
       return {} if path.nil? || !File.exist?(path)
 
       raw = File.read(path)
@@ -73,12 +69,5 @@ module Onni
       nil
     end
     private_class_method :attach_expiry!
-
-    def default_features_path
-      return unless defined?(Rails) && Rails.respond_to?(:root) && Rails.root
-
-      Rails.root.join("config/features.yml")
-    end
-    private_class_method :default_features_path
   end
 end

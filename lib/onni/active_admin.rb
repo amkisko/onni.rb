@@ -1,14 +1,42 @@
 # frozen_string_literal: true
 
-# First-class ActiveAdmin support for Onni.
-# The Rails engine loads `app/admin` when ActiveAdmin is already defined.
-# Require this file explicitly when you want to assert ActiveAdmin is present:
-#
-#   require "onni/active_admin"
-#
-require "onni"
+gem "activeadmin", ">= 4.0.0.beta23", "< 5"
+require "onni/rails"
+require "onni/active_record"
+require "activeadmin"
 require "onni/active_admin_routes"
+require "onni/admin/flags_query"
 
-raise LoadError, "ActiveAdmin is required for onni/active_admin" unless defined?(ActiveAdmin)
+module Onni
+  module Admin
+    module Configuration
+      DEFAULT_AUTHORIZATION = -> { true }.freeze
 
-require "onni/engine" if defined?(Rails::Engine)
+      attr_writer :admin_authorized
+
+      def admin_authorized
+        defined?(@admin_authorized) ? @admin_authorized : DEFAULT_AUTHORIZATION
+      end
+    end
+  end
+end
+
+Onni::Configuration.include(Onni::Admin::Configuration)
+Onni::Engine.paths.add "app/models", eager_load: true
+Onni::Engine.paths["app/views"] << "app/views"
+Onni::Engine.paths["config/locales"] << "config/locales"
+
+Onni::Engine.initializer "onni.configure_zeitwerk" do
+  Rails.autoloaders.main.ignore(Onni::Engine.root.join("app/admin"))
+end
+
+Onni::Engine.initializer "onni.load_active_admin" do
+  path = Onni::Engine.root.join("app/admin").to_s
+  ActiveSupport.on_load(:after_initialize) do
+    ActiveAdmin.application.load_paths << path unless ActiveAdmin.application.load_paths.include?(path)
+  end
+end
+
+Onni::Engine.initializer "onni.i18n" do
+  I18n.load_path += Dir[Onni::Engine.root.join("config/locales/*.yml")]
+end

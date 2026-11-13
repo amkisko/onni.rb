@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0.0 (2026-11-13)
+
+- Use the Ruby standard library for the core with zero runtime gem dependencies
+- Load ActiveSupport, ActiveRecord, Rails, and ActiveAdmin integrations explicitly
+- Configure retention in elapsed seconds and select persistence in the host application
 - Default YAML flags to group; allow declarations with only description and expiry
 - Separate ready/pending/parked power from `visible?` evaluation with typed YAML defaults
 - Replace power, audience, and dial APIs with ready/park, visible/drop, and level; remove old names
@@ -14,11 +19,9 @@
 - Keep request results and application errors intact when stats flushing fails
 - Prevent delayed cache fills from restoring stale gates after a local mutation
 - Isolate stored memory gates from caller mutations and aborted updates
-
 - Document concurrent hit-stat write lock pressure and host levers (`stats_buffer`, sample, ignore)
-- Add ActiveRecord stats-write pressure probe (`benchmarks/stats_write.rb`) and L1 direct ceilings
 - Rails `RequestLifecycle` middleware always `reset_request!`; optional `request_preload`
-- ActiveRecord `record_stats_batch` uses one `upsert_all` for multi-flag flush (both count columns)
+- ActiveRecord multi-flag stats flush uses one upsert for both count columns
 
 ## 0.1.3 (2026-11-12)
 

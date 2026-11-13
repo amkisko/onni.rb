@@ -12,7 +12,7 @@ Onni.configure do |config|
   # config.request_preload = true # middleware calls Onni.preload! at request start
   # config.stats_ignore = %w[health_probe_flag]
   # config.stats_sampler = ->(ctx) { ctx[:name] == "busy_flag" ? 0.01 : nil }
-  config.stats_retention = 90.days
+  config.stats_retention = 90 * 86_400
   # :mutex (default) is safe across threads and fibers on Ruby 3.4+; :none skips locks.
   config.concurrency = :mutex
   config.adapter = Rails.env.test? ? :memory : :active_record
@@ -33,8 +33,8 @@ end
 # and unsupported gates). Pass any source with #feature_keys and #gates, e.g. Migrator::Snapshot:
 # Onni.migrate!(Onni::Migrator::Snapshot.new(feature_keys: [...], gates: [...]))
 
-# Optional explicit ActiveAdmin support:
-# require "onni/active_admin"
+# Load onni/rails and onni/active_record from Gemfile before Rails initializes.
+# Load onni/active_admin instead when using the dashboard.
 
 # Optional ops subscribe (ActiveSupport::Notifications):
 # ActiveSupport::Notifications.subscribe(/\.onni$/) do |event|

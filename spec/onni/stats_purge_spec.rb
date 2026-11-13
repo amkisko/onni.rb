@@ -15,7 +15,7 @@ RSpec.describe Onni::Stats::Purge do
 
   before do
     Onni.adapter = Onni::Adapters::Memory.new
-    Onni.configuration.stats_retention = 30.days
+    Onni.configuration.stats_retention = 30 * 86_400
   end
 
   def seed_bucket(feature_key, period_start)

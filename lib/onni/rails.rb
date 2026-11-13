@@ -1,20 +1,26 @@
 # frozen_string_literal: true
 
-return unless defined?(Rails::Engine)
-
-require "onni/active_admin_routes"
-require "onni/admin/flags_query"
+gem "railties", ">= 7.2.3.2"
+require "rails"
+require "rails/engine"
+require "onni"
+require "onni/active_support"
 require "onni/middleware/request_lifecycle"
 
 module Onni
   class Engine < ::Rails::Engine
     engine_name "onni"
 
+    paths["app"] = []
+    paths["app/models"] = []
+    paths["app/views"] = []
+    paths["config/locales"] = []
+
     initializer "onni.configure", before: :load_config_initializers do
       Onni.configure do |config|
         config.features_path = Rails.root.join("config/features.yml")
         config.cache = Rails.cache
-        config.adapter = Rails.env.test? ? :memory : :active_record
+        config.logger = Rails.logger
       end
     end
 
@@ -22,27 +28,6 @@ module Onni
     # Work stays cheap when buffer and request_preload are off.
     initializer "onni.request_middleware" do |app|
       app.middleware.use Onni::Middleware::RequestLifecycle
-    end
-
-    # Rails engines eager-load every app/* directory. ActiveAdmin DSL files are
-    # not Zeitwerk constants; ActiveAdmin loads them via load_paths.
-    initializer "onni.configure_zeitwerk" do
-      Rails.autoloaders.main.ignore(root.join("app/admin"))
-    end
-
-    initializer "onni.load_active_admin" do
-      next unless defined?(ActiveAdmin)
-
-      require "onni/active_admin_routes"
-
-      path = root.join("app/admin").to_s
-      ActiveSupport.on_load(:after_initialize) do
-        ActiveAdmin.application.load_paths << path unless ActiveAdmin.application.load_paths.include?(path)
-      end
-    end
-
-    initializer "onni.i18n" do
-      I18n.load_path += Dir[root.join("config/locales/*.yml")]
     end
 
     config.after_initialize do
@@ -55,8 +40,15 @@ module Onni
       return if Onni.configuration.adapter == :memory
 
       Onni.sync_registry!
-    rescue ActiveRecord::StatementInvalid, ActiveRecord::NoDatabaseError
-      nil
+    rescue => error
+      if defined?(::ActiveRecord::StatementInvalid)
+        case error
+        when ::ActiveRecord::StatementInvalid, ::ActiveRecord::NoDatabaseError
+          return
+        end
+      end
+
+      raise
     end
   end
 end

@@ -42,4 +42,18 @@ RSpec.describe Onni::Stats::Buffer do
     Onni.reset_request!
     expect(Onni::Stats.for("demo").sum { |bucket| bucket["shown_count"] }).to eq(1)
   end
+
+  it "preserves summed weights when an adapter only supports individual writes" do
+    Onni.adapter.singleton_class.undef_method(:record_stats_batch)
+    maximum = Onni::Stats::Sampler::MAX_WEIGHT
+    [maximum, maximum, 7].each do |weight|
+      described_class.add("demo", shown: true, weight: weight)
+      described_class.add("demo", shown: false, weight: weight)
+    end
+
+    expect(described_class.flush!).to eq(1)
+    row = Onni::Stats.for("demo").fetch(0)
+    expect(row).to include("shown_count" => maximum * 2 + 7, "skip_count" => maximum * 2 + 7)
+    expect(described_class.flush!).to eq(0)
+  end
 end

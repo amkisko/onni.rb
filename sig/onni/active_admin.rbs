@@ -1,0 +1,5 @@
+module Onni
+  class Configuration
+    attr_accessor admin_authorized: untyped
+  end
+end

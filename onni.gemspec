@@ -49,8 +49,6 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "activesupport", ">= 7.2.3.2"
-
   spec.add_development_dependency "activeadmin", ">= 4.0.0.beta23", "< 5"
   spec.add_development_dependency "appraisal", "~> 2"
   spec.add_development_dependency "bundler", ">= 2"

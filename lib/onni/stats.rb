@@ -23,10 +23,10 @@ module Onni
         end
       end
     rescue => error
-      Rails.logger.warn("Onni stats failed: #{error.class}: #{error.message}") if defined?(Rails)
+      Onni.configuration.logger&.warn("Onni stats failed: #{error.class}: #{error.message}")
     end
 
-    def for(name, period: "hour", from: 24.hours.ago, to: Time.current)
+    def for(name, period: "hour", from: Time.now - 86_400, to: Time.now)
       Onni.adapter.stats_for(name, period: period, from: from, to: to)
     end
 

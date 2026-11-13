@@ -59,7 +59,7 @@ module Onni
     end
 
     def expires_on
-      return if expires_at.blank?
+      return unless expiry_present?
 
       Date.parse(expires_at.to_s)
     rescue ArgumentError, TypeError
@@ -68,7 +68,7 @@ module Onni
 
     def expires_full
       date = expires_on
-      return expires_at.to_s if date.nil? && expires_at.present?
+      return expires_at.to_s if date.nil? && expiry_present?
 
       date&.iso8601
     end
@@ -101,6 +101,13 @@ module Onni
     end
 
     private
+
+    def expiry_present?
+      value = expires_at
+      return false unless value
+
+      value.is_a?(String) ? !value.match?(/\A[[:space:]]*\z/) : !(value.respond_to?(:empty?) && value.empty?)
+    end
 
     def relative_count(count, unit)
       absolute = count.abs

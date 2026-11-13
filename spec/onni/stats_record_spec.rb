@@ -7,11 +7,13 @@ RSpec.describe Onni::Stats do
     previous_rate = Onni.configuration.stats_sample_rate
     previous_scale = Onni.configuration.stats_scale_sampled_hits
     previous_enabled = Onni.configuration.stats_enabled
+    previous_logger = Onni.configuration.logger
     example.run
   ensure
     Onni.configuration.stats_sample_rate = previous_rate
     Onni.configuration.stats_scale_sampled_hits = previous_scale
     Onni.configuration.stats_enabled = previous_enabled
+    Onni.configuration.logger = previous_logger
   end
 
   before do
@@ -46,11 +48,9 @@ RSpec.describe Onni::Stats do
     expect(described_class.for("demo")).to eq([])
   end
 
-  it "swallows adapter errors and logs when Rails is present" do
+  it "swallows adapter errors and reports them through the configured logger" do
     logger = instance_double(Logger, warn: true)
-    rails = Class.new
-    rails.define_singleton_method(:logger) { logger }
-    stub_const("Rails", rails)
+    Onni.configuration.logger = logger
     allow(Onni.adapter).to receive(:record_stat).and_raise(RuntimeError, "boom")
 
     expect { described_class.record("demo", shown: true) }.not_to raise_error

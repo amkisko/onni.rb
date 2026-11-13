@@ -26,7 +26,7 @@ RSpec.describe Onni::Stats do
   end
 
   it "flags when oldest buckets are past retention" do
-    Onni.configuration.stats_retention = 2.days
+    Onni.configuration.stats_retention = 2 * 86_400
     travel_to(5.days.ago) { Onni.adapter.record_stat("demo", shown: true) }
 
     expect(described_class.overview[:past_retention]).to be(true)

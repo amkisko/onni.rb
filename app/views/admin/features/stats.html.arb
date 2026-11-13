@@ -13,7 +13,7 @@ div class: "main-content-container" do
       attributes_table_for(record) do
         row("Buckets") { overview[:bucket_count] }
         row("Oldest hour") { overview[:oldest_period_start] || "—" }
-        row("Retention") { retention ? "#{(retention / 1.day).to_i} days" : "not set" }
+        row("Retention") { retention ? "#{retention / 86_400} days" : "not set" }
         row("Sample rate") { overview[:sample_rate] }
         row("Scale sampled counts") { overview[:scale_sampled_hits] ? "yes" : "no" }
         row("Past retention") { status_tag(overview[:past_retention] ? "Yes" : "No") }

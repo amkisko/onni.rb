@@ -16,13 +16,13 @@ require "onni/flag"
 require "onni/mutations"
 require "onni/request_store"
 require "onni/store"
-require "onni/adapters/memory"
-require "onni/adapters/active_record"
-require "onni/migrator/snapshot"
-require "onni/migrator/importer"
-require "onni/engine" if defined?(Rails::Engine)
+require "onni/adapters"
 
 module Onni
+  module Migrator
+    autoload :Snapshot, "onni/migrator/snapshot"
+    autoload :Importer, "onni/migrator/importer"
+  end
   extend Mutations
 
   class << self
@@ -95,6 +95,10 @@ module Onni
       Group.register(name, &block)
     end
 
+    def register_adapter(name, &factory)
+      Adapters.register(name, &factory)
+    end
+
     # Import from any prior feature-flag store via a source with #feature_keys and #gates.
     def migrate!(source)
       Migrator::Importer.new(source).call
@@ -134,7 +138,7 @@ module Onni
     def reset_request!
       Stats::Buffer.flush! if configuration.stats_buffer
     rescue => error
-      Rails.logger.warn("Onni stats flush failed: #{error.class}") if defined?(Rails)
+      configuration.logger&.warn("Onni stats flush failed: #{error.class}")
     ensure
       RequestStore.clear!
     end
@@ -152,12 +156,7 @@ module Onni
     end
 
     def build_adapter
-      case configuration.adapter
-      when :memory then Adapters::Memory.new
-      when :active_record then Adapters::ActiveRecord.new
-      else
-        raise ArgumentError, "Unknown Onni adapter #{configuration.adapter.inspect}"
-      end
+      Adapters.build(configuration.adapter)
     end
   end
 end

@@ -23,12 +23,22 @@ module Onni
           adapter.record_stats_batch(buckets)
         else
           buckets.each do |feature_key, counts|
-            adapter.record_stat(feature_key, shown: true, weight: counts[:shown_count]) if counts[:shown_count].positive?
-            adapter.record_stat(feature_key, shown: false, weight: counts[:skip_count]) if counts[:skip_count].positive?
+            flush_count(adapter, feature_key, shown: true, count: counts[:shown_count])
+            flush_count(adapter, feature_key, shown: false, count: counts[:skip_count])
           end
         end
         buckets.size
       end
+
+      def flush_count(adapter, feature_key, shown:, count:)
+        # Individual writes cap sample weights; split aggregates to preserve their sum.
+        while count.positive?
+          weight = [count, Sampler::MAX_WEIGHT].min
+          adapter.record_stat(feature_key, shown: shown, weight: weight)
+          count -= weight
+        end
+      end
+      private_class_method :flush_count
     end
   end
 end

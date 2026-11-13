@@ -1,0 +1,1387 @@
+{
+  "scope": "Iterative engineering audit of import, buffered statistics, and memory history contracts",
+  "operator": "Andrei Makarov (@amkisko)",
+  "sampling": "Five alternating before/after child processes per comparison; medians for CPU/wall/allocations, maxima for RSS and byte metrics",
+  "store_bytes": "JSON representation of complete fixture gate or statistics rows, not physical storage or compressed package bytes",
+  "energy_proxy": "process CPU seconds; joules and co-location effects unmeasured",
+  "timing_noise_floor": 0.03,
+  "source_notes": "Baseline was clean; unrelated in-place version/release edits occurred during the audit. Frozen snapshots isolate all accepted comparisons. Path hashes verify retained fallback/history measurements after the final import correction.",
+  "commands": {
+    "import": "PRESSURE_PROBE=benchmarks/audit_probe.rb PROBE=import N=100000 BEFORE=tmp/engineering-audit/baseline AFTER=tmp/engineering-audit/iteration-4 OUT=tmp/engineering-audit/final-import.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "import-standard": "PRESSURE_PROBE=benchmarks/audit_probe.rb PROBE=import_standard N=100000 BEFORE=tmp/engineering-audit/baseline AFTER=tmp/engineering-audit/iteration-4 OUT=tmp/engineering-audit/final-import-standard.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "import-indexed": "PRESSURE_PROBE=benchmarks/audit_probe.rb PROBE=import_indexed N=100000 BEFORE=tmp/engineering-audit/baseline AFTER=tmp/engineering-audit/iteration-4 OUT=tmp/engineering-audit/final-import-indexed.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "fallback-small": "PRESSURE_PROBE=benchmarks/audit_probe.rb PROBE=fallback_small N=100000 BEFORE=tmp/engineering-audit/iteration-1 AFTER=tmp/engineering-audit/iteration-2 OUT=tmp/engineering-audit/final-fallback-small.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "fallback-large": "PRESSURE_PROBE=benchmarks/audit_probe.rb PROBE=fallback_large N=100000 BEFORE=tmp/engineering-audit/iteration-1 AFTER=tmp/engineering-audit/iteration-2 OUT=tmp/engineering-audit/final-fallback-large.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "history": "PRESSURE_PROBE=benchmarks/audit_probe.rb PROBE=history N=10000 BEFORE=tmp/engineering-audit/iteration-2 AFTER=tmp/engineering-audit/iteration-3 OUT=tmp/engineering-audit/final-history.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "gate": "PROBE=all N=100000 SAMPLES=5 AFTER=tmp/engineering-audit/iteration-4 CEILINGS=benchmarks/show_skip_pressure_ceilings.json OUT=tmp/engineering-audit/final-gate.json bundle exec ruby benchmarks/pressure_runner.rb gate",
+    "calibration": "SAMPLES=3 AFTER=tmp/engineering-audit/iteration-3 OUT=tmp/engineering-audit/calibration.json bundle exec ruby benchmarks/pressure_runner.rb calibrate"
+  },
+  "checks": {
+    "import": {
+      "cpu_ratio_limit": 1.25,
+      "cpu_within_budget": false,
+      "before_contract_pass": false,
+      "after_contract_pass": true
+    },
+    "import-standard": {
+      "cpu_ratio_limit": 1.25,
+      "cpu_within_budget": true,
+      "before_contract_pass": true,
+      "after_contract_pass": true
+    },
+    "import-indexed": {
+      "cpu_ratio_limit": 1.25,
+      "cpu_within_budget": true,
+      "before_contract_pass": true,
+      "after_contract_pass": true
+    },
+    "fallback-small": {
+      "cpu_ratio_limit": 1.25,
+      "cpu_within_budget": true,
+      "before_contract_pass": true,
+      "after_contract_pass": true
+    },
+    "fallback-large": {
+      "cpu_ratio_limit": 3.0,
+      "cpu_within_budget": true,
+      "before_contract_pass": false,
+      "after_contract_pass": true
+    },
+    "history": {
+      "cpu_ratio_limit": 1.5,
+      "cpu_within_budget": true,
+      "before_contract_pass": false,
+      "after_contract_pass": true
+    }
+  },
+  "unchanged_benchmarked_paths": {
+    "lib/onni/stats/buffer.rb": "c68fa63fd6c888324401ea6c9bac17ce69c27b1adf2db614e3bc4b8521e0da5a",
+    "lib/onni/adapters/memory/statistics.rb": "fff92307def73e05b696b120296cb841dea4796a8b7dff82ce24751ab2bbc88d"
+  },
+  "calibration": {
+    "mode": "calibrate",
+    "started_at": "2026-11-13T10:39:21Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "calibrate",
+    "count": 1,
+    "samples": 3,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+    "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+    "calibration": [
+      {
+        "wall_s": 0.1170369999599643,
+        "cpu_s": 0.007721000000000006,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.0012700000079348683,
+          "evaluate": 0.003792000003159046,
+          "record": 0.00752499996451661
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 72417280
+      },
+      {
+        "wall_s": 0.12020399997709319,
+        "cpu_s": 0.00797500000000001,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.0012860000133514404,
+          "evaluate": 0.0037789999623782933,
+          "record": 0.007523000007495284
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 73515008
+      },
+      {
+        "wall_s": 0.12165200000163168,
+        "cpu_s": 0.009398000000000017,
+        "allocated_objects": 20031,
+        "stage_p95_s": {
+          "lookup": 0.0012860000133514404,
+          "evaluate": 0.003772999974898994,
+          "record": 0.007519999984651804
+        },
+        "calibrated": true,
+        "peak_rss_bytes": 72794112
+      }
+    ],
+    "finished_at": "2026-11-13T10:39:22Z"
+  },
+  "comparisons": {
+    "import": {
+      "mode": "compare",
+      "started_at": "2026-11-13T10:46:04Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "import",
+      "count": 100000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "a0512cc8950d1615a73a94285c4f7496cff962a011ae5d5aebbebaed7bb092f4",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "f67cb7c27f8926c80586b31afa98e397f72ddda0fa67af8213b708b2b5cdc4ec",
+        "after": "8e3848d07aa29f38eda0d1ff903817c9c29662f2632be236b95453d2002da7b8"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.45162900001741946,
+            "cpu_s": 0.451318,
+            "allocated_objects": 2600010,
+            "contract": {
+              "parked": false,
+              "level": 0
+            },
+            "store_bytes": 111,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 39747584
+          },
+          {
+            "wall_s": 0.44776799995452166,
+            "cpu_s": 0.44738700000000003,
+            "allocated_objects": 2600010,
+            "contract": {
+              "parked": false,
+              "level": 0
+            },
+            "store_bytes": 111,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 39600128
+          },
+          {
+            "wall_s": 0.44921499997144565,
+            "cpu_s": 0.448915,
+            "allocated_objects": 2600010,
+            "contract": {
+              "parked": false,
+              "level": 0
+            },
+            "store_bytes": 111,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 40501248
+          },
+          {
+            "wall_s": 0.4490419999929145,
+            "cpu_s": 0.44881200000000004,
+            "allocated_objects": 2600010,
+            "contract": {
+              "parked": false,
+              "level": 0
+            },
+            "store_bytes": 111,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 40108032
+          },
+          {
+            "wall_s": 0.45526399998925626,
+            "cpu_s": 0.454799,
+            "allocated_objects": 2600010,
+            "contract": {
+              "parked": false,
+              "level": 0
+            },
+            "store_bytes": 111,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 39813120
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.5867959999595769,
+            "cpu_s": 0.584904,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40042496
+          },
+          {
+            "wall_s": 0.5763259999803267,
+            "cpu_s": 0.57602,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40173568
+          },
+          {
+            "wall_s": 0.5748939999612048,
+            "cpu_s": 0.574097,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40157184
+          },
+          {
+            "wall_s": 0.5708710000035353,
+            "cpu_s": 0.5703830000000001,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 42090496
+          },
+          {
+            "wall_s": 0.5704610000248067,
+            "cpu_s": 0.5701780000000001,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 39878656
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.448915,
+          "wall_s": 0.44921499997144565,
+          "allocated_objects": 2600010,
+          "peak_rss_bytes": 40501248,
+          "store_bytes": 111,
+          "source_bytes": 95116
+        },
+        "after": {
+          "cpu_s": 0.574097,
+          "wall_s": 0.5748939999612048,
+          "allocated_objects": 3400010,
+          "peak_rss_bytes": 42090496,
+          "store_bytes": 110,
+          "source_bytes": 95644
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.2788545715781383,
+        "wall_s": 1.2797747181143728,
+        "allocated_objects": 1.3076911242649067,
+        "peak_rss_bytes": 1.0392394822006472,
+        "store_bytes": 0.990990990990991,
+        "source_bytes": 1.0055511165313933
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T10:46:11Z"
+    },
+    "import-standard": {
+      "mode": "compare",
+      "started_at": "2026-11-13T10:46:11Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "import_standard",
+      "count": 100000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "a0512cc8950d1615a73a94285c4f7496cff962a011ae5d5aebbebaed7bb092f4",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "f67cb7c27f8926c80586b31afa98e397f72ddda0fa67af8213b708b2b5cdc4ec",
+        "after": "8e3848d07aa29f38eda0d1ff903817c9c29662f2632be236b95453d2002da7b8"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.5474840000388213,
+            "cpu_s": 0.5471360000000001,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 40583168
+          },
+          {
+            "wall_s": 0.54602700000396,
+            "cpu_s": 0.544642,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 41189376
+          },
+          {
+            "wall_s": 0.5586640000110492,
+            "cpu_s": 0.55814,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 40779776
+          },
+          {
+            "wall_s": 0.5376389999873936,
+            "cpu_s": 0.537402,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 39698432
+          },
+          {
+            "wall_s": 0.5417620000080206,
+            "cpu_s": 0.541391,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 40239104
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.5702429999946617,
+            "cpu_s": 0.5699019999999999,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 39862272
+          },
+          {
+            "wall_s": 0.5764380000182427,
+            "cpu_s": 0.5760879999999999,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40583168
+          },
+          {
+            "wall_s": 0.5771050000330433,
+            "cpu_s": 0.576825,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40779776
+          },
+          {
+            "wall_s": 0.5714440000010654,
+            "cpu_s": 0.571078,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40960000
+          },
+          {
+            "wall_s": 0.5704699999769218,
+            "cpu_s": 0.5701379999999999,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40042496
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.544642,
+          "wall_s": 0.54602700000396,
+          "allocated_objects": 3200010,
+          "peak_rss_bytes": 41189376,
+          "store_bytes": 110,
+          "source_bytes": 95116
+        },
+        "after": {
+          "cpu_s": 0.571078,
+          "wall_s": 0.5714440000010654,
+          "allocated_objects": 3400010,
+          "peak_rss_bytes": 40960000,
+          "store_bytes": 110,
+          "source_bytes": 95644
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.0485383058963502,
+        "wall_s": 1.0465489801729972,
+        "allocated_objects": 1.0624998046881104,
+        "peak_rss_bytes": 0.994431185361973,
+        "store_bytes": 1.0,
+        "source_bytes": 1.0055511165313933
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T10:46:19Z"
+    },
+    "import-indexed": {
+      "mode": "compare",
+      "started_at": "2026-11-13T10:46:19Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "import_indexed",
+      "count": 100000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "a0512cc8950d1615a73a94285c4f7496cff962a011ae5d5aebbebaed7bb092f4",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "f67cb7c27f8926c80586b31afa98e397f72ddda0fa67af8213b708b2b5cdc4ec",
+        "after": "8e3848d07aa29f38eda0d1ff903817c9c29662f2632be236b95453d2002da7b8"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.5561710000038147,
+            "cpu_s": 0.556003,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 39960576
+          },
+          {
+            "wall_s": 0.5564010000089183,
+            "cpu_s": 0.55619,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 39878656
+          },
+          {
+            "wall_s": 0.566292000003159,
+            "cpu_s": 0.565702,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 38928384
+          },
+          {
+            "wall_s": 0.5686299999943003,
+            "cpu_s": 0.568045,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 40599552
+          },
+          {
+            "wall_s": 0.5766159999766387,
+            "cpu_s": 0.575873,
+            "allocated_objects": 3200010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95116,
+            "peak_rss_bytes": 40124416
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.5911450000130571,
+            "cpu_s": 0.590746,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 41828352
+          },
+          {
+            "wall_s": 0.5916429999633692,
+            "cpu_s": 0.5912029999999999,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40140800
+          },
+          {
+            "wall_s": 0.5948610000195913,
+            "cpu_s": 0.594144,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40206336
+          },
+          {
+            "wall_s": 0.5890570000046864,
+            "cpu_s": 0.588817,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40075264
+          },
+          {
+            "wall_s": 0.6207259999937378,
+            "cpu_s": 0.619158,
+            "allocated_objects": 3400010,
+            "contract": {
+              "parked": true,
+              "level": 50
+            },
+            "store_bytes": 110,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 40779776
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.565702,
+          "wall_s": 0.566292000003159,
+          "allocated_objects": 3200010,
+          "peak_rss_bytes": 40599552,
+          "store_bytes": 110,
+          "source_bytes": 95116
+        },
+        "after": {
+          "cpu_s": 0.5912029999999999,
+          "wall_s": 0.5916429999633692,
+          "allocated_objects": 3400010,
+          "peak_rss_bytes": 41828352,
+          "store_bytes": 110,
+          "source_bytes": 95644
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.0450785042301423,
+        "wall_s": 1.0447666574136112,
+        "allocated_objects": 1.0624998046881104,
+        "peak_rss_bytes": 1.0302663438256658,
+        "store_bytes": 1.0,
+        "source_bytes": 1.0055511165313933
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T10:46:27Z"
+    },
+    "fallback-small": {
+      "mode": "compare",
+      "started_at": "2026-11-13T10:40:19Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "fallback_small",
+      "count": 100000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "75be797e2f964077c7ecff0b3098656258aa38868336876b8a8077513a990c35",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "c80093c591061c376db249077d473d89b12fbe02a35ff08f0e46d441fbab70a5",
+        "after": "647e2baf602f2f0ec662854fa25823f2bcdb8ec159a3288461e1a32795d131d5"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.1937679999973625,
+            "cpu_s": 0.19375599999999998,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 40009728
+          },
+          {
+            "wall_s": 0.19551399996271357,
+            "cpu_s": 0.195475,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 40697856
+          },
+          {
+            "wall_s": 0.20124299998860806,
+            "cpu_s": 0.200983,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 38387712
+          },
+          {
+            "wall_s": 0.19485299999359995,
+            "cpu_s": 0.194682,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 38617088
+          },
+          {
+            "wall_s": 0.19320000003790483,
+            "cpu_s": 0.193158,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 39927808
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.2089269999996759,
+            "cpu_s": 0.208805,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 39747584
+          },
+          {
+            "wall_s": 0.21206000004895031,
+            "cpu_s": 0.21201099999999998,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 39567360
+          },
+          {
+            "wall_s": 0.20324299996718764,
+            "cpu_s": 0.20324399999999998,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 39829504
+          },
+          {
+            "wall_s": 0.20368500001495704,
+            "cpu_s": 0.203684,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 38715392
+          },
+          {
+            "wall_s": 0.20643999997992069,
+            "cpu_s": 0.20633,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100,
+              "shown_count": 100100,
+              "skip_count": 100100
+            },
+            "store_bytes": 101,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 40255488
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.194682,
+          "wall_s": 0.19485299999359995,
+          "allocated_objects": 1000010,
+          "peak_rss_bytes": 40697856,
+          "store_bytes": 101,
+          "source_bytes": 95197
+        },
+        "after": {
+          "cpu_s": 0.20633,
+          "wall_s": 0.20643999997992069,
+          "allocated_objects": 1000010,
+          "peak_rss_bytes": 40255488,
+          "store_bytes": 101,
+          "source_bytes": 95522
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.0598309037301858,
+        "wall_s": 1.0594653404705152,
+        "allocated_objects": 1.0,
+        "peak_rss_bytes": 0.9891304347826086,
+        "store_bytes": 1.0,
+        "source_bytes": 1.0034139731294054
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T10:40:23Z"
+    },
+    "fallback-large": {
+      "mode": "compare",
+      "started_at": "2026-11-13T10:40:31Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "fallback_large",
+      "count": 100000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "75be797e2f964077c7ecff0b3098656258aa38868336876b8a8077513a990c35",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "c80093c591061c376db249077d473d89b12fbe02a35ff08f0e46d441fbab70a5",
+        "after": "647e2baf602f2f0ec662854fa25823f2bcdb8ec159a3288461e1a32795d131d5"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.19723599997814745,
+            "cpu_s": 0.197203,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100000000,
+              "skip_count": 100100000000
+            },
+            "store_bytes": 113,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 39436288
+          },
+          {
+            "wall_s": 0.19829999998910353,
+            "cpu_s": 0.198236,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100000000,
+              "skip_count": 100100000000
+            },
+            "store_bytes": 113,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 40566784
+          },
+          {
+            "wall_s": 0.19972899998538196,
+            "cpu_s": 0.19958700000000001,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100000000,
+              "skip_count": 100100000000
+            },
+            "store_bytes": 113,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 39436288
+          },
+          {
+            "wall_s": 0.21806499996455386,
+            "cpu_s": 0.213598,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100000000,
+              "skip_count": 100100000000
+            },
+            "store_bytes": 113,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 39845888
+          },
+          {
+            "wall_s": 0.1999530000030063,
+            "cpu_s": 0.19984100000000002,
+            "allocated_objects": 1000010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100000000,
+              "skip_count": 100100000000
+            },
+            "store_bytes": 113,
+            "source_bytes": 95197,
+            "peak_rss_bytes": 40321024
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.33336799999233335,
+            "cpu_s": 0.333229,
+            "allocated_objects": 1600010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100700700,
+              "skip_count": 100100700700
+            },
+            "store_bytes": 113,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 39174144
+          },
+          {
+            "wall_s": 0.3369109999621287,
+            "cpu_s": 0.33675700000000003,
+            "allocated_objects": 1600010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100700700,
+              "skip_count": 100100700700
+            },
+            "store_bytes": 113,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 39092224
+          },
+          {
+            "wall_s": 0.34062500001164153,
+            "cpu_s": 0.340532,
+            "allocated_objects": 1600010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100700700,
+              "skip_count": 100100700700
+            },
+            "store_bytes": 113,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 40386560
+          },
+          {
+            "wall_s": 0.3361140000051819,
+            "cpu_s": 0.33601499999999995,
+            "allocated_objects": 1600010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100700700,
+              "skip_count": 100100700700
+            },
+            "store_bytes": 113,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 40075264
+          },
+          {
+            "wall_s": 0.3409669999964535,
+            "cpu_s": 0.340858,
+            "allocated_objects": 1600010,
+            "contract": {
+              "expected_per_side": 100100700700,
+              "shown_count": 100100700700,
+              "skip_count": 100100700700
+            },
+            "store_bytes": 113,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 40386560
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.19958700000000001,
+          "wall_s": 0.19972899998538196,
+          "allocated_objects": 1000010,
+          "peak_rss_bytes": 40566784,
+          "store_bytes": 113,
+          "source_bytes": 95197
+        },
+        "after": {
+          "cpu_s": 0.33675700000000003,
+          "wall_s": 0.3369109999621287,
+          "allocated_objects": 1600010,
+          "peak_rss_bytes": 40386560,
+          "store_bytes": 113,
+          "source_bytes": 95522
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.687269210920551,
+        "wall_s": 1.686840669040485,
+        "allocated_objects": 1.5999940000599995,
+        "peak_rss_bytes": 0.9955573505654282,
+        "store_bytes": 1.0,
+        "source_bytes": 1.0034139731294054
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T10:40:36Z"
+    },
+    "history": {
+      "mode": "compare",
+      "started_at": "2026-11-13T10:41:02Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "history",
+      "count": 10000,
+      "samples": 5,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "75be797e2f964077c7ecff0b3098656258aa38868336876b8a8077513a990c35",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "647e2baf602f2f0ec662854fa25823f2bcdb8ec159a3288461e1a32795d131d5",
+        "after": "2e1d6bd6e4a64841a47b3a9a78a6e4af297863370c882c6429c33430a7c49bdb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 1.8675579999689944,
+            "cpu_s": 1.8645919999999998,
+            "allocated_objects": 24760010,
+            "contract": {
+              "rows": 24,
+              "chronological": false,
+              "unsupported_period_rows": 24
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 41664512
+          },
+          {
+            "wall_s": 1.8974569999845698,
+            "cpu_s": 1.8891369999999998,
+            "allocated_objects": 24760010,
+            "contract": {
+              "rows": 24,
+              "chronological": false,
+              "unsupported_period_rows": 24
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 41107456
+          },
+          {
+            "wall_s": 1.8523869999917224,
+            "cpu_s": 1.851912,
+            "allocated_objects": 24760010,
+            "contract": {
+              "rows": 24,
+              "chronological": false,
+              "unsupported_period_rows": 24
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 38961152
+          },
+          {
+            "wall_s": 1.857121000008192,
+            "cpu_s": 1.8546359999999997,
+            "allocated_objects": 24760010,
+            "contract": {
+              "rows": 24,
+              "chronological": false,
+              "unsupported_period_rows": 24
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 39927808
+          },
+          {
+            "wall_s": 1.889285999990534,
+            "cpu_s": 1.8871959999999999,
+            "allocated_objects": 24760010,
+            "contract": {
+              "rows": 24,
+              "chronological": false,
+              "unsupported_period_rows": 24
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95522,
+            "peak_rss_bytes": 41123840
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 1.9287810000241734,
+            "cpu_s": 1.9285349999999999,
+            "allocated_objects": 24800010,
+            "contract": {
+              "rows": 24,
+              "chronological": true,
+              "unsupported_period_rows": 0
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95617,
+            "peak_rss_bytes": 40697856
+          },
+          {
+            "wall_s": 1.933801000006497,
+            "cpu_s": 1.9333209999999998,
+            "allocated_objects": 24800010,
+            "contract": {
+              "rows": 24,
+              "chronological": true,
+              "unsupported_period_rows": 0
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95617,
+            "peak_rss_bytes": 39649280
+          },
+          {
+            "wall_s": 1.9234730000025593,
+            "cpu_s": 1.9232790000000002,
+            "allocated_objects": 24800010,
+            "contract": {
+              "rows": 24,
+              "chronological": true,
+              "unsupported_period_rows": 0
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95617,
+            "peak_rss_bytes": 41680896
+          },
+          {
+            "wall_s": 1.9266029999707825,
+            "cpu_s": 1.926313,
+            "allocated_objects": 24800010,
+            "contract": {
+              "rows": 24,
+              "chronological": true,
+              "unsupported_period_rows": 0
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95617,
+            "peak_rss_bytes": 40697856
+          },
+          {
+            "wall_s": 1.9839120000251569,
+            "cpu_s": 1.9794690000000001,
+            "allocated_objects": 24800010,
+            "contract": {
+              "rows": 24,
+              "chronological": true,
+              "unsupported_period_rows": 0
+            },
+            "store_bytes": 217491,
+            "source_bytes": 95617,
+            "peak_rss_bytes": 42303488
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 1.8645919999999998,
+          "wall_s": 1.8675579999689944,
+          "allocated_objects": 24760010,
+          "peak_rss_bytes": 41664512,
+          "store_bytes": 217491,
+          "source_bytes": 95522
+        },
+        "after": {
+          "cpu_s": 1.9285349999999999,
+          "wall_s": 1.9287810000241734,
+          "allocated_objects": 24800010,
+          "peak_rss_bytes": 42303488,
+          "store_bytes": 217491,
+          "source_bytes": 95617
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.0342932931172075,
+        "wall_s": 1.0327823821569104,
+        "allocated_objects": 1.001615508232832,
+        "peak_rss_bytes": 1.015336217066457,
+        "store_bytes": 1.0,
+        "source_bytes": 1.0009945352902996
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T10:41:24Z"
+    }
+  },
+  "absolute_gate": {
+    "mode": "gate",
+    "started_at": "2026-11-13T10:46:28Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "all",
+    "count": 100000,
+    "samples": 5,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+    "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+    "source_digests": {
+      "after": "8e3848d07aa29f38eda0d1ff903817c9c29662f2632be236b95453d2002da7b8"
+    },
+    "raw": {
+      "after": [
+        {
+          "wall_s": 1.4294119999976829,
+          "cpu_s": 1.4269770000000002,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95644,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009799998952075839,
+            "actor": 0.0002300000051036477,
+            "percentage": 0.0001610000035725534,
+            "group": 0.00027600000612437725,
+            "variant": 0.00023799994960427284,
+            "conditions": 0.00013299996498972178,
+            "stats": 0.00005099998088553548
+          },
+          "peak_rss_bytes": 41680896
+        },
+        {
+          "wall_s": 1.4411679999902844,
+          "cpu_s": 1.435366,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95644,
+          "stage_batch_p95_s": {
+            "boolean": 0.00011299998732283711,
+            "actor": 0.0003150000120513141,
+            "percentage": 0.00018699996871873736,
+            "group": 0.0001640000264160335,
+            "variant": 0.00030800001695752144,
+            "conditions": 0.0001550000160932541,
+            "stats": 0.00004900002386420965
+          },
+          "peak_rss_bytes": 41205760
+        },
+        {
+          "wall_s": 1.4242870000307448,
+          "cpu_s": 1.420948,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95644,
+          "stage_batch_p95_s": {
+            "boolean": 0.00009200000204145908,
+            "actor": 0.00016500003403052688,
+            "percentage": 0.00022799998987466097,
+            "group": 0.00016200001118704677,
+            "variant": 0.000291000003926456,
+            "conditions": 0.0001610000035725534,
+            "stats": 0.00007599999662488699
+          },
+          "peak_rss_bytes": 41697280
+        },
+        {
+          "wall_s": 1.4144709999673069,
+          "cpu_s": 1.409451,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95644,
+          "stage_batch_p95_s": {
+            "boolean": 0.0002049999893642962,
+            "actor": 0.00018799997633323073,
+            "percentage": 0.00016500003403052688,
+            "group": 0.00027900002896785736,
+            "variant": 0.00024199998006224632,
+            "conditions": 0.000139000010676682,
+            "stats": 0.000045000051613897085
+          },
+          "peak_rss_bytes": 40812544
+        },
+        {
+          "wall_s": 1.4456439999630675,
+          "cpu_s": 1.442751,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95644,
+          "stage_batch_p95_s": {
+            "boolean": 0.00019400002202019095,
+            "actor": 0.00018799997633323073,
+            "percentage": 0.00014999997802078724,
+            "group": 0.0003150000120513141,
+            "variant": 0.0002799999783746898,
+            "conditions": 0.00018499995348975062,
+            "stats": 0.00004600000102072954
+          },
+          "peak_rss_bytes": 41156608
+        }
+      ]
+    },
+    "summary": {
+      "after": {
+        "cpu_s": 1.4269770000000002,
+        "wall_s": 1.4294119999976829,
+        "allocated_objects": 4489001,
+        "peak_rss_bytes": 41697280,
+        "store_bytes": 664,
+        "source_bytes": 95644
+      }
+    },
+    "gates": {
+      "cpu_s": true,
+      "wall_s": true,
+      "allocated_objects": true,
+      "peak_rss_bytes": true,
+      "store_bytes": true,
+      "source_bytes": true
+    },
+    "pass": true,
+    "finished_at": "2026-11-13T10:46:36Z"
+  },
+  "trace": {
+    "event_fields": {
+      "feature_operation.onni": [
+        "actor_id",
+        "feature_name",
+        "operation",
+        "result"
+      ],
+      "stats.record.onni": [
+        "name",
+        "shown",
+        "weight"
+      ]
+    },
+    "request_gates_cleared": true,
+    "request_stats_cleared": true
+  },
+  "validation": {
+    "bundle exec rspec": {
+      "examples": 221,
+      "failures": 0,
+      "seed": 48580
+    },
+    "POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures": {
+      "workers": 5,
+      "exit": 0,
+      "merged_fragments": 5
+    },
+    "bundle exec polyrun report-coverage -i coverage/merged.json -o coverage --basename audit --format json,console": {
+      "covered_lines": 1242,
+      "executable_lines": 1272,
+      "files": 39
+    },
+    "RUBOCOP_CACHE_ROOT=tmp/rubocop-cache bundle exec rubocop": {
+      "files": 92,
+      "offenses": 0
+    },
+    "bundle exec rbs validate": {
+      "exit": 0
+    },
+    "ruby usr/bin/check_locale_parity.rb": {
+      "exit": 0,
+      "locale": "en",
+      "keys": 2
+    },
+    "ruby usr/bin/check_loc.rb": {
+      "exit": 0,
+      "existing_warnings": {
+        "app/admin/features.rb": 212,
+        "lib/onni.rb": 163
+      }
+    },
+    "git diff --check": {
+      "exit": 0
+    }
+  },
+  "rejected_attempts": [
+    "Initial time -l invocation was blocked by the sandbox sysctl restriction; authorized runs captured positive native RSS.",
+    "An early comparison against the live worktree rejected a changing source digest; accepted runs use frozen source copies.",
+    "The first RuboCop invocation could not write its default cache; the workspace cache rerun passed.",
+    "The Hash#fetch import candidate broke indexed source rows; a failing regression test rejected it before completion. Accepted import comparisons use only indexed reads.",
+    "Initial benchmark diagnostics counted storage-summary JSON bytes. Accepted comparisons count complete fixture rows."
+  ]
+}

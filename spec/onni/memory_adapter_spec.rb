@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "active_support/testing/time_helpers"
 
 RSpec.describe Onni::Adapters::Memory do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject(:adapter) { described_class.new }
 
   it "clears features, gates, and stats" do
@@ -81,5 +84,22 @@ RSpec.describe Onni::Adapters::Memory do
       end
     }.to raise_error(RuntimeError, "aborted")
     expect(adapter.gates_for("demo")).to eq([{"key" => "boolean", "value" => "true"}])
+  end
+
+  it "returns hourly history in chronological order regardless of insertion order" do
+    [Time.utc(2026, 1, 2, 12), Time.utc(2026, 1, 2, 10), Time.utc(2026, 1, 2, 11)].each do |time|
+      travel_to(time) { adapter.record_stat("demo", shown: true) }
+    end
+
+    rows = adapter.stats_for("demo", from: Time.utc(2026, 1, 2), to: Time.utc(2026, 1, 3))
+    expect(rows.map { |row| row.fetch("period_start").hour }).to eq([10, 11, 12])
+    expect(rows.sum { |row| row.fetch("shown_count") }).to eq(3)
+  end
+
+  it "does not relabel hourly buckets as another period" do
+    adapter.record_stat("demo", shown: true)
+
+    expect(adapter.stats_for("demo", period: "day")).to eq([])
+    expect(adapter.stats_for("demo").sum { |row| row.fetch("shown_count") }).to eq(1)
   end
 end

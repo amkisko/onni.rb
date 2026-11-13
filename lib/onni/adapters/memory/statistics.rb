@@ -23,7 +23,9 @@ module Onni
           buckets.size
         end
 
-        def stats_for(key, period: "hour", from: 24.hours.ago, to: Time.current)
+        def stats_for(key, period: "hour", from: Time.now - 86_400, to: Time.now)
+          return [] unless period == "hour"
+
           @lock.synchronize do
             @stats.filter_map do |bucket_key, counts|
               feature_key, hour = bucket_key
@@ -39,7 +41,7 @@ module Onni
                 "skip_count" => counts[:skip_count]
               }
             end
-          end
+          end.sort_by { |bucket| bucket.fetch("period_start") }
         end
 
         def purge_stats_batch(older_than:, batch_size:, after_id: 0)

@@ -32,7 +32,7 @@ RSpec.describe "Onni ActiveAdmin stats storage", type: :request do
 
   it "warns when oldest hit history is past retention" do
     previous = Onni.configuration.stats_retention
-    Onni.configuration.stats_retention = 2.days
+    Onni.configuration.stats_retention = 2 * 86_400
     Onni::StatBucket.create!(
       feature_key: "demo",
       period: "hour",

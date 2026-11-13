@@ -70,7 +70,7 @@ module Onni
           raise ArgumentError, "Pass older_than: or set Onni.configuration.stats_retention"
         end
 
-        retention.ago
+        Time.now - retention
       end
     end
   end

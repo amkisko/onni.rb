@@ -54,7 +54,7 @@ RSpec.describe Onni::Registry do
     end
   end
 
-  it "uses Rails.root config/features.yml when features_path is unset" do
+  it "does not discover an ambient Rails path when features_path is unset" do
     Dir.mktmpdir do |dir|
       FileUtils.mkdir_p(File.join(dir, "config"))
       File.write(File.join(dir, "config", "features.yml"), "from_rails:\n  description: Via root\n")
@@ -66,8 +66,8 @@ RSpec.describe Onni::Registry do
       Onni.configuration.features_path = nil
       described_class.reload!
 
-      expect(described_class.known?(:from_rails)).to be(true)
-      expect(described_class.definition(:from_rails)["description"]).to eq("Via root")
+      expect(described_class.known?(:from_rails)).to be(false)
+      expect(described_class.definition(:from_rails)).to be_nil
     end
   end
 

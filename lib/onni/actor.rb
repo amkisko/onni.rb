@@ -17,7 +17,7 @@ module Onni
     end
 
     def variant_for(actor, feature_key, variants)
-      return if actor.nil? || variants.blank?
+      return if actor.nil? || !variants || variants.empty?
 
       total = variants.values.sum
       return unless total.positive?
@@ -25,7 +25,7 @@ module Onni
       score = Zlib.crc32("#{feature_key}:#{id(actor)}") % total
       cursor = 0
       variants.each do |name, weight|
-        cursor += weight.to_i
+        cursor += weight
         return name.to_sym if score < cursor
       end
     end

@@ -1,0 +1,3007 @@
+{
+  "operator": "Andrei Makarov (@amkisko)",
+  "scope": "Own compressed package, unpacked file payload, installed dependency trees, and fresh-process gem loading",
+  "baseline": "The working tree at the start of this episode includes the preceding adapter audit and parallel local release preparation. The optional-loading comparisons use corrected as their baseline, isolating the standalone blank-extension repair.",
+  "sampling": "Seven alternating fresh child processes per side; warm filesystem caches; Bundler setup and optional host preloading outside the timed region; native process-lifetime RSS includes setup and reporting.",
+  "noise_floor": 0.03,
+  "energy_proxy": "process CPU seconds",
+  "units": "Archive bytes are compressed .gem bytes; package_file_bytes are raw file contents; dependency bytes are logical installed files including native extensions and documentation, excluding registry caches and the Ruby interpreter.",
+  "commands": {
+    "standalone": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=standalone N=1 SAMPLES=7 BOOT_FEATURES=tmp/package-boot/features.yml BEFORE=tmp/package-boot/corrected-extracted AFTER=tmp/package-boot/final-extracted OUT=tmp/package-boot/final-standalone.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "standalone_ready": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=standalone_ready N=1 SAMPLES=7 BOOT_FEATURES=tmp/package-boot/features.yml BEFORE=tmp/package-boot/corrected-extracted AFTER=tmp/package-boot/final-extracted OUT=tmp/package-boot/final-standalone_ready.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "active_support": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=active_support N=1 SAMPLES=7 BOOT_FEATURES=tmp/package-boot/features.yml BEFORE=tmp/package-boot/corrected-extracted AFTER=tmp/package-boot/final-extracted OUT=tmp/package-boot/final-active_support.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "rails": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=rails N=1 SAMPLES=7 BOOT_FEATURES=tmp/package-boot/features.yml BEFORE=tmp/package-boot/corrected-extracted AFTER=tmp/package-boot/final-extracted OUT=tmp/package-boot/final-rails.json bundle exec ruby benchmarks/pressure_runner.rb compare",
+    "package": "SOURCE_DATE_EPOCH=1794528000 bundle exec ruby benchmarks/package_footprint.rb tmp/package-boot/final tmp/package-boot/final-footprint.json",
+    "control": "PRESSURE_PROBE=benchmarks/boot_probe.rb PROBE=control N=1 SAMPLES=7 AFTER=tmp/package-boot/final-extracted OUT=tmp/package-boot/control.json bundle exec ruby benchmarks/pressure_runner.rb measure",
+    "evaluation_gate": "PROBE=all N=100000 SAMPLES=5 AFTER=tmp/package-boot/final-extracted CEILINGS=benchmarks/show_skip_pressure_ceilings.json OUT=tmp/package-boot/evaluation-gate.json bundle exec ruby benchmarks/pressure_runner.rb gate"
+  },
+  "admission": {
+    "named_surface_improves_at_least_5_percent": true,
+    "first_usable_evaluation_regression_at_most_5_percent": true,
+    "compressed_growth_at_most_512_bytes": true,
+    "compressed_package_under_65536_bytes": true,
+    "file_contents_under_163840_bytes": true
+  },
+  "boot_budgets": {
+    "standalone": {
+      "cpu_limit_s": 0.2,
+      "cpu_pass": true,
+      "peak_rss_limit_bytes": 50331648,
+      "peak_rss_pass": true,
+      "contract_pass": true
+    },
+    "standalone_ready": {
+      "cpu_limit_s": 0.25,
+      "cpu_pass": true,
+      "peak_rss_limit_bytes": 50331648,
+      "peak_rss_pass": true,
+      "contract_pass": true
+    },
+    "active_support": {
+      "cpu_limit_s": 0.015,
+      "cpu_pass": true,
+      "peak_rss_limit_bytes": 50331648,
+      "peak_rss_pass": true,
+      "contract_pass": true
+    },
+    "rails": {
+      "cpu_limit_s": 0.015,
+      "cpu_pass": true,
+      "peak_rss_limit_bytes": 125829120,
+      "peak_rss_pass": true,
+      "contract_pass": true
+    }
+  },
+  "packages": {
+    "baseline": {
+      "source_digest": "3d542f35f0beb3be7899a4e7cbc5f3caf91d9493e29b9a00927d9e4ec861c91e",
+      "gem_name": "onni",
+      "version": "1.0.0",
+      "source_date_epoch": "1794528000",
+      "builds": [
+        {
+          "bytes": 44544,
+          "sha256": "b959b8d64bbf8cfe9cbff27780eab847d02ae7a2a3dfb562f658a1a34b0a8a09"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "b959b8d64bbf8cfe9cbff27780eab847d02ae7a2a3dfb562f658a1a34b0a8a09"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "b959b8d64bbf8cfe9cbff27780eab847d02ae7a2a3dfb562f658a1a34b0a8a09"
+        }
+      ],
+      "reproducible": true,
+      "archive_parts": {
+        "metadata.gz": {
+          "compressed_bytes": 1723,
+          "uncompressed_bytes": 10756
+        },
+        "data.tar.gz": {
+          "compressed_bytes": 39166,
+          "uncompressed_bytes": 180224
+        },
+        "checksums.yaml.gz": {
+          "compressed_bytes": 296,
+          "uncompressed_bytes": 468
+        }
+      },
+      "package_files": 64,
+      "package_file_bytes": 131867,
+      "by_directory": {
+        "root": {
+          "files": 8,
+          "bytes": 36042
+        },
+        "app": {
+          "files": 11,
+          "bytes": 21994
+        },
+        "config": {
+          "files": 2,
+          "bytes": 181
+        },
+        "lib": {
+          "files": 42,
+          "bytes": 64404
+        },
+        "sig": {
+          "files": 1,
+          "bytes": 9246
+        }
+      },
+      "largest_files": {
+        "README.md": 23685,
+        "sig/onni.rbs": 9246,
+        "app/admin/features.rb": 7193,
+        "CHANGELOG.md": 4671,
+        "lib/onni/store.rb": 4173,
+        "lib/onni.rb": 3750,
+        "app/views/admin/features/show.html.arb": 3473,
+        "lib/onni/adapters/active_record.rb": 3083,
+        "lib/onni/admin/flags_query.rb": 3058,
+        "lib/onni/adapters/memory.rb": 3016,
+        "lib/onni/adapters/active_record/stat_writes.rb": 2998,
+        "lib/onni/migrator/importer.rb": 2963
+      }
+    },
+    "corrected": {
+      "source_digest": "5afba6b04e2db461b1395990c703e0e50b30c356a69a0a96b81b5576c169c6b2",
+      "gem_name": "onni",
+      "version": "1.0.0",
+      "source_date_epoch": "1794528000",
+      "builds": [
+        {
+          "bytes": 44544,
+          "sha256": "65c89eed7791fc612e729b3eefbc29755020e50289851551335b9f971c2de719"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "65c89eed7791fc612e729b3eefbc29755020e50289851551335b9f971c2de719"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "65c89eed7791fc612e729b3eefbc29755020e50289851551335b9f971c2de719"
+        }
+      ],
+      "reproducible": true,
+      "archive_parts": {
+        "metadata.gz": {
+          "compressed_bytes": 1723,
+          "uncompressed_bytes": 10756
+        },
+        "data.tar.gz": {
+          "compressed_bytes": 39176,
+          "uncompressed_bytes": 180224
+        },
+        "checksums.yaml.gz": {
+          "compressed_bytes": 295,
+          "uncompressed_bytes": 468
+        }
+      },
+      "package_files": 64,
+      "package_file_bytes": 131914,
+      "by_directory": {
+        "root": {
+          "files": 8,
+          "bytes": 36042
+        },
+        "app": {
+          "files": 11,
+          "bytes": 21994
+        },
+        "config": {
+          "files": 2,
+          "bytes": 181
+        },
+        "lib": {
+          "files": 42,
+          "bytes": 64451
+        },
+        "sig": {
+          "files": 1,
+          "bytes": 9246
+        }
+      },
+      "largest_files": {
+        "README.md": 23685,
+        "sig/onni.rbs": 9246,
+        "app/admin/features.rb": 7193,
+        "CHANGELOG.md": 4671,
+        "lib/onni/store.rb": 4173,
+        "lib/onni.rb": 3797,
+        "app/views/admin/features/show.html.arb": 3473,
+        "lib/onni/adapters/active_record.rb": 3083,
+        "lib/onni/admin/flags_query.rb": 3058,
+        "lib/onni/adapters/memory.rb": 3016,
+        "lib/onni/adapters/active_record/stat_writes.rb": 2998,
+        "lib/onni/migrator/importer.rb": 2963
+      }
+    },
+    "lazy-optionals": {
+      "source_digest": "eb20bedf5f43c2fee7eaf20554cdd3ebb43ee1a286eaba62a0c64ade062f616c",
+      "gem_name": "onni",
+      "version": "1.0.0",
+      "source_date_epoch": "1794528000",
+      "builds": [
+        {
+          "bytes": 44544,
+          "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+        }
+      ],
+      "reproducible": true,
+      "archive_parts": {
+        "metadata.gz": {
+          "compressed_bytes": 1723,
+          "uncompressed_bytes": 10756
+        },
+        "data.tar.gz": {
+          "compressed_bytes": 39212,
+          "uncompressed_bytes": 180224
+        },
+        "checksums.yaml.gz": {
+          "compressed_bytes": 297,
+          "uncompressed_bytes": 468
+        }
+      },
+      "package_files": 64,
+      "package_file_bytes": 132029,
+      "by_directory": {
+        "root": {
+          "files": 8,
+          "bytes": 36042
+        },
+        "app": {
+          "files": 11,
+          "bytes": 21994
+        },
+        "config": {
+          "files": 2,
+          "bytes": 181
+        },
+        "lib": {
+          "files": 42,
+          "bytes": 64566
+        },
+        "sig": {
+          "files": 1,
+          "bytes": 9246
+        }
+      },
+      "largest_files": {
+        "README.md": 23685,
+        "sig/onni.rbs": 9246,
+        "app/admin/features.rb": 7193,
+        "CHANGELOG.md": 4671,
+        "lib/onni/store.rb": 4173,
+        "lib/onni.rb": 3912,
+        "app/views/admin/features/show.html.arb": 3473,
+        "lib/onni/adapters/active_record.rb": 3083,
+        "lib/onni/admin/flags_query.rb": 3058,
+        "lib/onni/adapters/memory.rb": 3016,
+        "lib/onni/adapters/active_record/stat_writes.rb": 2998,
+        "lib/onni/migrator/importer.rb": 2963
+      }
+    },
+    "prune-coverage": {
+      "source_digest": "7b345c93b2eed7d4df19361fb1c89d94b40e483635ad4b45d6760e635e0ca898",
+      "gem_name": "onni",
+      "version": "1.0.0",
+      "source_date_epoch": "1794528000",
+      "builds": [
+        {
+          "bytes": 44544,
+          "sha256": "cd9f58fad4acf152b87b75f39ed4ac6c4517058537095ee5011ef9685ea7fb5f"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "cd9f58fad4acf152b87b75f39ed4ac6c4517058537095ee5011ef9685ea7fb5f"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "cd9f58fad4acf152b87b75f39ed4ac6c4517058537095ee5011ef9685ea7fb5f"
+        }
+      ],
+      "reproducible": true,
+      "archive_parts": {
+        "metadata.gz": {
+          "compressed_bytes": 1713,
+          "uncompressed_bytes": 10726
+        },
+        "data.tar.gz": {
+          "compressed_bytes": 39076,
+          "uncompressed_bytes": 179200
+        },
+        "checksums.yaml.gz": {
+          "compressed_bytes": 297,
+          "uncompressed_bytes": 468
+        }
+      },
+      "package_files": 63,
+      "package_file_bytes": 131809,
+      "by_directory": {
+        "root": {
+          "files": 8,
+          "bytes": 36042
+        },
+        "app": {
+          "files": 11,
+          "bytes": 21994
+        },
+        "config": {
+          "files": 1,
+          "bytes": 76
+        },
+        "lib": {
+          "files": 42,
+          "bytes": 64451
+        },
+        "sig": {
+          "files": 1,
+          "bytes": 9246
+        }
+      },
+      "largest_files": {
+        "README.md": 23685,
+        "sig/onni.rbs": 9246,
+        "app/admin/features.rb": 7193,
+        "CHANGELOG.md": 4671,
+        "lib/onni/store.rb": 4173,
+        "lib/onni.rb": 3797,
+        "app/views/admin/features/show.html.arb": 3473,
+        "lib/onni/adapters/active_record.rb": 3083,
+        "lib/onni/admin/flags_query.rb": 3058,
+        "lib/onni/adapters/memory.rb": 3016,
+        "lib/onni/adapters/active_record/stat_writes.rb": 2998,
+        "lib/onni/migrator/importer.rb": 2963
+      }
+    },
+    "final": {
+      "source_digest": "eb20bedf5f43c2fee7eaf20554cdd3ebb43ee1a286eaba62a0c64ade062f616c",
+      "gem_name": "onni",
+      "version": "1.0.0",
+      "source_date_epoch": "1794528000",
+      "builds": [
+        {
+          "bytes": 44544,
+          "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+        },
+        {
+          "bytes": 44544,
+          "sha256": "2f41f204127ef1516b17e39cada2dfe7227f6b7516428aa9457dc2d31801a71e"
+        }
+      ],
+      "reproducible": true,
+      "archive_parts": {
+        "metadata.gz": {
+          "compressed_bytes": 1723,
+          "uncompressed_bytes": 10756
+        },
+        "data.tar.gz": {
+          "compressed_bytes": 39212,
+          "uncompressed_bytes": 180224
+        },
+        "checksums.yaml.gz": {
+          "compressed_bytes": 297,
+          "uncompressed_bytes": 468
+        }
+      },
+      "package_files": 64,
+      "package_file_bytes": 132029,
+      "by_directory": {
+        "root": {
+          "files": 8,
+          "bytes": 36042
+        },
+        "app": {
+          "files": 11,
+          "bytes": 21994
+        },
+        "config": {
+          "files": 2,
+          "bytes": 181
+        },
+        "lib": {
+          "files": 42,
+          "bytes": 64566
+        },
+        "sig": {
+          "files": 1,
+          "bytes": 9246
+        }
+      },
+      "largest_files": {
+        "README.md": 23685,
+        "sig/onni.rbs": 9246,
+        "app/admin/features.rb": 7193,
+        "CHANGELOG.md": 4671,
+        "lib/onni/store.rb": 4173,
+        "lib/onni.rb": 3912,
+        "app/views/admin/features/show.html.arb": 3473,
+        "lib/onni/adapters/active_record.rb": 3083,
+        "lib/onni/admin/flags_query.rb": 3058,
+        "lib/onni/adapters/memory.rb": 3016,
+        "lib/onni/adapters/active_record/stat_writes.rb": 2998,
+        "lib/onni/migrator/importer.rb": 2963
+      }
+    }
+  },
+  "dependencies": {
+    "runtime": {
+      "activesupport": {
+        "files": 293,
+        "logical_bytes": 1055729,
+        "version": "8.1.4.1"
+      },
+      "base64": {
+        "files": 6,
+        "logical_bytes": 35899,
+        "version": "0.3.0"
+      },
+      "bigdecimal": {
+        "files": 29,
+        "logical_bytes": 604052,
+        "version": "4.1.3"
+      },
+      "concurrent-ruby": {
+        "files": 139,
+        "logical_bytes": 1140562,
+        "version": "1.3.8"
+      },
+      "connection_pool": {
+        "files": 9,
+        "logical_bytes": 26829,
+        "version": "3.0.2"
+      },
+      "drb": {
+        "files": 15,
+        "logical_bytes": 92190,
+        "version": "2.2.3"
+      },
+      "i18n": {
+        "files": 48,
+        "logical_bytes": 171141,
+        "version": "1.15.2"
+      },
+      "json": {
+        "files": 27,
+        "logical_bytes": 593323,
+        "version": "3.1.0"
+      },
+      "logger": {
+        "files": 10,
+        "logical_bytes": 40807,
+        "version": "1.7.0"
+      },
+      "minitest": {
+        "files": 41,
+        "logical_bytes": 367453,
+        "version": "6.1.0"
+      },
+      "prism": {
+        "files": 231,
+        "logical_bytes": 10411843,
+        "version": "2.1.0"
+      },
+      "securerandom": {
+        "files": 4,
+        "logical_bytes": 7937,
+        "version": "0.4.1"
+      },
+      "tzinfo": {
+        "files": 53,
+        "logical_bytes": 338995,
+        "version": "2.0.6"
+      },
+      "uri": {
+        "files": 21,
+        "logical_bytes": 131243,
+        "version": "1.1.2"
+      }
+    },
+    "runtime_logical_bytes": 15018003,
+    "checkout_graph_gems": 113,
+    "checkout_graph_logical_bytes": 87109748
+  },
+  "proof": {
+    "standalone": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:21:24Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "standalone",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.1369340000092052,
+            "cpu_s": 0.117232,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93048,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36503552
+          },
+          {
+            "wall_s": 0.10254799999529496,
+            "cpu_s": 0.102308,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93055,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35831808
+          },
+          {
+            "wall_s": 0.10174100002041087,
+            "cpu_s": 0.101491,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93042,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36585472
+          },
+          {
+            "wall_s": 0.1058820000034757,
+            "cpu_s": 0.105356,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93053,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36388864
+          },
+          {
+            "wall_s": 0.10330199997406453,
+            "cpu_s": 0.10307,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93055,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35602432
+          },
+          {
+            "wall_s": 0.10283599997637793,
+            "cpu_s": 0.10262199999999999,
+            "allocated_objects": 43503,
+            "loaded_files": 315,
+            "live_heap_slots": 93077,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36732928
+          },
+          {
+            "wall_s": 0.10309200000483543,
+            "cpu_s": 0.102797,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93052,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36601856
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.10380499996244907,
+            "cpu_s": 0.10352599999999999,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92305,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36306944
+          },
+          {
+            "wall_s": 0.10639299999456853,
+            "cpu_s": 0.10599000000000001,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92329,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35880960
+          },
+          {
+            "wall_s": 0.10034499998437241,
+            "cpu_s": 0.10018400000000001,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92305,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36601856
+          },
+          {
+            "wall_s": 0.10725200001616031,
+            "cpu_s": 0.106261,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92306,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36601856
+          },
+          {
+            "wall_s": 0.1017870000214316,
+            "cpu_s": 0.10159800000000001,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92307,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36208640
+          },
+          {
+            "wall_s": 0.10256700002355501,
+            "cpu_s": 0.10232600000000001,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92308,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36847616
+          },
+          {
+            "wall_s": 0.1014009999926202,
+            "cpu_s": 0.101179,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92305,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37044224
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.102797,
+          "wall_s": 0.10309200000483543,
+          "allocated_objects": 43504,
+          "peak_rss_bytes": 36732928,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.10232600000000001,
+          "wall_s": 0.10256700002355501,
+          "allocated_objects": 42757,
+          "peak_rss_bytes": 37044224,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.9954181542262908,
+        "wall_s": 0.994907461478526,
+        "allocated_objects": 0.9828291651342406,
+        "peak_rss_bytes": 1.0084745762711864,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T11:21:28Z"
+    },
+    "standalone_ready": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:21:28Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "standalone_ready",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.10798999998951331,
+            "cpu_s": 0.106181,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94613,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37240832
+          },
+          {
+            "wall_s": 0.10430900001665577,
+            "cpu_s": 0.104143,
+            "allocated_objects": 45030,
+            "loaded_files": 320,
+            "live_heap_slots": 94578,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36274176
+          },
+          {
+            "wall_s": 0.1064089999999851,
+            "cpu_s": 0.106103,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94604,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36585472
+          },
+          {
+            "wall_s": 0.10571800003526732,
+            "cpu_s": 0.105523,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94604,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37519360
+          },
+          {
+            "wall_s": 0.104838999977801,
+            "cpu_s": 0.104583,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94596,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36716544
+          },
+          {
+            "wall_s": 0.10521399998106062,
+            "cpu_s": 0.10497399999999998,
+            "allocated_objects": 45030,
+            "loaded_files": 320,
+            "live_heap_slots": 94580,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36913152
+          },
+          {
+            "wall_s": 0.11394700000528246,
+            "cpu_s": 0.109714,
+            "allocated_objects": 45030,
+            "loaded_files": 320,
+            "live_heap_slots": 94580,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37060608
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.10638200002722442,
+            "cpu_s": 0.106136,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94181,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36929536
+          },
+          {
+            "wall_s": 0.10228500002995133,
+            "cpu_s": 0.102085,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94201,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37011456
+          },
+          {
+            "wall_s": 0.1052790000103414,
+            "cpu_s": 0.10502399999999999,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94167,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36241408
+          },
+          {
+            "wall_s": 0.10555499995825812,
+            "cpu_s": 0.105336,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94190,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37699584
+          },
+          {
+            "wall_s": 0.10369499999796972,
+            "cpu_s": 0.10352899999999998,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94167,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37519360
+          },
+          {
+            "wall_s": 0.10420499998144805,
+            "cpu_s": 0.104021,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94165,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37552128
+          },
+          {
+            "wall_s": 0.10603800002718344,
+            "cpu_s": 0.105762,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94181,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36798464
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.105523,
+          "wall_s": 0.10571800003526732,
+          "allocated_objects": 45029,
+          "peak_rss_bytes": 37519360,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.10502399999999999,
+          "wall_s": 0.1052790000103414,
+          "allocated_objects": 44615,
+          "peak_rss_bytes": 37699584,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.9952711731091799,
+        "wall_s": 0.9958474429635495,
+        "allocated_objects": 0.9908059250705101,
+        "peak_rss_bytes": 1.0048034934497816,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T11:21:31Z"
+    },
+    "active_support": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:21:31Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "active_support",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.010376000020187348,
+            "cpu_s": 0.01036899999999999,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84570,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35848192
+          },
+          {
+            "wall_s": 0.009877999953459948,
+            "cpu_s": 0.009884000000000004,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 34848768
+          },
+          {
+            "wall_s": 0.010110000032000244,
+            "cpu_s": 0.010108000000000006,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84569,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36388864
+          },
+          {
+            "wall_s": 0.010055000020656735,
+            "cpu_s": 0.010017999999999999,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84569,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36618240
+          },
+          {
+            "wall_s": 0.010246999969240278,
+            "cpu_s": 0.010220000000000007,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35962880
+          },
+          {
+            "wall_s": 0.010199000011198223,
+            "cpu_s": 0.010198000000000013,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84569,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35782656
+          },
+          {
+            "wall_s": 0.009094999986700714,
+            "cpu_s": 0.009078000000000003,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37486592
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.009246999979950488,
+            "cpu_s": 0.009237000000000023,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35307520
+          },
+          {
+            "wall_s": 0.008771000022534281,
+            "cpu_s": 0.008767999999999998,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83822,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37879808
+          },
+          {
+            "wall_s": 0.00883200002135709,
+            "cpu_s": 0.008819999999999995,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83823,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36356096
+          },
+          {
+            "wall_s": 0.00866900000255555,
+            "cpu_s": 0.008666000000000007,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36061184
+          },
+          {
+            "wall_s": 0.008456000010482967,
+            "cpu_s": 0.008439000000000002,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35848192
+          },
+          {
+            "wall_s": 0.010064999980386347,
+            "cpu_s": 0.010033999999999987,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35831808
+          },
+          {
+            "wall_s": 0.009137999964877963,
+            "cpu_s": 0.009143000000000012,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83823,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37240832
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.010108000000000006,
+          "wall_s": 0.010110000032000244,
+          "allocated_objects": 4282,
+          "peak_rss_bytes": 37486592,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.008819999999999995,
+          "wall_s": 0.00883200002135709,
+          "allocated_objects": 3535,
+          "peak_rss_bytes": 37879808,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.8725761772853176,
+        "wall_s": 0.8735905037984154,
+        "allocated_objects": 0.825548808967772,
+        "peak_rss_bytes": 1.0104895104895104,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": true,
+      "finished_at": "2026-11-13T11:21:35Z"
+    },
+    "rails": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:21:35Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "rails",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.005356000037863851,
+            "cpu_s": 0.005357999999999974,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154581,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 87441408
+          },
+          {
+            "wall_s": 0.00656499998876825,
+            "cpu_s": 0.0065409999999999635,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154582,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 87556096
+          },
+          {
+            "wall_s": 0.006511000043246895,
+            "cpu_s": 0.0064989999999999215,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154582,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 84393984
+          },
+          {
+            "wall_s": 0.007395000022370368,
+            "cpu_s": 0.00737799999999994,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154581,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 85966848
+          },
+          {
+            "wall_s": 0.006177000002935529,
+            "cpu_s": 0.006164999999999976,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154584,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 84344832
+          },
+          {
+            "wall_s": 0.006570000026840717,
+            "cpu_s": 0.006549000000000027,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154583,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 87212032
+          },
+          {
+            "wall_s": 0.0066019999794662,
+            "cpu_s": 0.006599999999999995,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154584,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 88440832
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.005813999974634498,
+            "cpu_s": 0.005794999999999995,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153843,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 87310336
+          },
+          {
+            "wall_s": 0.0058800000115297735,
+            "cpu_s": 0.005879999999999996,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153843,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 87703552
+          },
+          {
+            "wall_s": 0.005326999991666526,
+            "cpu_s": 0.005327000000000026,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153846,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 87097344
+          },
+          {
+            "wall_s": 0.005456000042613596,
+            "cpu_s": 0.005443000000000087,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153843,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85491712
+          },
+          {
+            "wall_s": 0.005723999987822026,
+            "cpu_s": 0.005728000000000066,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153846,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85639168
+          },
+          {
+            "wall_s": 0.005571999994572252,
+            "cpu_s": 0.005568999999999991,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153848,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 87244800
+          },
+          {
+            "wall_s": 0.005986000003758818,
+            "cpu_s": 0.005974000000000035,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 86179840
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.0065409999999999635,
+          "wall_s": 0.00656499998876825,
+          "allocated_objects": 3510,
+          "peak_rss_bytes": 88440832,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.005728000000000066,
+          "wall_s": 0.005723999987822026,
+          "allocated_objects": 2772,
+          "peak_rss_bytes": 87703552,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.8757070784283899,
+        "wall_s": 0.871896420047974,
+        "allocated_objects": 0.7897435897435897,
+        "peak_rss_bytes": 0.9916635791033717,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": true,
+      "finished_at": "2026-11-13T11:21:42Z"
+    }
+  },
+  "trials": {
+    "blank-require": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:14:59Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "standalone",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "8e3848d07aa29f38eda0d1ff903817c9c29662f2632be236b95453d2002da7b8",
+        "after": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.11932699999306351,
+            "cpu_s": 0.09875,
+            "allocated_objects": 43372,
+            "loaded_files": 314,
+            "live_heap_slots": 92946,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 34996224
+          },
+          {
+            "wall_s": 0.09489499998744577,
+            "cpu_s": 0.09483399999999999,
+            "allocated_objects": 43372,
+            "loaded_files": 314,
+            "live_heap_slots": 92946,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 36962304
+          },
+          {
+            "wall_s": 0.10310599999502301,
+            "cpu_s": 0.102947,
+            "allocated_objects": 43372,
+            "loaded_files": 314,
+            "live_heap_slots": 92948,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 36896768
+          },
+          {
+            "wall_s": 0.09356700000353158,
+            "cpu_s": 0.093527,
+            "allocated_objects": 43372,
+            "loaded_files": 314,
+            "live_heap_slots": 92946,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 36749312
+          },
+          {
+            "wall_s": 0.09175199997844175,
+            "cpu_s": 0.091658,
+            "allocated_objects": 43372,
+            "loaded_files": 314,
+            "live_heap_slots": 92946,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 36028416
+          },
+          {
+            "wall_s": 0.0916900000302121,
+            "cpu_s": 0.091692,
+            "allocated_objects": 43372,
+            "loaded_files": 314,
+            "live_heap_slots": 92946,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 36372480
+          },
+          {
+            "wall_s": 0.09564000001410022,
+            "cpu_s": 0.09562299999999999,
+            "allocated_objects": 43367,
+            "loaded_files": 314,
+            "live_heap_slots": 92947,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95644,
+            "peak_rss_bytes": 35520512
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.09031699999468401,
+            "cpu_s": 0.08997300000000001,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93053,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35373056
+          },
+          {
+            "wall_s": 0.09465799998724833,
+            "cpu_s": 0.09460799999999998,
+            "allocated_objects": 43503,
+            "loaded_files": 315,
+            "live_heap_slots": 93069,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37289984
+          },
+          {
+            "wall_s": 0.0917209999752231,
+            "cpu_s": 0.091714,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93052,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35160064
+          },
+          {
+            "wall_s": 0.10190800001146272,
+            "cpu_s": 0.101867,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93048,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35946496
+          },
+          {
+            "wall_s": 0.09418999997433275,
+            "cpu_s": 0.094165,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93054,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37289984
+          },
+          {
+            "wall_s": 0.09851699997670949,
+            "cpu_s": 0.0984,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93052,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35880960
+          },
+          {
+            "wall_s": 0.09460399998351932,
+            "cpu_s": 0.09459399999999998,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93056,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 34373632
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.09483399999999999,
+          "wall_s": 0.09489499998744577,
+          "allocated_objects": 43372,
+          "peak_rss_bytes": 36962304,
+          "store_bytes": 0,
+          "source_bytes": 95644
+        },
+        "after": {
+          "cpu_s": 0.09459399999999998,
+          "wall_s": 0.09460399998351932,
+          "allocated_objects": 43504,
+          "peak_rss_bytes": 37289984,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.9974692620790011,
+        "wall_s": 0.9969334527217982,
+        "allocated_objects": 1.0030434381628701,
+        "peak_rss_bytes": 1.0088652482269505,
+        "store_bytes": null,
+        "source_bytes": 1.0004914056292082
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T11:15:02Z"
+    },
+    "lazy-standalone": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:15:02Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "standalone",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.09227899997495115,
+            "cpu_s": 0.092278,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93053,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35962880
+          },
+          {
+            "wall_s": 0.09113900002557784,
+            "cpu_s": 0.09113399999999999,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93048,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35274752
+          },
+          {
+            "wall_s": 0.09184100001584738,
+            "cpu_s": 0.091846,
+            "allocated_objects": 43503,
+            "loaded_files": 315,
+            "live_heap_slots": 93071,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35635200
+          },
+          {
+            "wall_s": 0.09165000001667067,
+            "cpu_s": 0.091651,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93048,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 34603008
+          },
+          {
+            "wall_s": 0.09083300002384931,
+            "cpu_s": 0.090838,
+            "allocated_objects": 43503,
+            "loaded_files": 315,
+            "live_heap_slots": 93078,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36126720
+          },
+          {
+            "wall_s": 0.09159100003307685,
+            "cpu_s": 0.09156600000000001,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93053,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36339712
+          },
+          {
+            "wall_s": 0.09215400001266971,
+            "cpu_s": 0.092148,
+            "allocated_objects": 43504,
+            "loaded_files": 315,
+            "live_heap_slots": 93052,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37699584
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.0913179999915883,
+            "cpu_s": 0.091323,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92307,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34390016
+          },
+          {
+            "wall_s": 0.09316200000466779,
+            "cpu_s": 0.093166,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92323,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35733504
+          },
+          {
+            "wall_s": 0.09575400000903755,
+            "cpu_s": 0.095726,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92306,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34570240
+          },
+          {
+            "wall_s": 0.0918390000006184,
+            "cpu_s": 0.091835,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92306,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34045952
+          },
+          {
+            "wall_s": 0.09423400001833215,
+            "cpu_s": 0.09417900000000001,
+            "allocated_objects": 42756,
+            "loaded_files": 309,
+            "live_heap_slots": 92324,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35848192
+          },
+          {
+            "wall_s": 0.09315799997420982,
+            "cpu_s": 0.09315100000000001,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92306,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35454976
+          },
+          {
+            "wall_s": 0.09205099998507649,
+            "cpu_s": 0.092044,
+            "allocated_objects": 42757,
+            "loaded_files": 309,
+            "live_heap_slots": 92307,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34603008
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.091651,
+          "wall_s": 0.09165000001667067,
+          "allocated_objects": 43504,
+          "peak_rss_bytes": 37699584,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.09315100000000001,
+          "wall_s": 0.09315799997420982,
+          "allocated_objects": 42757,
+          "peak_rss_bytes": 35848192,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.0163664335359135,
+        "wall_s": 1.0164539002429334,
+        "allocated_objects": 0.9828291651342406,
+        "peak_rss_bytes": 0.9508909169926119,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T11:15:05Z"
+    },
+    "lazy-ready": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:15:05Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "standalone_ready",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.09560100000817329,
+            "cpu_s": 0.09428199999999999,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94603,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36175872
+          },
+          {
+            "wall_s": 0.09837599995080382,
+            "cpu_s": 0.09835899999999999,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94596,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35897344
+          },
+          {
+            "wall_s": 0.09382700000423938,
+            "cpu_s": 0.093822,
+            "allocated_objects": 45030,
+            "loaded_files": 320,
+            "live_heap_slots": 94579,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36208640
+          },
+          {
+            "wall_s": 0.1013960000127554,
+            "cpu_s": 0.10134200000000002,
+            "allocated_objects": 45030,
+            "loaded_files": 320,
+            "live_heap_slots": 94578,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36929536
+          },
+          {
+            "wall_s": 0.09860399999888614,
+            "cpu_s": 0.09852200000000001,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94602,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36683776
+          },
+          {
+            "wall_s": 0.09463500004494563,
+            "cpu_s": 0.09461599999999999,
+            "allocated_objects": 45030,
+            "loaded_files": 320,
+            "live_heap_slots": 94582,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 37208064
+          },
+          {
+            "wall_s": 0.09876000002259389,
+            "cpu_s": 0.09872199999999999,
+            "allocated_objects": 45029,
+            "loaded_files": 320,
+            "live_heap_slots": 94602,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36716544
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.09920699999202043,
+            "cpu_s": 0.09909000000000001,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94166,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37355520
+          },
+          {
+            "wall_s": 0.10837299999548122,
+            "cpu_s": 0.108314,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94165,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36126720
+          },
+          {
+            "wall_s": 0.10215099999913946,
+            "cpu_s": 0.102103,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94167,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36880384
+          },
+          {
+            "wall_s": 0.09779500000877306,
+            "cpu_s": 0.09771200000000001,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94166,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36421632
+          },
+          {
+            "wall_s": 0.09966699994402006,
+            "cpu_s": 0.099647,
+            "allocated_objects": 44616,
+            "loaded_files": 316,
+            "live_heap_slots": 94168,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 37109760
+          },
+          {
+            "wall_s": 0.09409799997229129,
+            "cpu_s": 0.09409100000000001,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94188,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35864576
+          },
+          {
+            "wall_s": 0.09486299997661263,
+            "cpu_s": 0.094862,
+            "allocated_objects": 44615,
+            "loaded_files": 316,
+            "live_heap_slots": 94181,
+            "contract": {
+              "version_loaded": true,
+              "visible": true,
+              "shown_count": 1
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 36274176
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.09835899999999999,
+          "wall_s": 0.09837599995080382,
+          "allocated_objects": 45029,
+          "peak_rss_bytes": 37208064,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.09909000000000001,
+          "wall_s": 0.09920699999202043,
+          "allocated_objects": 44616,
+          "peak_rss_bytes": 37355520,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 1.0074319584379672,
+        "wall_s": 1.008447182662765,
+        "allocated_objects": 0.9908281329809678,
+        "peak_rss_bytes": 1.0039630118890357,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": false,
+      "finished_at": "2026-11-13T11:15:08Z"
+    },
+    "lazy-active-support": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:15:09Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "active_support",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.009067000006325543,
+            "cpu_s": 0.009076,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36044800
+          },
+          {
+            "wall_s": 0.008562999952118844,
+            "cpu_s": 0.008568999999999993,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84570,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 32931840
+          },
+          {
+            "wall_s": 0.008948999980930239,
+            "cpu_s": 0.008952999999999989,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36175872
+          },
+          {
+            "wall_s": 0.008611999975983053,
+            "cpu_s": 0.008617000000000014,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 34701312
+          },
+          {
+            "wall_s": 0.009158999950159341,
+            "cpu_s": 0.009155999999999997,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 36110336
+          },
+          {
+            "wall_s": 0.008550999977160245,
+            "cpu_s": 0.008552000000000004,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84568,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 35586048
+          },
+          {
+            "wall_s": 0.009172999998554587,
+            "cpu_s": 0.009173999999999988,
+            "allocated_objects": 4282,
+            "loaded_files": 35,
+            "live_heap_slots": 84569,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 34996224
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.007672999985516071,
+            "cpu_s": 0.007674999999999987,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83824,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34095104
+          },
+          {
+            "wall_s": 0.007708999968599528,
+            "cpu_s": 0.007711999999999997,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34816000
+          },
+          {
+            "wall_s": 0.007632999971974641,
+            "cpu_s": 0.007637000000000005,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83823,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35454976
+          },
+          {
+            "wall_s": 0.00854599999729544,
+            "cpu_s": 0.008543999999999996,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83824,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 34996224
+          },
+          {
+            "wall_s": 0.007894999987911433,
+            "cpu_s": 0.007897999999999988,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83823,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35815424
+          },
+          {
+            "wall_s": 0.007609000022057444,
+            "cpu_s": 0.007613000000000009,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35045376
+          },
+          {
+            "wall_s": 0.008697999990545213,
+            "cpu_s": 0.008693000000000006,
+            "allocated_objects": 3535,
+            "loaded_files": 29,
+            "live_heap_slots": 83821,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 35766272
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.008952999999999989,
+          "wall_s": 0.008948999980930239,
+          "allocated_objects": 4282,
+          "peak_rss_bytes": 36175872,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.007711999999999997,
+          "wall_s": 0.007708999968599528,
+          "allocated_objects": 3535,
+          "peak_rss_bytes": 35815424,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.8613872444990514,
+        "wall_s": 0.8614370303974663,
+        "allocated_objects": 0.825548808967772,
+        "peak_rss_bytes": 0.990036231884058,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": true,
+      "finished_at": "2026-11-13T11:15:11Z"
+    },
+    "lazy-rails": {
+      "mode": "compare",
+      "started_at": "2026-11-13T11:15:12Z",
+      "machine_class": "arm64-darwin24/Ruby 4.0.2",
+      "probe": "rails",
+      "count": 1,
+      "samples": 7,
+      "network": "not_in_scope",
+      "memory": "process_lifetime",
+      "energy_proxy": "cpu_s",
+      "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+      "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+      "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+      "source_digests": {
+        "before": "701e3de9ed837c77df20634f888f82648c826203db064d6f1c660bd053761851",
+        "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+      },
+      "raw": {
+        "before": [
+          {
+            "wall_s": 0.005317000031936914,
+            "cpu_s": 0.005318000000000045,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154583,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 86589440
+          },
+          {
+            "wall_s": 0.0052770000183954835,
+            "cpu_s": 0.005278000000000005,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154584,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 85164032
+          },
+          {
+            "wall_s": 0.006142000027466565,
+            "cpu_s": 0.006142999999999954,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154584,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 86261760
+          },
+          {
+            "wall_s": 0.00548500003060326,
+            "cpu_s": 0.005485999999999991,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154583,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 84295680
+          },
+          {
+            "wall_s": 0.00592800002777949,
+            "cpu_s": 0.005929999999999991,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154581,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 87080960
+          },
+          {
+            "wall_s": 0.005730999982915819,
+            "cpu_s": 0.005732000000000015,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154581,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 86720512
+          },
+          {
+            "wall_s": 0.00595299998531118,
+            "cpu_s": 0.005953999999999959,
+            "allocated_objects": 3510,
+            "loaded_files": 31,
+            "live_heap_slots": 154581,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95691,
+            "peak_rss_bytes": 88621056
+          }
+        ],
+        "after": [
+          {
+            "wall_s": 0.004607999988365918,
+            "cpu_s": 0.004608999999999974,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153843,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85540864
+          },
+          {
+            "wall_s": 0.004698999982792884,
+            "cpu_s": 0.004701000000000011,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 87195648
+          },
+          {
+            "wall_s": 0.005009000014979392,
+            "cpu_s": 0.0050020000000000064,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153844,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85311488
+          },
+          {
+            "wall_s": 0.005513999960385263,
+            "cpu_s": 0.005516000000000021,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153843,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85049344
+          },
+          {
+            "wall_s": 0.005093999963719398,
+            "cpu_s": 0.005097000000000018,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 86802432
+          },
+          {
+            "wall_s": 0.004671000002417713,
+            "cpu_s": 0.004675999999999958,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153844,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 85786624
+          },
+          {
+            "wall_s": 0.004477999988012016,
+            "cpu_s": 0.004479999999999984,
+            "allocated_objects": 2772,
+            "loaded_files": 25,
+            "live_heap_slots": 153845,
+            "contract": {
+              "version_loaded": true
+            },
+            "store_bytes": 0,
+            "source_bytes": 95806,
+            "peak_rss_bytes": 88883200
+          }
+        ]
+      },
+      "summary": {
+        "before": {
+          "cpu_s": 0.005732000000000015,
+          "wall_s": 0.005730999982915819,
+          "allocated_objects": 3510,
+          "peak_rss_bytes": 88621056,
+          "store_bytes": 0,
+          "source_bytes": 95691
+        },
+        "after": {
+          "cpu_s": 0.004701000000000011,
+          "wall_s": 0.004698999982792884,
+          "allocated_objects": 2772,
+          "peak_rss_bytes": 88883200,
+          "store_bytes": 0,
+          "source_bytes": 95806
+        }
+      },
+      "ratios": {
+        "cpu_s": 0.8201325889741797,
+        "wall_s": 0.819926713802244,
+        "allocated_objects": 0.7897435897435897,
+        "peak_rss_bytes": 1.002958032908116,
+        "store_bytes": null,
+        "source_bytes": 1.0012017849118517
+      },
+      "primary": "cpu_s",
+      "noise_floor": 0.03,
+      "improved": true,
+      "finished_at": "2026-11-13T11:15:18Z"
+    }
+  },
+  "control": {
+    "mode": "measure",
+    "started_at": "2026-11-13T11:21:42Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "control",
+    "count": 1,
+    "samples": 7,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+    "probe_digest": "62dd03ab9797368de05c2b4fc45c0bb38f1ad4a059b1a4e26fd8a23009229b7a",
+    "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+    "source_digests": {
+      "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+    },
+    "raw": {
+      "after": [
+        {
+          "wall_s": 0.00000100000761449337,
+          "cpu_s": 0.000002000000000002,
+          "allocated_objects": 11,
+          "loaded_files": 0,
+          "live_heap_slots": 62328,
+          "contract": {
+            "empty_control": true
+          },
+          "store_bytes": 0,
+          "source_bytes": 95806,
+          "peak_rss_bytes": 27803648
+        },
+        {
+          "wall_s": 0.00000100000761449337,
+          "cpu_s": 0.000009999999999996123,
+          "allocated_objects": 11,
+          "loaded_files": 0,
+          "live_heap_slots": 62328,
+          "contract": {
+            "empty_control": true
+          },
+          "store_bytes": 0,
+          "source_bytes": 95806,
+          "peak_rss_bytes": 28049408
+        },
+        {
+          "wall_s": 0.0,
+          "cpu_s": 0.000002000000000002,
+          "allocated_objects": 11,
+          "loaded_files": 0,
+          "live_heap_slots": 62328,
+          "contract": {
+            "empty_control": true
+          },
+          "store_bytes": 0,
+          "source_bytes": 95806,
+          "peak_rss_bytes": 27099136
+        },
+        {
+          "wall_s": 0.00000100000761449337,
+          "cpu_s": 0.000002000000000002,
+          "allocated_objects": 11,
+          "loaded_files": 0,
+          "live_heap_slots": 62328,
+          "contract": {
+            "empty_control": true
+          },
+          "store_bytes": 0,
+          "source_bytes": 95806,
+          "peak_rss_bytes": 27541504
+        },
+        {
+          "wall_s": 0.00000100000761449337,
+          "cpu_s": 0.0000030000000000030003,
+          "allocated_objects": 11,
+          "loaded_files": 0,
+          "live_heap_slots": 62328,
+          "contract": {
+            "empty_control": true
+          },
+          "store_bytes": 0,
+          "source_bytes": 95806,
+          "peak_rss_bytes": 28590080
+        },
+        {
+          "wall_s": 0.00000200001522898674,
+          "cpu_s": 0.0000029999999999891225,
+          "allocated_objects": 11,
+          "loaded_files": 0,
+          "live_heap_slots": 62328,
+          "contract": {
+            "empty_control": true
+          },
+          "store_bytes": 0,
+          "source_bytes": 95806,
+          "peak_rss_bytes": 28475392
+        },
+        {
+          "wall_s": 0.00000100000761449337,
+          "cpu_s": 0.0000030000000000030003,
+          "allocated_objects": 11,
+          "loaded_files": 0,
+          "live_heap_slots": 62328,
+          "contract": {
+            "empty_control": true
+          },
+          "store_bytes": 0,
+          "source_bytes": 95806,
+          "peak_rss_bytes": 27820032
+        }
+      ]
+    },
+    "summary": {
+      "after": {
+        "cpu_s": 0.0000029999999999891225,
+        "wall_s": 0.00000100000761449337,
+        "allocated_objects": 11,
+        "peak_rss_bytes": 28590080,
+        "store_bytes": 0,
+        "source_bytes": 95806
+      }
+    },
+    "finished_at": "2026-11-13T11:21:43Z"
+  },
+  "evaluation_gate": {
+    "mode": "gate",
+    "started_at": "2026-11-13T11:21:43Z",
+    "machine_class": "arm64-darwin24/Ruby 4.0.2",
+    "probe": "all",
+    "count": 100000,
+    "samples": 5,
+    "network": "not_in_scope",
+    "memory": "process_lifetime",
+    "energy_proxy": "cpu_s",
+    "harness_digest": "35c16f7ab6af626aabc6c9acd74355120ee986b18e080b00bcd77f2e712307e6",
+    "revision": "29ac81078096c00081106f34e11899d64a778c4c",
+    "source_digests": {
+      "after": "ff7c8ce56a78be526285659522ce4f9fe31ba63ed83d74b991bfd96edecadccb"
+    },
+    "raw": {
+      "after": [
+        {
+          "wall_s": 1.403018000011798,
+          "cpu_s": 1.401515,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95806,
+          "stage_batch_p95_s": {
+            "boolean": 0.00017499999376013875,
+            "actor": 0.00015199999324977398,
+            "percentage": 0.00017900002421811223,
+            "group": 0.00024700001813471317,
+            "variant": 0.00023999996483325958,
+            "conditions": 0.00014000001829117537,
+            "stats": 0.00004499999340623617
+          },
+          "peak_rss_bytes": 41254912
+        },
+        {
+          "wall_s": 1.3834520000382327,
+          "cpu_s": 1.381682,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95806,
+          "stage_batch_p95_s": {
+            "boolean": 0.00013699999544769526,
+            "actor": 0.00015799998072907329,
+            "percentage": 0.00016799999866634607,
+            "group": 0.00026699999580159783,
+            "variant": 0.00020000000949949026,
+            "conditions": 0.00017600000137463212,
+            "stats": 0.0000439999857917428
+          },
+          "peak_rss_bytes": 40812544
+        },
+        {
+          "wall_s": 1.4042220000410452,
+          "cpu_s": 1.400969,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95806,
+          "stage_batch_p95_s": {
+            "boolean": 0.00020100001711398363,
+            "actor": 0.00015300000086426735,
+            "percentage": 0.0001449999981559813,
+            "group": 0.00026699999580159783,
+            "variant": 0.00020100001711398363,
+            "conditions": 0.000291000003926456,
+            "stats": 0.000039000005926936865
+          },
+          "peak_rss_bytes": 40927232
+        },
+        {
+          "wall_s": 1.3981819999753498,
+          "cpu_s": 1.396398,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95806,
+          "stage_batch_p95_s": {
+            "boolean": 0.0001800000318326056,
+            "actor": 0.00015300000086426735,
+            "percentage": 0.0001610000035725534,
+            "group": 0.0002680000034160912,
+            "variant": 0.00020700000459328294,
+            "conditions": 0.0001550000160932541,
+            "stats": 0.00005500001134350896
+          },
+          "peak_rss_bytes": 41074688
+        },
+        {
+          "wall_s": 1.4410050000296906,
+          "cpu_s": 1.431422,
+          "allocated_objects": 4489001,
+          "stats_rows": 7,
+          "store_bytes": 664,
+          "cache_accounted_bytes": 0,
+          "source_bytes": 95806,
+          "stage_batch_p95_s": {
+            "boolean": 0.00018900004215538502,
+            "actor": 0.00020000000949949026,
+            "percentage": 0.00018999999156221747,
+            "group": 0.00028600002406165004,
+            "variant": 0.000265000038780272,
+            "conditions": 0.00013800000306218863,
+            "stats": 0.00004999997327104211
+          },
+          "peak_rss_bytes": 40648704
+        }
+      ]
+    },
+    "summary": {
+      "after": {
+        "cpu_s": 1.400969,
+        "wall_s": 1.403018000011798,
+        "allocated_objects": 4489001,
+        "peak_rss_bytes": 41254912,
+        "store_bytes": 664,
+        "source_bytes": 95806
+      }
+    },
+    "gates": {
+      "cpu_s": true,
+      "wall_s": true,
+      "allocated_objects": true,
+      "peak_rss_bytes": true,
+      "store_bytes": true,
+      "source_bytes": true
+    },
+    "pass": true,
+    "finished_at": "2026-11-13T11:21:52Z"
+  },
+  "package_smoke": {
+    "visible": true,
+    "variant": "control",
+    "expires": "2099-01-01",
+    "imported": {
+      "features": 1,
+      "gates": 0,
+      "skipped_gates": 0
+    },
+    "active_record_adapter": "Onni::Adapters::ActiveRecord"
+  },
+  "load_trace": {
+    "minitest_loaded": false,
+    "prism_loaded": false,
+    "prism_parents_in_checkout_graph": [
+      "irb",
+      "minitest",
+      "rbs",
+      "rdoc",
+      "rubocop-ast"
+    ]
+  },
+  "validation": {
+    "bundle exec rspec": {
+      "examples": 222,
+      "failures": 0,
+      "seed": 11805
+    },
+    "bundle exec rspec spec/onni/standalone_boot_spec.rb spec/onni/migrator_importer_spec.rb spec/requests/active_record_adapter_spec.rb spec/onni/engine_spec.rb": {
+      "examples": 23,
+      "failures": 0
+    },
+    "POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures": {
+      "workers": 5,
+      "exit": 0,
+      "coverage_fragments": 6
+    },
+    "bundle exec polyrun report-coverage -i coverage/merged.json -o coverage --basename package-boot --format json,console": {
+      "covered_lines": 1245,
+      "executable_lines": 1275,
+      "files": 39
+    },
+    "RUBOCOP_CACHE_ROOT=tmp/rubocop-cache bundle exec rubocop": {
+      "files": 93,
+      "offenses": 0
+    },
+    "bundle exec rbs validate": {
+      "exit": 0
+    },
+    "ruby usr/bin/check_locale_parity.rb": {
+      "exit": 0,
+      "keys": 2
+    },
+    "ruby usr/bin/check_loc.rb": {
+      "exit": 0,
+      "warnings": {
+        "app/admin/features.rb": 212,
+        "lib/onni.rb": 169
+      }
+    },
+    "git diff --check": {
+      "exit": 0
+    }
+  },
+  "rejected_candidate": "Removing config/polyrun_coverage.yml saves 105 raw file bytes and zero compressed archive bytes, below the 512-byte acceptance threshold. The production package retains it.",
+  "limits": "Not a full Rails application startup, dependency vulnerability audit, Linux image measurement, cold disk test, or energy meter reading. No dependency constraint or lockfile changed for this episode."
+}

@@ -27,6 +27,7 @@ module Onni
   def self.features: () -> Array[Flag]
   def self.[]: (untyped name) -> Flag
   def self.register_group: (untyped name) { (untyped, untyped) -> bool } -> void
+  def self.register_adapter: (Symbol name) { () -> untyped } -> untyped
   def self.migrate!: (untyped source) -> Hash[Symbol, Integer]
   def self.sync_registry!: () -> void
   def self.purge_stats!: (**untyped) -> Hash[Symbol, untyped]
@@ -42,14 +43,16 @@ module Onni
     attr_accessor stats_enabled: bool
     attr_reader stats_sample_rate: Float
     def stats_sample_rate=: (untyped) -> Float
-    attr_accessor stats_retention: untyped
+    attr_reader stats_retention: Integer?
+    def stats_retention=: (Integer?) -> Integer?
     attr_accessor stats_sampler: untyped
     attr_accessor stats_ignore: untyped
     attr_accessor stats_scale_sampled_hits: bool
     attr_accessor stats_buffer: bool
     attr_accessor request_preload: bool
     attr_accessor adapter: untyped
-    attr_accessor admin_authorized: untyped
+    attr_accessor logger: untyped
+    attr_accessor instrumenter: untyped
     attr_reader concurrency: Symbol
     def concurrency=: (untyped) -> Symbol
   end

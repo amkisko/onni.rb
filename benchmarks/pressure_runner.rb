@@ -20,7 +20,7 @@ module PressureRunner
   def sample(root, probe, count)
     raise "Native RSS parser currently supports Darwin only" unless RUBY_PLATFORM.include?("darwin")
 
-    probe_path = File.join(root, "benchmarks", "pressure_probe.rb")
+    probe_path = ENV["PRESSURE_PROBE"] || File.join(root, "benchmarks", "pressure_probe.rb")
     probe_path = File.join(__dir__, "pressure_probe.rb") unless File.file?(probe_path)
     output, resources, status = Open3.capture3(
       {"PRESSURE_SOURCE" => File.expand_path(root), "PROBE" => probe, "N" => count.to_s},
@@ -68,6 +68,7 @@ module PressureRunner
               "probe" => probe, "count" => count, "samples" => samples, "network" => "not_in_scope",
               "memory" => "process_lifetime", "energy_proxy" => "cpu_s"}
     result["harness_digest"] = Digest::SHA256.hexdigest(%w[load.rb pressure_probe.rb pressure_runner.rb].map { |name| File.binread(File.join(__dir__, name)) }.join)
+    result["probe_digest"] = Digest::SHA256.file(ENV["PRESSURE_PROBE"]).hexdigest if ENV["PRESSURE_PROBE"]
     result["revision"] = Open3.capture2("git", "rev-parse", "HEAD").first.strip
     if mode == "calibrate"
       rows = Array.new(samples) { sample(after, "calibrate", 1) }

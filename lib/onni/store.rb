@@ -117,7 +117,7 @@ module Onni
         begin
           cache.delete(old_key)
         rescue => error
-          Rails.logger.warn("Onni cache cleanup failed: #{error.class}") if defined?(Rails)
+          Onni.configuration.logger&.warn("Onni cache cleanup failed: #{error.class}")
         end
       end
       RequestStore.gates&.delete(key)

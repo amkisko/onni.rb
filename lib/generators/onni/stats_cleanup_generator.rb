@@ -36,7 +36,7 @@ module Onni
 
           1. Migrate: bin/rails db:migrate
           2. Set retention in config/initializers/onni.rb:
-               config.stats_retention = 90.days
+               config.stats_retention = 90 * 86_400
           3. Schedule the job daily (host job backend or cron), for example:
                OnniPurgeStatsJob.perform_later
           4. One-shot console drain (no queue):

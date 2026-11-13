@@ -20,6 +20,7 @@ require "active_support/core_ext/object/blank"
 require "active_support/core_ext/numeric/time"
 require "active_support/cache"
 require "onni"
+require "onni/active_support"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

@@ -14,7 +14,7 @@ module Onni
         oldest = raw[:oldest_period_start]
         past_retention =
           if oldest && retention
-            oldest < retention.ago
+            oldest < Time.now - retention
           else
             false
           end

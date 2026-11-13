@@ -16,8 +16,7 @@ else
 end
 
 require "activeadmin"
-require "onni"
-require "onni/engine" unless defined?(Onni::Engine)
+require "onni/active_admin"
 
 module Dummy
   class Application < Rails::Application

@@ -2,7 +2,7 @@
 
 [![Test Status](https://github.com/amkisko/onni.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/onni.rb/actions/workflows/test.yml)
 
-Feature flags, gradual rollout, A/B variants, audience targeting groups, and shown/skip counts for any Ruby app. Optional ActiveRecord persistence and first-class pluggable ActiveAdmin support.
+Feature flags, gradual rollout, A/B variants, audience targeting groups, and shown/skip counts for any Ruby app. The core uses Ruby's standard library with zero runtime gem dependencies. ActiveRecord, Rails, notification delivery, and ActiveAdmin are opt-in extensions.
 
 ## What Onni is for
 
@@ -24,9 +24,9 @@ YAML `conditions` and registered groups are targeting helpers for rollouts. They
 ## Requirements
 
 - Ruby 3.4+
-- ActiveSupport 7.2.3.2+
-- Optional: Rails 7.2.3.2+ (engine, ActiveRecord adapter)
-- Optional: ActiveAdmin 4.0.0.beta23+ (admin dashboard)
+- The core has no runtime gem dependencies.
+- Optional: ActiveSupport 7.2.3.2+ for notifications, ActiveRecord 7.2.3.2+ for persistence, or Rails 7.2.3.2+ for application integration.
+- Optional: ActiveAdmin 4.0.0.beta23+ and below 5 for the dashboard.
 
 ## Install
 
@@ -44,18 +44,62 @@ From git:
 gem "onni", github: "amkisko/onni.rb"
 ```
 
-Rails + ActiveRecord:
+For standalone Ruby, load the core and select your registry file:
+
+```ruby
+require "onni"
+Onni.configuration.features_path = "config/features.yml"
+Onni.ready!(:new_checkout)
+```
+
+The default registry path is `config/features.yml` relative to the working
+directory. Definitions remain required for every mutation.
+
+### Extensions
+
+Extensions ship in the same gem. Install their external dependencies in the
+host application and load the extension explicitly. An installed framework
+does not change the behavior of `require "onni"`.
+
+For Rails with ActiveRecord, load both integrations before application initialization:
+
+```ruby
+# Gemfile
+gem "rails", ">= 7.2.3.2"
+gem "onni", require: ["onni/rails", "onni/active_record"]
+```
+
+Then generate the registry, configuration, and schema:
 
 ```sh
 bin/rails generate onni:install
 bin/rails db:migrate
 ```
 
-ActiveAdmin dashboard loads automatically when ActiveAdmin is present. You can also require it explicitly:
+The generated initializer selects `:active_record` outside test. Rails integration
+alone keeps the memory adapter; persistence requires the ActiveRecord extension
+and `Onni.configuration.adapter = :active_record`.
+
+For ActiveAdmin, use its extension instead:
 
 ```ruby
-require "onni/active_admin"
+# Gemfile
+gem "activeadmin", "4.0.0.beta23"
+gem "onni", require: "onni/active_admin"
 ```
+
+`onni/active_admin` loads the Rails, persistence, and notification integrations,
+then registers the dashboard. The equivalent explicit `require` belongs before
+Rails initializes. Loading `onni/rails` does not load the dashboard.
+
+Without Rails, `require "onni/active_record"` provides the adapter and its models;
+the host establishes the ActiveRecord connection and selects `:active_record`.
+`require "onni/active_support"` installs only notification delivery.
+
+Custom adapters register a factory with `Onni.register_adapter(:custom) { CustomAdapter.new }`,
+then select `Onni.configuration.adapter = :custom`. Factories execute outside the
+registration lock. The existing `Onni.adapter = instance` assignment also accepts
+a host-owned adapter instance.
 
 After `ActiveAdmin.routes(self)`, draw the feature detail path (`/admin/features/:key`):
 
@@ -180,17 +224,25 @@ Rows are created only when an evaluation is recorded for that flag and hour. Qui
 
 ### Instrumentation
 
-Onni publishes `ActiveSupport::Notifications` events:
+Load `onni/active_support` to publish these `ActiveSupport::Notifications` events
+(the Rails extension includes this integration):
 
 - `stats.record.onni` — a recorded evaluation (`:name`, `:shown`, `:weight`)
 - `stats.purge.onni` — purge batch/drain result (`:deleted`, `:processed_count`, `:continued`)
 - `feature_operation.onni` - mutations (`:feature_name`, `:operation`, `:result`; optional `:actor_id`, `:group_name`, `:level`). Operations: `ready`, `park`, `clear`, `visible_actor`, `drop_actor`, `visible_group`, `drop_group`, `level`, `variants`
 
 ```ruby
+require "onni/active_support"
+
 ActiveSupport::Notifications.subscribe(/\.onni$/) do |event|
   Rails.logger.info([event.name, event.payload].inspect)
 end
 ```
+
+The core leaves `configuration.instrumenter` and `configuration.logger` unset.
+An instrumenter implements `instrument(name, payload) { |payload| ... }`; a logger
+implements the ordinary `warn` and `error` methods. The core uses those configured
+objects and does not discover a framework's logger or notification bus.
 
 `Onni.stats_overview` (also on the ActiveAdmin Flags page) reports bucket count, oldest hour, retention, and whether cleanup is overdue.
 
@@ -255,7 +307,11 @@ Pressure binding: `benchmarks/stats_write_binding.md`.
 
 ### Stats growth and cleanup
 
-Default retention is `config.stats_retention = 90.days`. Install a batched cleanup job and a `period_start` index:
+Default retention is `config.stats_retention = 90 * 86_400` elapsed seconds.
+Set a nonnegative Integer or nil; nil requires an explicit purge cutoff. Rails
+hosts can convert a duration with `90.days.to_i`. Retention does not perform
+calendar-day arithmetic across daylight-saving transitions. Install a batched
+cleanup job and a `period_start` index:
 
 ```sh
 bin/rails generate onni:stats_cleanup
