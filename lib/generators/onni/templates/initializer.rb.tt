@@ -5,10 +5,11 @@ Onni.configure do |config|
   config.cache = Rails.cache
   config.cache_ttl = 15.minutes
   config.stats_enabled = true
-  config.stats_sample_rate = 1.0 # float 0.0..1.0 (clamped); 1.0 skips Random
+  # Prefer buffer + sample in production; 1.0 records every visible?/variant call.
+  config.stats_sample_rate = 0.1 # float 0.0..1.0 (clamped); 1.0 skips Random
   config.stats_scale_sampled_hits = true # kept samples increment by ~1/rate
   # Engine installs RequestLifecycle middleware (always reset_request! after each request).
-  # config.stats_buffer = true # coalesce hits; middleware flushes at request end
+  config.stats_buffer = true # coalesce hits; middleware flushes at request end
   # config.request_preload = true # middleware calls Onni.preload! at request start
   # config.stats_ignore = %w[health_probe_flag]
   # config.stats_sampler = ->(ctx) { ctx[:name] == "busy_flag" ? 0.01 : nil }
@@ -29,12 +30,18 @@ Onni.register_group(:beta_testers) do |actor, _|
   actor.respond_to?(:beta_tester?) && actor.beta_tester?
 end
 
-# One-time import from another feature-flag library (safe to re-run; skips unknown YAML keys
-# and unsupported gates). Pass any source with #feature_keys and #gates, e.g. Migrator::Snapshot:
-# Onni.migrate!(Onni::Migrator::Snapshot.new(feature_keys: [...], gates: [...]))
+# One-time import from a prior feature-flag store. Declare YAML types first; see README cutover.
+# Onni.migrate!(Onni::Migrator::ActiveRecordTables.new(
+#   connection: ActiveRecord::Base.connection,
+#   features_table: "legacy_features",
+#   gates_table: "legacy_gates"
+# ))
+# Or Snapshot: Onni.migrate!(Onni::Migrator::Snapshot.new(feature_keys: [...], gates: [...]))
 
 # Load onni/rails and onni/active_record from Gemfile before Rails initializes.
 # Load onni/active_admin instead when using the dashboard.
+# After ActiveAdmin.routes(self), add: Onni::ActiveAdminRoutes.draw(self)
+# Tailwind: @source the gem app/admin and app/views paths next to ActiveAdmin sources.
 
 # Optional ops subscribe (ActiveSupport::Notifications):
 # ActiveSupport::Notifications.subscribe(/\.onni$/) do |event|

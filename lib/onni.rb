@@ -22,6 +22,7 @@ module Onni
   module Migrator
     autoload :Snapshot, "onni/migrator/snapshot"
     autoload :Importer, "onni/migrator/importer"
+    autoload :ActiveRecordTables, "onni/migrator/active_record_tables"
   end
   extend Mutations
 

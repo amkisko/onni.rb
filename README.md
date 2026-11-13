@@ -473,9 +473,16 @@ Onni.adapter = Onni::Adapters::Memory.new
 Onni.ready!(:new_checkout)
 ```
 
+Or in host specs:
+
+```ruby
+require "onni/rspec"
+Onni::RSpec.install! # before each example: memory adapter + reset_request!
+```
+
 ## Migrating from another feature-flag library
 
-Map your previous store into a source with `#feature_keys` and `#gates`, then import once. Keep `config/features.yml` keys aligned with the names you import. Unknown YAML keys are skipped. Declare one type per flag before importing. Unsupported, malformed, or type-incompatible gates are counted in `skipped_gates` and not written. Legacy boolean gates become explicit power; compatible audience rows retain their values.
+Map your previous store into a source with `#feature_keys` and `#gates`, then import once. Keep `config/features.yml` keys aligned with the names you import. Unknown YAML keys are skipped. Declare one type per flag before importing. Unsupported, malformed, or type-incompatible gates are counted in `skipped_gates` and not written. Legacy boolean gates become explicit power (`powered`); compatible audience rows retain their values.
 
 ```ruby
 source = Onni::Migrator::Snapshot.new(
@@ -495,6 +502,35 @@ Any object that responds to `#feature_keys` and `#gates` works as a source; `Sna
 Imported gate keys: `boolean`, `actors`, `groups`, `percentage_of_actors`, `variants`.
 Other gate keys from the prior library are skipped. Runtime variants override YAML defaults when both are present.
 Replace call sites with `Onni.*` and remove the previous library when ready.
+
+### Cutover checklist
+
+Prior libraries often OR several gates on one feature. Onni has one YAML type per flag. "On for everyone" is `type: boolean` plus `ready!`, not default `type: group` plus `ready!` (an empty group stays invisible).
+
+1. List prior features and active gates (`boolean`, `groups`, `actors`, `percentage_of_actors`). Skip or re-model gates Onni does not import (for example time-based percentage).
+2. Write matching keys in `config/features.yml` with an explicit type:
+   - everyone when powered -> `type: boolean`
+   - audience groups only -> `type: group` and register the same group names
+   - actor allowlist only -> `type: actors` (align actor ids with `feature_actor_id` or `Class;id`)
+   - percentage of actors -> `type: percentage`
+3. If the prior store combined boolean and groups (OR), pick one Onni type for the cutover intent. Mixed incompatible gates are skipped for the declared type.
+4. Early access then full rollout: change YAML to `type: boolean` and `ready!`. Audience gates may remain stored; boolean evaluation ignores them. There is no OR of boolean and group at evaluate time.
+5. Import from two SQL tables (feature keys + gate rows) when the prior store used that shape:
+
+```ruby
+Onni.migrate!(
+  Onni::Migrator::ActiveRecordTables.new(
+    connection: ActiveRecord::Base.connection,
+    features_table: "legacy_features",
+    gates_table: "legacy_gates"
+  )
+)
+# => { features:, gates:, skipped_gates: }
+```
+
+Column defaults are `key` on the features table and `feature_key` / `key` / `value` on the gates table. Override via constructor keywords when names differ. Or build an in-memory `Snapshot` from any export.
+6. Compare `visible?` against the prior library for a sample of actors before removing old call sites.
+7. Production stats: prefer `stats_buffer` and a sample rate below `1.0` (the install generator defaults to buffer on and `0.1`).
 
 ## Development
 

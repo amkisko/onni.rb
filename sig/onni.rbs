@@ -237,5 +237,24 @@ module Onni
       attr_reader gates: Array[untyped]
       def initialize: (feature_keys: untyped, gates: untyped) -> void
     end
+
+    class ActiveRecordTables
+      def initialize: (
+        connection: untyped,
+        features_table: String,
+        gates_table: String,
+        ?feature_key_column: String,
+        ?gate_feature_column: String,
+        ?gate_key_column: String,
+        ?gate_value_column: String
+      ) -> void
+      def feature_keys: () -> Array[untyped]
+      def gates: () -> Array[Hash[Symbol, untyped]]
+    end
+  end
+
+  module RSpec
+    def self.reset!: () -> void
+    def self.install!: (?untyped rspec_config) -> void
   end
 end

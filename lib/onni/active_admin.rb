@@ -32,8 +32,9 @@ end
 
 Onni::Engine.initializer "onni.load_active_admin" do
   path = Onni::Engine.root.join("app/admin").to_s
-  ActiveSupport.on_load(:after_initialize) do
-    ActiveAdmin.application.load_paths << path unless ActiveAdmin.application.load_paths.include?(path)
+  # ActiveAdmin.routes -> load! runs while routes are drawn, before after_initialize.
+  ActiveAdmin.before_load do |app|
+    app.load_paths << path unless app.load_paths.include?(path)
   end
 end
 

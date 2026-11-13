@@ -20,6 +20,9 @@ RSpec.describe Onni::Generators::InstallGenerator, type: :generator do
       expect(File.read(File.join(dir, "config/features.yml"))).to include("new_checkout")
       initializer = File.read(File.join(dir, "config/initializers/onni.rb"))
       expect(initializer).to include("Onni.configure")
+      expect(initializer).to include("stats_sample_rate = 0.1")
+      expect(initializer).to include("stats_buffer = true")
+      expect(initializer).to include("ActiveAdminRoutes.draw")
       expect(initializer).to include('subscribe(/\\.onni$/)')
     end
   end

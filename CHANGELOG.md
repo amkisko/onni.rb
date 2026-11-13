@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Register ActiveAdmin Features pages before routes draw so production boot keeps `admin_features_path`
+- Add `Onni::Migrator::ActiveRecordTables` and a generic prior-library cutover checklist in the README
+- Add `require "onni/rspec"` host helper for memory adapter reset
+- Install generator: safer stats defaults (`stats_buffer`, sample `0.1`) and ActiveAdmin/Tailwind reminders
+
 ## 1.0.0 (2026-11-13)
 
 - Use the Ruby standard library for the core with zero runtime gem dependencies
