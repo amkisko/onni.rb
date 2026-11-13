@@ -21,9 +21,7 @@ Defer to later work: admin "Ready for everyone" control for empty group flags; r
 
 ## Next
 
-- Ship `ActiveRecordTables` migrator source and cutover README.
-- Safer install-generator stats defaults and install reminders.
-- Optional `onni/rspec` memory-reset helper.
+- Cut 1.0.1 includes ActiveRecordTables, cutover README, install defaults, and `onni/rspec`; publish via `make release`.
 - Later: admin ready-for-everyone UX; document or add group->boolean soft upgrade without gate loss.
 
 ## Source

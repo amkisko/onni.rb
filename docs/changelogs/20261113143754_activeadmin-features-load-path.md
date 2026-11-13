@@ -16,7 +16,7 @@ Register Onni `app/admin` with `ActiveAdmin.before_load` so Features is present 
 
 ## Next
 
-- Cut a patch release for RubyGems consumers still on 1.0.0.
+- Delivered into cut 1.0.1; publish via `make release`.
 
 ## Source
 

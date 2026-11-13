@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.1 (2026-11-13)
+
 - Register ActiveAdmin Features pages before routes draw so production boot keeps `admin_features_path`
 - Add `Onni::Migrator::ActiveRecordTables` and a generic prior-library cutover checklist in the README
 - Add `require "onni/rspec"` host helper for memory adapter reset

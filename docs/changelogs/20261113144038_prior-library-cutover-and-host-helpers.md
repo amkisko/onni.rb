@@ -17,7 +17,7 @@ Ship ActiveAdmin `before_load` with a generic prior-library cutover path for the
 
 ## Next
 
-- Publish the patch release; hosts drop ActiveAdmin `before_load` workaround after upgrade.
+- Delivered into cut 1.0.1; publish via `make release`; hosts drop ActiveAdmin `before_load` workaround after upgrade.
 - Later: admin UX when Ready on empty group flags; optional soft type-change helpers.
 
 ## Source
