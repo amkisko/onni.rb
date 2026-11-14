@@ -8,11 +8,10 @@ require_relative "dummy/config/environment"
 
 DUMMY_ROOT = Rails.root unless defined?(DUMMY_ROOT)
 
-ActiveRecord::Base.connection_pool.with_connection do |connection|
-  next if connection.table_exists?(:onni_features) && connection.table_exists?(:device_authorization_clients)
+require_relative "support/sqlite_identity_schema"
 
-  ActiveRecord::Schema.verbose = false
-  load DUMMY_ROOT.join("db", "schema.rb").to_s
+ActiveRecord::Base.connection_pool.with_connection do |connection|
+  SqliteIdentitySchema.ensure!(connection, schema_path: DUMMY_ROOT.join("db", "schema.rb"))
 end
 
 require "rspec/rails"

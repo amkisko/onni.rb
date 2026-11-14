@@ -1,7 +1,9 @@
 test:
   adapter: sqlite3
   # Pool checkouts share a file; parallel workers each need a separate file.
-  database: db/test<%= "_#{ENV["POLYRUN_SHARD_INDEX"]}" if ENV["POLYRUN_SHARD_INDEX"] %>.sqlite3
+  # Appraisal gemfiles also need separate files so Rails 7.2 does not reuse a
+  # Rails 8 schema whose boolean DEFAULT TRUE/FALSE values read as nil.
+  database: db/test<%= "_#{File.basename(ENV["BUNDLE_GEMFILE"], ".*")}" if ENV["BUNDLE_GEMFILE"] %><%= "_#{ENV["POLYRUN_SHARD_INDEX"]}" if ENV["POLYRUN_SHARD_INDEX"] %>.sqlite3
   pool: 5
   # Milliseconds to wait on a locked database (Rails busy_handler_timeout).
   timeout: 5000

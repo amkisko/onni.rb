@@ -42,8 +42,10 @@ safe downgrade for an arbitrary application database.
 
 ## Next
 
-The requested integration runs on the isolated 7.2 fixture. An upstream report
-or framework patch can be handled separately; none was sent from this task.
+Test host now isolates appraisal SQLite files by `BUNDLE_GEMFILE` basename and
+rebuilds identity tables when boolean defaults are unreadable. Upstream report
+or framework patch can still be handled separately; none was sent from this
+task.
 
 ## Source
 

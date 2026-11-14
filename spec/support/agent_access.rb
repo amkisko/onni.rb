@@ -60,6 +60,7 @@ module AgentAccess
 
   def issue_agent_token(owner:, scopes: %w[onni:read onni:write])
     client = DeviceAuthorizationClient.find_or_create_by!(client_id: "onni-agent") do |record|
+      record.enabled = true
       record.allowed_scopes = %w[onni:read onni:write]
     end
     config = ActiveAdmin::DeviceAuthorization.config
@@ -97,7 +98,7 @@ ActiveAdmin::GraphqlController.skip_forgery_protection if: -> { current_onni_age
 RSpec.shared_context "with device-authorized Onni" do
   include AgentAccess
 
-  let(:owner) { AdminUser.create!(can_write: true) }
+  let(:owner) { AdminUser.create!(active: true, can_write: true) }
   let(:token_record) do
     DeviceAuthorizationAccessToken.find_by!(token_digest: ActiveAdmin::DeviceAuthorization.config.digest(@access_token))
   end
