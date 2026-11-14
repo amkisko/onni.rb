@@ -1,0 +1,21 @@
+<% owner = Onni::Delivery.entries[flag.name] %>
+<% if owner %>
+  <section aria-labelledby="delivery-title">
+    <h2 id="delivery-title" class="text-lg font-bold mb-4">Delivery experiments</h2>
+    <p>Ready power allows the first matching experiment. Pending or parked power always runs the parked path. No matching experiment also runs the parked path.</p>
+    <p>Each experiment has its own audience. Visibility checks and variant assignment use the separate feature audience.</p>
+    <% if owner.experiments.empty? %>
+      <p>No delivery experiments are declared. The parked path always runs.</p>
+    <% end %>
+    <% Onni::Delivery.filters(flag.name, owner, flag.gates).each do |name, filters| %>
+      <details class="border rounded p-4 my-4" <%= "open" if @rollout_input && @rollout_input[:experiment] == name %>>
+        <summary class="font-bold cursor-pointer"><%= name %> audience</summary>
+        <%= render partial: "admin/features/audience", locals: {flag: flag, experiment: name, filters: filters} %>
+      </details>
+    <% end %>
+    <details class="border rounded p-4 my-4" <%= "open" if @rollout_input && @rollout_input[:filter] && @rollout_input[:experiment].blank? %>>
+      <summary class="font-bold cursor-pointer">Visibility and variant audience</summary>
+      <%= render partial: "admin/features/audience", locals: {flag: flag} %>
+    </details>
+  </section>
+<% end %>

@@ -54,6 +54,10 @@ module Onni
       definition["description"]
     end
 
+    def expiration_status(now: Time.now.utc)
+      Expirations.status(definition, now: now)
+    end
+
     def expires_at
       definition["expires_at"]
     end

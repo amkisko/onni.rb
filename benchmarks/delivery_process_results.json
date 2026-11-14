@@ -1,0 +1,29 @@
+{
+  "revision": "6ce8194209b5f78c8bc8c0a0c844ef754abc9149",
+  "source_sha256": "209a68031cb97396cb0eb4532983620224ce35bcb17febecdbfb6487ed1f85c7",
+  "writers": 8,
+  "operations": 100,
+  "samples": [
+    {
+      "level": 800,
+      "expected": 800,
+      "parks": 1,
+      "errors": 0,
+      "parked": true
+    },
+    {
+      "level": 800,
+      "expected": 800,
+      "parks": 1,
+      "errors": 0,
+      "parked": true
+    },
+    {
+      "level": 800,
+      "expected": 800,
+      "parks": 1,
+      "errors": 0,
+      "parked": true
+    }
+  ]
+}

@@ -73,11 +73,11 @@ RSpec.describe "Ready, pending, and parked power" do
     end
   end
 
-  it "does not confuse a ready expired flag with parked power" do
+  it "keeps a ready overdue flag visible" do
     Onni::Registry.config["new_checkout"]["expires_at"] = "2000-01-01"
     Onni.ready!(:new_checkout)
     expect_state(:new_checkout, :ready)
-    expect(Onni.visible?(:new_checkout, actor)).to be(false)
+    expect(Onni.visible?(:new_checkout, actor)).to be(true)
   end
 
   it "fails closed for unknown names without inventing a power state" do

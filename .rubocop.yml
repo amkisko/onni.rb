@@ -128,6 +128,9 @@ ThreadSafety/NewThread:
     - spec/onni/cache_consistency_spec.rb
     - spec/onni/sync_spec.rb
     - spec/onni/group_concurrency_spec.rb
+    - spec/onni/signals_spec.rb
+    - spec/onni/delivery_catalogue_spec.rb
+    - spec/requests/delivery_controls_spec.rb
     - spec/requests/sqlite_support_spec.rb
 
 ThreadSafety/DirChdir:

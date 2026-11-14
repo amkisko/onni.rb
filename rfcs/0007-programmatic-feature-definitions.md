@@ -6,6 +6,10 @@
 - Author: Andrei Makarov
 - Relates: RFC-0005, RFC-0006
 
+The YAML-first authoring recommendation is superseded by
+[RFC-0010](0010-delivery-experiments.md) and [RFC-0011](0011-catalogue-export.md).
+Ruby owns new catalogues; YAML input remains compatibility.
+
 ## Summary
 
 Provide define! as an explicit programmatic registry entry point while keeping

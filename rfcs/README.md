@@ -13,5 +13,10 @@ rule or separate RFC-only test suite.
 - [RFC-0006: Evaluation statistics policy](0006-evaluation-statistics-policy.md)
 - [RFC-0007: Programmatic feature definitions](0007-programmatic-feature-definitions.md)
 
+- [RFC-0008: Expiration hygiene](0008-expiration-hygiene.md)
+- [RFC-0009: Integer signals and park reasons](0009-integer-signals.md)
+- [RFC-0010: Delivery experiments](0010-delivery-experiments.md)
+- [RFC-0011: Catalogue export](0011-catalogue-export.md)
+
 Use [the template](0000-template.md), omit unused sections, and preserve existing
 identifiers. Implementation changes cite their RFC and prove behavior with specs.

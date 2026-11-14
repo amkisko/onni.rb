@@ -5,6 +5,7 @@ module Onni
   # Hosts clear via Onni.reset_request! at request end.
   module RequestStore
     GATES_KEY = :onni_request_gates
+    GATES_CONTEXT_KEY = :onni_request_gates_context
     STATS_KEY = :onni_stats_buffer
 
     module_function
@@ -17,6 +18,14 @@ module Onni
       Fiber[GATES_KEY] = value
     end
 
+    def gates_context
+      Fiber[GATES_CONTEXT_KEY]
+    end
+
+    def gates_context=(value)
+      Fiber[GATES_CONTEXT_KEY] = value
+    end
+
     def stats_buffer
       Fiber[STATS_KEY]
     end
@@ -27,6 +36,7 @@ module Onni
 
     def clear!
       Fiber[GATES_KEY] = nil
+      Fiber[GATES_CONTEXT_KEY] = nil
       Fiber[STATS_KEY] = nil
     end
   end

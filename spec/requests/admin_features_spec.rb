@@ -166,7 +166,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
 
     get admin_feature_path("search_v2")
     document = Nokogiri::HTML(response.body)
-    status = document.css("tr").find { |entry| entry.at_css("th")&.text == "Status" }
+    status = document.css("tr").find { |entry| entry.at_css("th")&.text == "Power" }
     expect(status.at_css("td").text.strip).to eq("Ready")
   end
 

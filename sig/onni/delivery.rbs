@@ -1,0 +1,16 @@
+module Onni
+  module Expirations
+    class Error < StandardError
+    end
+  end
+
+  class Delivery
+    def self.feature: ((String | Symbol) name, **untyped settings) -> untyped
+    def self.feature_name: () -> String?
+    def self.experiment: ((String | Symbol) name, **untyped filters) ?{ (*untyped, **untyped) -> untyped } -> untyped
+    def self.parked: () { (*untyped, **untyped) -> untyped } -> Symbol
+    def self.rescue_policy: (?signal: (String | Symbol), ?count_programming_errors: bool) -> untyped
+    def self.experiments: () -> Hash[String, Hash[String, untyped]]
+    def self.call: (?untyped actor, *untyped arguments, **untyped keywords) ?{ (*untyped, **untyped) -> untyped } -> untyped
+  end
+end

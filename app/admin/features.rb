@@ -131,6 +131,7 @@ ActiveAdmin.register_page "Features" do
             column("Description", &:description)
             column("Expires") do |flag|
               summary = flag.expires_summary
+              span flag.expiration_status.to_s.capitalize if %i[overdue invalid].include?(flag.expiration_status)
               if summary
                 span summary, title: flag.expires_full, "data-onni-expires": true
               else
@@ -182,10 +183,12 @@ ActiveAdmin.register_page "Features" do
   end
 
   page_action :park, method: :post do
-    Onni.park!(params.require(:key))
+    Onni.park!(params.require(:key), reason: params[:reason].presence)
     redirect_to admin_features_path, notice: "Parked #{params[:key]}"
   rescue KeyError
     head :not_found
+  rescue ArgumentError
+    head :unprocessable_entity
   end
 
   page_action :feature, method: :get do
@@ -205,7 +208,12 @@ ActiveAdmin.register_page "Features" do
     Onni::RolloutForm.new.apply!(key, params[:feature].presence || params)
     redirect_to onni_feature_path(key), notice: "Updated #{key}"
   rescue ArgumentError, TypeError
-    render plain: "Check the rollout settings.", status: 422
+    @flag = Onni::Flag.new(key)
+    @visibility_chart = Onni::VisibilityChart.new(key)
+    @rollout_error = "Check the rollout settings."
+    @rollout_input = params[:feature].presence || params
+    @page_title = key
+    render "admin/features/show", layout: "active_admin", status: 422
   rescue KeyError
     head :not_found
   end

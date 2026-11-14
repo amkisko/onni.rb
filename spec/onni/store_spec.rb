@@ -107,25 +107,25 @@ RSpec.describe Onni do
     expect(described_class.visible?(:demo, user_class.new(2, beta_tester: false))).to be(false)
   end
 
-  it "fails closed when expires_at is in the past" do
+  it "ignores overdue expires_at during visibility" do
     allow(Onni::Registry).to receive(:definition).and_return(
       "everyone" => true,
       "description" => "Demo",
       "expires_at" => "2000-01-01"
     )
     described_class.ready!(:demo)
-    expect(described_class.visible?(:demo)).to be(false)
-    expect(described_class.visible?(:demo, user_class.new(1))).to be(false)
+    expect(described_class.visible?(:demo)).to be(true)
+    expect(described_class.visible?(:demo, user_class.new(1))).to be(true)
   end
 
-  it "fails closed when expires_at cannot be parsed" do
+  it "ignores invalid expires_at during visibility" do
     allow(Onni::Registry).to receive(:definition).and_return(
       "everyone" => true,
       "description" => "Demo",
       "expires_at" => "not-a-date"
     )
     described_class.ready!(:demo)
-    expect(described_class.visible?(:demo)).to be(false)
+    expect(described_class.visible?(:demo)).to be(true)
   end
 
   it "drops a registered audience group visible" do
@@ -228,7 +228,7 @@ RSpec.describe Onni do
     described_class.reset_adapter!
   end
 
-  it "fails closed when expiry comparison raises" do
+  it "does not compare expiry during visibility" do
     bad_deadline = Object.new
     def bad_deadline.<(_other)
       raise ArgumentError, "bad deadline"
@@ -240,6 +240,6 @@ RSpec.describe Onni do
       "expires_at_time" => bad_deadline
     )
     described_class.ready!(:demo)
-    expect(described_class.visible?(:demo)).to be(false)
+    expect(described_class.visible?(:demo)).to be(true)
   end
 end

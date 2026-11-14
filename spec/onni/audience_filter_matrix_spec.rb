@@ -134,8 +134,8 @@ RSpec.describe "Audience filter contract matrix" do
     end
 
     {"conditions" => [{"conditions" => ["beta_testers"]}, %i[anonymous beta]],
-     "expired" => [{"expires_at" => "2000-01-01"}, []],
-     "invalid expiry" => [{"expires_at" => "invalid"}, []]}.each do |restriction, (fields, allowed)|
+     "expired" => [{"expires_at" => "2000-01-01"}, %i[anonymous beta staff]],
+     "invalid expiry" => [{"expires_at" => "invalid"}, %i[anonymous beta staff]]}.each do |restriction, (fields, allowed)|
       it "applies #{restriction} to every filter-presence combination for #{kind}" do
         AudienceFilterCases.presence_rows.each do |row|
           Onni.adapter.clear!

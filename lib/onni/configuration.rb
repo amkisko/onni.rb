@@ -8,10 +8,11 @@ module Onni
 
     attr_accessor :features_path, :cache, :cache_ttl, :stats_enabled,
       :stats_sampler, :stats_ignore, :stats_scale_sampled_hits, :stats_buffer,
-      :request_preload, :adapter, :logger, :instrumenter
+      :request_preload, :adapter, :logger, :instrumenter, :expires_at_verify
     attr_reader :stats_sample_rate, :concurrency, :stats_retention
 
     def initialize
+      @expires_at_verify = :opt_in
       @features_path = "config/features.yml"
       @cache = nil
       @cache_ttl = 15 * 60

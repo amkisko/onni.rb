@@ -11,6 +11,8 @@ its remaining contracts still apply.
 RFC-0006 replaces the early-return statistics scope with counts for all known
 completed evaluations, including pending and parked misses.
 
+Expiration gating in this RFC is superseded by [RFC-0008](0008-expiration-hygiene.md).
+
 ## Summary
 
 Separate runtime power (ready/pending/parked), actor visibility (visible?),

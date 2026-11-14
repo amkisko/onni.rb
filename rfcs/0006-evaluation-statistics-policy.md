@@ -6,6 +6,8 @@
 - Author: Andrei Makarov
 - Relates: RFC-0003, RFC-0005
 
+Expiration gating in this RFC is superseded by [RFC-0008](0008-expiration-hygiene.md).
+
 ## Summary
 
 Record every completed evaluation of a known flag by default, including pending

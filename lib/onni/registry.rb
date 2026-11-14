@@ -66,6 +66,9 @@ module Onni
 
       loaded.each do |name, definition|
         validate_definition!(name, definition)
+        if defined?(Delivery) && (owner = Delivery.entries[name.to_s])
+          Delivery.validate_variants!(name, definition.fetch("variants", {}), owner.experiments.keys)
+        end
         attach_expiry!(definition)
       end
       loaded

@@ -9,6 +9,8 @@
 RFC-0006 specifies evaluation statistics and RFC-0007 adds programmatic
 definitions alongside the YAML catalogue.
 
+Expiration gating in this RFC is superseded by [RFC-0008](0008-expiration-hygiene.md).
+
 ## Summary
 
 Compose audience filters on one power switch. Preserve settings when parking a

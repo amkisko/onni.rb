@@ -69,11 +69,11 @@ RSpec.describe "Default group features" do
     expect(Onni.visible?(:search_v2)).to be(false)
   end
 
-  it "honors the expiry of a minimally declared feature" do
+  it "keeps a minimally declared feature visible after its review date" do
     Onni.visible_group!(:new_checkout, :beta_testers)
     travel_to(Time.utc(2027, 1, 2)) do
       expect(Onni.ready?(:new_checkout)).to be(true)
-      expect(Onni.visible?(:new_checkout, actor)).to be(false)
+      expect(Onni.visible?(:new_checkout, actor)).to be(true)
     end
   end
 end

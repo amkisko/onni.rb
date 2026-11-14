@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 3.0.0 (2026-11-14)
+
+- Deliver experiments with `Onni::Delivery` / `Onni.deliver`, a required parked path, and ordered targeting
+- Observe signed integer signals and park when a configured threshold is reached
+- Treat `expires_at` as catalogue maintenance only; overdue ready flags stay visible until `park!` (breaking)
+- Verify overdue catalogue dates with `Onni.verify_expirations!` (opt-in or all)
+- Export the catalogue as YAML, JSON, or CSV; ship matching rake tasks
+- Manage experiment targeting and signal thresholds in ActiveAdmin; mark overdue or invalid expiry metadata
+
 ## 2.0.0 (2026-11-13)
 
 - Compose audience groups, actor lists, excludes, and a percentage on one flag

@@ -6,6 +6,9 @@ rollout_form = Onni::RolloutForm.new
 
 div class: "main-content-container" do
   div class: "space-y-10" do
+    if assigns[:rollout_error]
+      div assigns[:rollout_error], role: "alert"
+    end
     if flag.description.present?
       para do
         text_node flag.description
@@ -15,7 +18,8 @@ div class: "main-content-container" do
     div do
       h2 "Overview", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
       attributes_table_for(flag) do
-        row("Status") { status_tag(flag.power_state.to_s.capitalize) }
+        row("Power") { status_tag(flag.power_state.to_s.capitalize) }
+        row("Expiry review") { flag.expiration_status.to_s.capitalize }
         row("Expires") do
           if flag.expires_summary
             span flag.expires_summary, title: flag.expires_full, "data-onni-expires": true
@@ -35,11 +39,16 @@ div class: "main-content-container" do
       end
     end
 
-    text_node helpers.render(partial: "admin/features/audience", locals: {flag: flag})
+    text_node helpers.render(partial: "admin/features/signals", locals: {flag: flag})
+    if Onni::Delivery.entries.key?(flag.name)
+      text_node helpers.render(partial: "admin/features/delivery", locals: {flag: flag})
+    else
+      text_node helpers.render(partial: "admin/features/audience", locals: {flag: flag})
+    end
 
     if flag.type == "experiment"
       div do
-        h2 "Variants", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
+        h2 "Variant weights", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
         active_admin_form_for(
           rollout_form,
           url: helpers.admin_features_update_feature_path(key: flag.name),

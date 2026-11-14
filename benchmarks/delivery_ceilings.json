@@ -1,0 +1,13 @@
+{
+  "wall_ms": 39.629000002969406,
+  "cpu_ms": 39.7348,
+  "write_errors": 0,
+  "level_error": 0,
+  "storage_bytes": 90,
+  "shipped_source_bytes": 148000,
+  "success_p95_us": 9.199994747177698,
+  "fallback_p95_us": 26.450000586919483,
+  "observe_p95_us": 14.95000087743392,
+  "export_p95_us": 24.149999808287244,
+  "rss_bytes": 38248448.0
+}

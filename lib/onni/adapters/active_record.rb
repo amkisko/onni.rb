@@ -7,6 +7,15 @@ module Onni
     class ActiveRecord
       include StatWrites
 
+      def gate_read_context
+        transaction = ::Onni::Feature.current_transaction
+        transaction.open? ? transaction : self
+      end
+
+      def after_commit(&block)
+        ::ActiveRecord.after_all_transactions_commit(&block)
+      end
+
       def add(key)
         ::Onni::Feature.find_or_create_by!(key: key.to_s)
       end

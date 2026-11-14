@@ -21,7 +21,7 @@ RSpec.describe "Onni standard-library core" do
       result = isolated_ruby(<<~RUBY, file.path, coverage_name: "standalone")
         module FrameworkRequireGuard
           def require(name)
-            if %w[active_support active_record activeadmin rails].include?(name.split("/").first)
+            if %w[active_support active_record activeadmin rails csv].include?(name.split("/").first)
               raise LoadError, "Framework required by core: " + name
             end
             super
@@ -45,6 +45,8 @@ RSpec.describe "Onni standard-library core" do
         variant = Onni.variant(:search_v2, actor)
         flag = Onni[:search_v2]
         summary = flag.expires_summary(now: Time.utc(2026, 11, 12))
+        catalogue = Onni.export_catalogue(format: :csv)
+        exported = catalogue.include?("search_v2")
         source = Onni::Migrator::Snapshot.new(feature_keys: ["search_v2"], gates: [])
         imported = Onni.migrate!(source)
         count = Onni::Stats.for(:search_v2).sum { |row| row.fetch("shown_count") }
@@ -67,12 +69,12 @@ RSpec.describe "Onni standard-library core" do
         require "json"
         puts JSON.generate(variant: variant, expires: flag.expires_full, summary: summary,
           imported: imported.fetch(:features), count: count, purged: purged, unknown: unknown,
-          admin_setting: admin_setting, persistence: persistence,
+          admin_setting: admin_setting, persistence: persistence, exported: exported,
           runtime_dependencies: Gem.loaded_specs.fetch("onni").runtime_dependencies.map(&:name))
       RUBY
       expect(result).to eq("variant" => "control", "expires" => "2099-01-01", "summary" => "in 72 years",
         "imported" => 1, "count" => 1, "purged" => 1, "unknown" => true,
-        "admin_setting" => false, "persistence" => false, "runtime_dependencies" => [])
+        "admin_setting" => false, "persistence" => false, "exported" => true, "runtime_dependencies" => [])
     end
   end
 end

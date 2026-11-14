@@ -2,7 +2,7 @@
 
 [![Test Status](https://github.com/amkisko/onni.rb/actions/workflows/test.yml/badge.svg)](https://github.com/amkisko/onni.rb/actions/workflows/test.yml)
 
-Feature flags, gradual rollout, A/B variants, audience targeting groups, and shown/skip counts for any Ruby app. The core uses Ruby's standard library with zero runtime gem dependencies. ActiveRecord, Rails, notification delivery, and ActiveAdmin are opt-in extensions.
+Feature delivery, gradual rollout, executable experiments, A/B variants, audience groups, and operational counts for Ruby apps. The core uses Ruby's standard library with zero runtime gem dependencies. ActiveRecord, Rails, notification delivery, and ActiveAdmin are opt-in extensions.
 
 ## What Onni is for
 
@@ -11,15 +11,20 @@ Use Onni to:
 - ready or park product experiments and incomplete surfaces
 - roll a change out to a percentage of actors or a named audience group
 - assign A/B (or multi-arm) variants
-- collect shown/skip counts for analysis
+- run experiments with a current path available on failure
+- observe integer signals and park a rollout at a configured threshold
+- collect operational shown/skip counts supporting delivery and experiments
 
 ## What Onni is not for
 
 **Do not use Onni as an authorization or access-control system.**
 
-`Onni.visible?` answers “should this actor see this feature for experiment / rollout purposes?”, not “may this principal perform this privileged action?”. Keep authentication and authorization in your policy layer (for example Pundit, CanCanCan, or host middleware). A flag may *gate whether a UI is offered*; it must not be the only check that protects a write, read of private data, or admin capability.
+`Onni.visible?` answers “should this actor see this feature for experiment / rollout purposes?”, not “may this principal perform this privileged action?”. Keep authentication and authorization in your host policy layer. A flag may *gate whether a UI is offered*; it must not be the only check that protects a write, read of private data, or admin capability.
 
-YAML `conditions` and registered groups are targeting helpers for rollouts. They are not a substitute for object-, function-, or tenant-level authorization.
+Onni is not a general analytics product. Signals and evaluation counts support
+feature delivery and experiments; hosts own rates and other application metrics.
+
+Catalogue `conditions` and registered groups are targeting helpers for rollouts. They are not a substitute for object-, function-, or tenant-level authorization.
 
 ## Requirements
 
@@ -48,12 +53,15 @@ For standalone Ruby, load the core and select your registry file:
 
 ```ruby
 require "onni"
-Onni.configuration.features_path = "config/features.yml"
-Onni.ready!(:new_checkout)
+Onni.configuration.features_path = nil
+Onni.define!(:homepage_banner,
+  description: "Homepage banner rollout", expires_at: "2027-06-01", everyone: true)
+Onni.ready!(:homepage_banner)
 ```
 
-The default registry path is `config/features.yml` relative to the working
-directory. Definitions remain required for every mutation.
+The compatibility YAML input path defaults to `config/features.yml` relative to
+the working directory. Set it to `nil` for a Ruby-only catalogue. Definitions
+remain required for every mutation.
 
 ### Extensions
 
@@ -71,7 +79,7 @@ gem "rails", ">= 7.2.3.2"
 gem "onni", require: ["onni/rails", "onni/active_record"]
 ```
 
-Then generate the registry, configuration, and schema:
+Then generate configuration, compatibility YAML input, and schema:
 
 ```sh
 bin/rails generate onni:install
@@ -120,10 +128,197 @@ preview, see [the contribution guide](CONTRIBUTING.md#local-checks-and-admin-pre
 
 Host apps that authorize ActiveAdmin page actions by name need `ready?` and `park?` rules for power commands, plus `stats?`, `feature?`, and `update_feature?` when those are checked. These are host policy methods; `Onni.visible?` remains a rollout evaluation.
 
-## YAML registry
+## Programmatic definitions
 
-Keep the shared feature catalogue in `config/features.yml`. Document each flag's
-intent with a description and expiration so the whole team can review it:
+Define features in Ruby during shared initialization. Use `define!` for boolean
+flags and assignment-only variants, or a Delivery class when Onni should execute
+paths. Export the catalogue when the team needs one generated list.
+
+```ruby
+Onni.define!(:runtime_search,
+  description: "Search rollout",
+  expires_at: "2027-06-01",
+  groups: ["beta_testers"],
+  stats: {enabled: true})
+```
+
+`define!` requires a nonblank description and a parseable expiration string.
+A new feature starts pending. Repeating the command replaces its programmatic
+definition and retains stored power, runtime settings, and counters. Reusing
+a name with existing adapter rows also retains those rows. YAML-owned names
+cannot be shadowed. Unknown names still fail closed until explicitly defined.
+
+These definitions belong to the current process, survive `Registry.reload!`
+and adapter resets, and disappear at process exit. Define them in every worker
+that evaluates them, preferably during shared initialization. The host owns
+any durable source needed to recreate them. To move one into YAML, deploy its
+YAML definition with a process restart; a reload collision raises. Existing
+`Flag` instances remain metadata snapshots; request a fresh `Onni[name]` view
+after changing a definition. A Delivery-owned name cannot be replaced with
+`define!`. See [RFC-0010](rfcs/0010-delivery-experiments.md).
+
+## Delivery experiments
+
+Use `variant` when the host needs a sticky arm name and will run its own code.
+Use `Onni::Delivery` when Onni should select and execute an experiment, return
+its value, and run the current `parked` path after a rescued failure.
+
+```ruby
+class CheckoutDelivery < Onni::Delivery
+  feature :new_checkout,
+    description: "Checkout redesign with the current path available",
+    expires_at: "2027-06-01",
+    raise_on_expiration: true,
+    signals: {exception: {threshold: 25}}
+
+  experiment :checkout_v3, groups: ["internal"]
+  experiment :checkout_v2, groups: ["beta_testers"], level: 25
+
+  def parked(order:)
+    LegacyCheckout.complete!(order)
+  end
+
+  def checkout_v2(order:)
+    CheckoutV2.complete!(order)
+  end
+
+  def checkout_v3(order:)
+    CheckoutV3.complete!(order)
+  end
+end
+
+receipt = CheckoutDelivery.call(current_user, order: order)
+```
+
+Register groups in every process as usual. Each experiment needs an opener
+(`everyone`, an include list, or `level`). All its set filters must match.
+Feature-level audience and conditions apply to boolean/variant evaluation;
+Delivery uses only power and each experiment's audience. The first matching
+experiment wins. Declarations write no adapter gates. A bare `feature :name`
+may bind paths to an existing catalogue entry instead of owning its metadata.
+
+Pending and parked power always run the `parked` path. Ready power permits an
+experiment; no matching audience also runs `parked`. A Delivery call returns
+one path's value, including `nil` or `false`. Delivery never increments ordinary
+shown/skip counts. Zero experiments means the parked path always runs.
+
+Methods receive forwarded positional arguments, keywords and the caller's block.
+Short bodies can use `parked { |order:| ... }` and
+`experiment(:checkout_v2, level: 25) { |order:| ... }`.
+
+Only experiment `StandardError` failures fall back. `ActiveRecord::Rollback`,
+exit-like exceptions, targeting errors and parked-path failures propagate.
+Hosts must arrange transaction rollback before fallback; Delivery cannot undo
+partial application writes. By default rescued `NameError`/`NoMethodError`
+failures fall back without counting toward parking. A class can opt in with
+`rescue_policy(count_programming_errors: true)`, or select a declared signal
+with `rescue_policy(signal: :hold)`. Signal-write failures propagate.
+`delivery_error.onni` emits feature, experiment and error class through the
+configured instrumenter. It omits messages, arguments, identities and backtraces.
+
+```ruby
+Onni.experiment_filters!(:new_checkout, :checkout_v2, level: 50)
+Onni.selected(:new_checkout, current_user) # :parked, :checkout_v2 or :checkout_v3
+
+# For a separate feature with just one experiment:
+Onni.deliver(:search_v2, current_user, parked: -> { LegacySearch.call(query) }) do
+  NewSearch.call(query)
+end
+```
+
+Inline delivery requires an existing catalogue definition and uses the reserved
+`:on` experiment with an everyone audience until overridden. Classes and inline
+calls cannot share a binding. Variant weights and Delivery experiment names
+must be distinct. Load classes in every evaluating process.
+
+## Signals and automatic park
+
+```ruby
+Onni.observe!(:new_checkout, :exception, 1)   # committed level, default delta +1
+Onni.observe!(:new_checkout, :exception, -1)  # heal; never readies power
+Onni.signal_level(:new_checkout, :exception)
+Onni.signals!(:new_checkout, exception: {threshold: 10})
+Onni.signals!(:new_checkout, exception: {threshold: nil}) # observe without auto park
+Onni.park!(:new_checkout, reason: "operator")
+Onni.reset_signals!(:new_checkout, :exception) # or omit the key to reset all
+```
+
+A signal at or above its positive integer threshold parks ready power with
+reason `signal:<key>`. The level update and park are serialized together.
+Pending/parked power stays unchanged. Levels remain until a signed negative
+delta or reset, with no hourly healing, sampling or buffering. `clear!` retains
+levels and historical counts while removing runtime overrides and power.
+Resetting a signal does not ready a feature; operators explicitly call `ready!`.
+
+Declare custom keys under `signals`; `exception` is always allowed. Each feature
+allows at most 32 keys including exception, with lowercase names up to 64
+characters. Deltas and levels must fit signed 64-bit integers. When retired
+keys fill the retained-level budget, reset signals before adding a new key.
+There are no floating-point metrics or built-in error-rate calculations.
+
+Memory state disappears with the adapter/process. ActiveRecord stores levels
+and policies in gates without a schema migration. Mutation events report committed success after
+commit; rolling back an outer transaction discards its events. They are
+best-effort notifications, with no replay or write-latency measurement. Transactions
+bypass shared gate caches; request preloads are bound to the current transaction. Other processes and preloaded requests may continue using
+older committed gates until refresh: use no cache or a short `cache_ttl` when
+parking must be observed quickly. An already executing experiment is not
+cancelled. `signal_level` reads the adapter directly.
+
+## Expiration review
+
+`expires_at` describes when a maintainer should review a definition. It never
+changes visibility, variant assignment, Delivery selection, power or statistics.
+ActiveAdmin and `Flag#expiration_status` mark overdue/invalid metadata.
+
+```ruby
+# Dedicated host spec or CI check; never implicit at boot or during evaluation:
+Onni.verify_expirations!            # raise_on_expiration: true entries only
+Onni.verify_expirations!(mode: :all)
+Onni.configuration.expires_at_verify = :all # default is :opt_in
+```
+
+Verification raises `Onni::Expirations::Error` listing overdue, unparseable or
+missing dates. Ruby definitions require a parseable date; compatibility YAML
+can retain an invalid date for review. Hosts previously using expiration to
+stop rollout must explicitly park instead. Overdue ready flags now produce
+normal shown/skip outcomes, which can change `shown_share` after upgrading.
+
+## Catalogue export
+
+```ruby
+Onni.export_catalogue(format: :yaml)
+Onni.export_catalogue(format: :json, runtime: true)
+File.open("tmp/catalogue.csv", "w") do |io|
+  Onni.export_catalogue(format: :csv, io: io)
+end
+```
+
+YAML and JSON describe the same ordered list of definitions and Delivery
+experiments. Runtime mode adds per-feature power, effective settings and signal
+levels, reading each feature once. This is a sequence of feature snapshots.
+CSV uses `name,experiment,definition,runtime`; nested fields are JSON, with one
+row per experiment (or one blank experiment row). Generated catalogues include
+audience identifiers when declared, so hosts control who receives them.
+Callable bodies, actor payloads and exception details are excluded.
+
+```sh
+bundle exec rake onni:export FORMAT=yaml
+bundle exec rake onni:export_json OUTPUT=tmp/catalogue.json
+bundle exec rake onni:export_csv OUTPUT=tmp/catalogue.csv
+bundle exec rake onni:export_yaml
+```
+
+Rails loads the environment before exporting. Standalone hosts load their Ruby
+definitions, then `require "onni/tasks"` in their Rakefile. Fixed-format tasks
+ignore `FORMAT`; all tasks honor `OUTPUT` (stdout by default).
+
+## Compatibility YAML input
+
+Existing applications may keep definitions in `config/features.yml` while
+migrating to Ruby. Each name has one owner: YAML input, `define!`, or a Delivery
+class with catalogue settings. Do not declare the same name in two places.
+YAML export is generated output and is not automatically loaded as input.
 
 ```yaml
 new_checkout:
@@ -152,7 +347,8 @@ new_checkout:
 ```
 
 Unknown names fail closed: `visible?` returns false; `ready!` / `park!` raise `KeyError`.
-Past or unparseable `expires_at` values fail closed on `visible?` / `variant`. The ActiveAdmin UI still shows the expiry date.
+Past or unparseable `expires_at` values are review metadata. They do not hide a
+feature or change power. Use the explicit expiration check below.
 
 Optional YAML `conditions` (checked after a gate matches, when an actor is present). These narrow a rollout audience; they are not authorization:
 
@@ -165,33 +361,6 @@ search_v2:
     - beta_tester?
     - beta_testers   # registered Onni group name
 ```
-
-## Programmatic definitions
-
-Prefer `features.yml` as the shared, reviewable catalogue. When a feature must
-be declared in code, use the explicit API rather than editing registry internals:
-
-```ruby
-Onni.define!(:runtime_search,
-  description: "Search rollout",
-  expires_at: "2027-06-01",
-  groups: ["beta_testers"],
-  stats: {enabled: true})
-```
-
-`define!` requires a nonblank description and a parseable expiration string.
-A new feature starts pending. Repeating the command replaces its programmatic
-definition and retains stored power, runtime settings, and counters. Reusing
-a name with existing adapter rows also retains those rows. YAML-owned names
-cannot be shadowed. Unknown names still fail closed until explicitly defined.
-
-These definitions belong to the current process, survive `Registry.reload!`
-and adapter resets, and disappear at process exit. Define them in every worker
-that evaluates them, preferably during shared initialization. The host owns
-any durable source needed to recreate them. To move one into YAML, deploy its
-YAML definition with a process restart; a reload collision raises. Existing
-`Flag` instances remain metadata snapshots; request a fresh `Onni[name]` view
-after changing a definition. See [RFC-0007](rfcs/0007-programmatic-feature-definitions.md).
 
 ## Runtime API
 
@@ -256,7 +425,7 @@ actor-present behavior. Use filters for restrictions that must reject nil actors
 Experiments declare `type: experiment` and an explicit audience. `variants`
 are relative nonnegative integer weights with a positive total, or an empty
 map. Weights do not open visibility. `variant` first checks the same audience,
-expiry, and conditions, then assigns a variant for an actor. Empty weights
+and conditions, then assigns a variant for an actor. Empty weights
 return nil. Global percentages limit the audience; they are not variants.
 Malformed definitions fail at load, and ordinary audience type names are rejected.
 
@@ -279,7 +448,7 @@ Existing gate keys remain readable; mixed audience gates now intersect.
 ## Stats
 
 By default, completed `visible?` calls for known flags record `shown_count` when
-true and `skip_count` when false. Pending, parked, expired, and audience misses
+true and `skip_count` when false. Pending, parked, and audience misses
 all count as skips. Known `variant` calls count an assignment as shown and nil
 as skipped, including missing actors and non-experiment flags. Unknown names
 create no buckets. Power predicates and settings reads do not record calls.
@@ -489,7 +658,7 @@ Onni.configure do |config|
 end
 ```
 
-Hosts that use Pundit/CanCanCan should also authorize ActiveAdmin page actions (`ready?`, `park?`, `feature?`, `update_feature?`) for the Features page. Park is a command name; `Onni.parked?` is the power-state predicate.
+Hosts should also authorize ActiveAdmin page actions (`ready?`, `park?`, `feature?`, `update_feature?`) for the Features page. Park is a command name; `Onni.parked?` is the power-state predicate.
 
 ## Upgrading to terminology v1
 
@@ -606,7 +775,7 @@ Onni::RSpec.install! # before each example: memory adapter + reset_request!
 
 ## Migrating from another feature-flag library
 
-Map your previous store into a source with `#feature_keys` and `#gates`, then import once. Keep `config/features.yml` keys aligned with the names you import. Unknown YAML keys are skipped. Declare the intended audience filters before importing. Unsupported or malformed gates are counted in `skipped_gates` and not written. Legacy boolean gates become explicit power (`powered`); audience rows retain their values and intersect.
+Map your previous store into a source with `#feature_keys` and `#gates`, then import once. Keep registered catalogue keys aligned with the names you import. Unknown keys are skipped. Declare the intended audience filters before importing. Unsupported or malformed gates are counted in `skipped_gates` and not written. Legacy boolean gates become explicit power (`powered`); audience rows retain their values and intersect.
 
 ```ruby
 source = Onni::Migrator::Snapshot.new(

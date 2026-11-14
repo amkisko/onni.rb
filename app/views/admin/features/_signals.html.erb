@@ -1,0 +1,32 @@
+<% policies = {"exception" => {}}.merge(Onni::SignalPolicy.settings(flag.definition, flag.gates)) %>
+<% levels = Onni::SignalPolicy.read(flag.gates, "signal_levels") %>
+<% update_path = admin_features_update_feature_path(key: flag.name) %>
+<section aria-labelledby="signals-title">
+  <h2 id="signals-title" class="text-lg font-bold mb-4">Signals</h2>
+  <p>A signal at its threshold parks ready power. Reset clears the level and keeps power unchanged. A blank threshold counts without automatically parking.</p>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+    <% policies.each do |name, policy| %>
+      <section class="border rounded p-4" aria-labelledby="signal-title-<%= name %>">
+        <h3 id="signal-title-<%= name %>" class="font-bold"><%= name %></h3>
+        <p>Level: <%= levels.fetch(name, 0) %></p>
+        <%= form_tag update_path, method: :post do %>
+          <%= hidden_field_tag :signal, name, id: nil %>
+          <%= label_tag "signal-threshold-#{name}", "Threshold" %>
+          <%= number_field_tag :threshold, (@rollout_input && @rollout_input[:signal] == name ? @rollout_input[:threshold] : policy["threshold"]), min: 1, step: 1, id: "signal-threshold-#{name}" %>
+          <%= submit_tag "Set #{name} threshold", class: "action-item-button" %>
+        <% end %>
+        <%= button_to "Reset #{name} signal", update_path, method: :post, params: {reset_signal: name}, class: "action-item-button mt-2" %>
+      </section>
+    <% end %>
+  </div>
+</section>
+<section aria-labelledby="counts-policy-title" class="mt-6">
+  <h2 id="counts-policy-title" class="text-lg font-bold mb-4">Evaluation counts</h2>
+  <%= form_tag update_path, method: :post do %>
+    <%= label_tag :stats_enabled, "Collect counts" %>
+    <%= select_tag :stats_enabled, options_for_select([["On", "true"], ["Off", "false"]], flag.stats_settings["enabled"].to_s) %>
+    <%= label_tag :sample_rate, "Sample rate (0 to 1)" %>
+    <%= number_field_tag :sample_rate, flag.stats_settings["sample_rate"], min: 0, max: 1, step: "any", required: true %>
+    <%= submit_tag "Set evaluation counts", class: "action-item-button" %>
+  <% end %>
+</section>

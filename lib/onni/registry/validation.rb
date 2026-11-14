@@ -41,9 +41,27 @@ module Onni
       private
 
       def validate_defaults!(name, definition)
+        validate_policies!(definition)
+        validate_experiments!(definition["delivery_experiments"]) if definition.key?("delivery_experiments")
         validate_filters!(definition.slice(*FILTER_KEYS), nullable: false)
         validate_strings!(name, "conditions", definition["conditions"]) if definition.key?("conditions")
         validate_variants!(definition["variants"]) if definition.key?("variants")
+      end
+
+      def validate_experiments!(experiments)
+        raise ArgumentError, "Delivery experiments must be a mapping" unless experiments.is_a?(Hash)
+
+        experiments.each do |name, filters|
+          SignalPolicy.validate_name!(name)
+          validate_filters!(filters, nullable: false)
+        end
+      end
+
+      def validate_policies!(definition)
+        if definition.key?("raise_on_expiration") && ![true, false].include?(definition["raise_on_expiration"])
+          raise ArgumentError, "raise_on_expiration must be boolean"
+        end
+        SignalPolicy.validate!(definition["signals"]) if definition.key?("signals")
         Stats::Policy.validate!(definition["stats"]) if definition.key?("stats")
       end
 

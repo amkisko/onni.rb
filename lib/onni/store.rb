@@ -7,7 +7,7 @@ require "securerandom"
 
 module Onni
   module Store
-    CACHE_KEY_PREFIX = "onni/gates/v4/"
+    CACHE_KEY_PREFIX = "onni/gates/v5/"
 
     @cache_states = ObjectSpace::WeakKeyMap.new
 
@@ -54,7 +54,6 @@ module Onni
     private_class_method :assignment
 
     def matches?(name, actor, definition, gates)
-      return false if expired?(definition)
       return false unless audience_matches?(name, actor, definition, gates)
 
       Conditions.met?(name, actor, definition: definition)
@@ -66,28 +65,12 @@ module Onni
     end
     private_class_method :audience_matches?
 
-    def expired?(definition)
-      raw = definition["expires_at"]
-      return false if raw.nil? || raw.to_s.empty?
-
-      deadline = definition["expires_at_time"]
-      if deadline.nil?
-        begin
-          deadline = Time.parse(raw.to_s).utc
-        rescue ArgumentError, TypeError
-          return true
-        end
-      end
-      deadline < Time.now.utc
-    rescue ArgumentError, TypeError
-      true
-    end
-    private_class_method :expired?
-
     def cached_gates(name)
       key = name.to_s
-      preloaded = RequestStore.gates
+      context = gate_read_context
+      preloaded = RequestStore.gates if RequestStore.gates_context.equal?(context)
       return GateSnapshot.wrap(preloaded[key]) if preloaded&.key?(key)
+      return read_gates(key) unless context.equal?(Onni.adapter)
 
       cache = Onni.configuration.cache
       return read_gates(key) unless cache
@@ -97,6 +80,19 @@ module Onni
       end
     end
     private_class_method :cached_gates
+
+    def store_preloaded!(loaded)
+      context = gate_read_context
+      current = RequestStore.gates_context.equal?(context) ? RequestStore.gates : nil
+      RequestStore.gates = (current || {}).merge(loaded)
+      RequestStore.gates_context = context
+    end
+
+    def gate_read_context
+      adapter = Onni.adapter
+      adapter.respond_to?(:gate_read_context) ? adapter.gate_read_context : adapter
+    end
+    private_class_method :gate_read_context
 
     def read_gates(name)
       adapter = Onni.adapter

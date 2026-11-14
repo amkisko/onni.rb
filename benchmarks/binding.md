@@ -22,6 +22,13 @@ Distinct stages: `registry`, `show`, `boolean`, `actor`, `percentage`, `group`, 
 
 `benchmarks/ceilings.json` - propose from L1 median x headroom `1.25` for `wall_s`, `cpu_s`, `heap_delta_bytes`. RSS omitted (`process_lifetime` noise).
 
+## Retention
+
+Keep ceilings and closed-episode evidence linked from `docs/` (final gates,
+compare results, audit bundles). Write calibration, ladder, prove, and other
+episode intermediates under `benchmarks/output/` (gitignored). Do not leave
+per-iteration raw samples in tracked `benchmarks/` paths after an episode stops.
+
 ## Load axis
 
 - `N` - number of all-features walks per sample (each walk evaluates boolean, actor, percentage, group, variant, conditions, and stats-sample paths once)

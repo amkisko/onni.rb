@@ -41,11 +41,11 @@ RSpec.describe "Evaluation statistics policy" do
     expect(Onni.visible?(:new_checkout, actor)).to be(false)
     Onni.ready!(:new_checkout)
     definition["expires_at"] = "2000-01-01"
-    expect(Onni.visible?(:new_checkout, actor)).to be(false)
+    expect(Onni.visible?(:new_checkout, actor)).to be(true)
     definition.delete("expires_at")
     Onni.filters!(:new_checkout, actors: [])
     expect(Onni.visible?(:new_checkout, actor)).to be(false)
-    expect(totals).to eq([1, 4])
+    expect(totals).to eq([2, 3])
     expect(Onni.visible?(:missing, actor)).to be(false)
     expect(Onni::Stats.for(:missing)).to eq([])
   end

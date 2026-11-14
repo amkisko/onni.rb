@@ -30,6 +30,11 @@ module Onni
       app.middleware.use Onni::Middleware::RequestLifecycle
     end
 
+    rake_tasks do
+      load File.expand_path("tasks.rb", __dir__)
+      Rake::Task.tasks.select { |task| task.name.start_with?("onni:export") }.each { |task| task.enhance([:environment]) }
+    end
+
     config.after_initialize do
       boot_sync_registry!
     end

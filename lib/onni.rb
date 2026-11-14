@@ -7,7 +7,9 @@ require "onni/configuration"
 require "onni/stats/policy"
 require "onni/sync"
 require "onni/instrumenter"
+require "onni/signal_policy"
 require "onni/registry"
+require "onni/expirations"
 require "onni/actor"
 require "onni/group"
 require "onni/conditions"
@@ -17,9 +19,14 @@ require "onni/stats"
 require "onni/settings"
 require "onni/flag"
 require "onni/mutations"
+require "onni/signals"
 require "onni/request_store"
 require "onni/store"
 require "onni/adapters"
+require "onni/delivery"
+require "onni/catalogue_export"
+require "onni/delivery/api"
+require "onni/operations"
 
 module Onni
   module Migrator
@@ -28,6 +35,9 @@ module Onni
     autoload :ActiveRecordTables, "onni/migrator/active_record_tables"
   end
   extend Mutations
+  extend Signals
+  extend Delivery::API
+  extend Operations
 
   class << self
     def configuration
@@ -52,6 +62,10 @@ module Onni
 
     def visible?(name, actor = nil, record_stats: nil)
       Store.visible?(name, actor, record_stats: record_stats)
+    end
+
+    def verify_expirations!(**options)
+      Expirations.verify!(**options)
     end
 
     def ready?(name)
@@ -136,7 +150,7 @@ module Onni
           keys.each_with_object({}) { |key, hash| hash[key] = adapter.gates_for(key) }
         end
       loaded.transform_values! { |gates| GateSnapshot.wrap(gates) }
-      RequestStore.gates = (RequestStore.gates || {}).merge(loaded)
+      Store.store_preloaded!(loaded)
       loaded.size
     end
 
@@ -153,16 +167,6 @@ module Onni
     end
 
     private
-
-    def feature_operation(name, operation, **fields)
-      Instrumenter.instrument("feature_operation", feature_name: name.to_s, operation: operation, **fields) do |payload|
-        Registry.require_definition!(name)
-        yield(payload)
-        Store.bust_cache!(name)
-        payload[:result] = true
-        true
-      end
-    end
 
     def build_adapter
       Adapters.build(configuration.adapter)

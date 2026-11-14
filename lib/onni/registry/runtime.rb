@@ -3,25 +3,55 @@
 module Onni
   module Registry
     module Runtime
-      SETTINGS = (Validation::FILTER_KEYS + %w[type variants conditions stats]).freeze
+      SETTINGS = (Validation::FILTER_KEYS + %w[type variants conditions stats signals raise_on_expiration delivery_experiments]).freeze
 
       def define!(name, description:, expires_at:, **settings)
+        publish_definition!(name, :ruby, description: description, expires_at: expires_at, **settings)
+      end
+
+      def define_delivery!(name, owner, description:, expires_at:, **settings)
+        publish_definition!(name, owner.name || owner, description: description, expires_at: expires_at, **settings)
+      end
+
+      def publish_definition!(name, owner, description:, expires_at:, **settings)
         key = runtime_name(name)
         definition = runtime_definition(key, description, expires_at, settings)
+        Delivery.validate_variants!(name, definition.fetch("variants", {})) if defined?(Delivery)
         Sync.synchronize do
           @config ||= load_registry
-          runtime = @runtime_definitions || {}
-          if @config.key?(key) && !runtime.key?(key)
-            raise ArgumentError, "Feature #{key} is defined in features.yml"
-          end
-
-          @runtime_definitions = runtime.merge(key => definition)
+          ensure_definition_owner!(key, owner)
+          @definition_owners = (@definition_owners || {}).merge(key => owner)
+          @runtime_definitions = (@runtime_definitions || {}).merge(key => definition)
           @config = @config.merge(key => definition)
         end
         true
       end
 
+      def copy_definition(value, depth = 0)
+        raise ArgumentError, "Feature settings exceed maximum nesting depth" if depth > 4
+
+        case value
+        when Hash then copy_mapping(value, depth)
+        when Array then value.map { |entry| copy_definition(entry, depth + 1) }.freeze
+        when String, Time then value.dup.freeze
+        when Symbol, Integer, Float, TrueClass, FalseClass, NilClass then value
+        else raise ArgumentError, "Unsupported feature setting value"
+        end
+      end
+
+      private :publish_definition!
+
       private
+
+      def ensure_definition_owner!(key, owner)
+        if @config.key?(key) && !(@runtime_definitions || {}).key?(key)
+          raise ArgumentError, "Feature #{key} is defined in features.yml"
+        end
+        owners = @definition_owners || {}
+        if owners.key?(key) && owners[key] != owner
+          raise ArgumentError, "Feature #{key} has another catalogue owner"
+        end
+      end
 
       def runtime_name(name)
         valid_type = name.is_a?(String) || name.is_a?(Symbol)
@@ -49,18 +79,6 @@ module Onni
         end
         unless expires_at.is_a?(String) && !expires_at.strip.empty?
           raise ArgumentError, "Feature expiration must be a timestamp string"
-        end
-      end
-
-      def copy_definition(value, depth = 0)
-        raise ArgumentError, "Feature settings must be scalars, flat lists, or flat mappings" if depth > 2
-
-        case value
-        when Hash then copy_mapping(value, depth)
-        when Array then value.map { |entry| copy_definition(entry, depth + 1) }.freeze
-        when String, Time then value.dup.freeze
-        when Symbol, Integer, Float, TrueClass, FalseClass, NilClass then value
-        else raise ArgumentError, "Unsupported feature setting value"
         end
       end
 

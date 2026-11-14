@@ -6,12 +6,16 @@ module Onni
       mutate(name, :ready) { |gates, _| power(gates) }
     end
 
-    def park!(name)
-      mutate(name, :park) { |gates, _| set_gate(gates, "powered", "false") }
+    def park!(name, reason: nil)
+      valid_reason = reason.nil? || (reason.is_a?(String) && reason.bytesize <= 128)
+      unless valid_reason
+        raise ArgumentError, "Park reason must be a string up to 128 bytes"
+      end
+      mutate(name, :park, **(reason.nil? ? {} : {reason: reason})) { |gates, _| set_gate(gates, "powered", "false") }
     end
 
     def clear!(name)
-      mutate(name, :clear) { |gates, _| gates.clear }
+      mutate(name, :clear) { |gates, _| gates.select! { |gate| gate["key"] == "signal_levels" } }
     end
 
     def filters!(name, **filters)
@@ -58,6 +62,7 @@ module Onni
 
     def variants!(name, variants)
       Registry.validate_variants!(variants)
+      Delivery.validate_variants!(name, variants)
       mutate(name, :variants, type: "experiment") do |gates, _|
         set_gate(gates, "variants", JSON.generate(variants.transform_keys(&:to_s)))
       end
@@ -98,13 +103,21 @@ module Onni
       feature_operation(name, operation, **fields) do
         adapter.add(name)
         adapter.update_gates(name) do |gates|
-          power(gates) if Settings.powered?(gates, definition)
+          normalize_power!(gates, definition)
           yield(gates, definition)
         end
       end
     end
 
+    def normalize_power!(gates, definition)
+      return if gates.any? { |gate| gate["key"] == "powered" }
+
+      power(gates) if Settings.powered?(gates, definition)
+    end
+
     def power(gates)
+      return if gates.any? { |gate| gate["key"] == "powered" && gate["value"] == "true" }
+
       set_gate(gates, "powered", "true")
     end
 

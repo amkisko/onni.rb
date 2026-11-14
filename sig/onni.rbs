@@ -11,7 +11,16 @@ module Onni
   def self.pending?: (untyped name) -> bool
   def self.parked?: (untyped name) -> bool
   def self.ready!: (untyped name) -> true
-  def self.park!: (untyped name) -> true
+  def self.park!: (untyped name, ?reason: String?) -> true
+  def self.observe!: (untyped name, (String | Symbol) signal, ?Integer delta) -> Integer
+  def self.signal_level: (untyped name, (String | Symbol) signal) -> Integer
+  def self.signals!: (untyped name, **untyped policies) -> true
+  def self.reset_signals!: (untyped name, ?(String | Symbol)? signal) -> true
+  def self.selected: (untyped name, ?untyped actor) -> Symbol
+  def self.deliver: (untyped name, ?untyped actor, parked: untyped) { () -> untyped } -> untyped
+  def self.experiment_filters!: (untyped name, (String | Symbol) experiment, **untyped filters) -> true
+  def self.verify_expirations!: (?mode: (:opt_in | :all), ?now: Time) -> true
+  def self.export_catalogue: (?format: (String | Symbol), ?runtime: bool, ?io: untyped) -> (String | Integer)
   def self.clear!: (untyped name) -> true
   def self.filters!: (untyped name, **untyped filters) -> true
   def self.stats!: (untyped name, **untyped settings) -> true
@@ -40,6 +49,7 @@ module Onni
   def self.reset_request!: () -> void
 
   class Configuration
+    attr_accessor expires_at_verify: (:opt_in | :all)
     attr_accessor features_path: untyped
     attr_accessor cache: untyped
     attr_accessor cache_ttl: untyped
@@ -69,6 +79,8 @@ module Onni
 
   module RequestStore
     def self.gates: () -> untyped
+    def self.gates_context: () -> untyped
+    def self.gates_context=: (untyped) -> untyped
     def self.gates=: (untyped) -> untyped
     def self.stats_buffer: () -> untyped
     def self.stats_buffer=: (untyped) -> untyped
@@ -107,6 +119,7 @@ module Onni
     def gates: () -> Array[Hash[String, untyped]]
     def definition: () -> Hash[String, untyped]
     def description: () -> untyped
+    def expiration_status: (?now: Time) -> (:current | :overdue | :invalid | :none)
     def expires_at: () -> untyped
     def variants: () -> Hash[String, Integer]
   end
@@ -215,6 +228,8 @@ module Onni
     end
 
     class ActiveRecord
+      def gate_read_context: () -> untyped
+      def after_commit: () { () -> untyped } -> untyped
       def add: (untyped key) -> untyped
       def exist?: (untyped key) -> bool
       def feature_keys: () -> Array[String]

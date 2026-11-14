@@ -1,0 +1,101 @@
+[
+  {
+    "iteration": 1,
+    "primary_series": "export_p95_us",
+    "change": "Normalize YAML output to remove shared-object aliases",
+    "failed": [],
+    "outcome": "pass"
+  },
+  {
+    "iteration": 2,
+    "primary_series": "success_p95_us",
+    "change": "Stop selection at the first match without merging every arm",
+    "failed": [
+      "success_p95_us",
+      "fallback_p95_us",
+      "observe_p95_us",
+      "export_p95_us"
+    ],
+    "outcome": "fail retained"
+  },
+  {
+    "iteration": 3,
+    "primary_series": "observe_p95_us",
+    "change": "Reuse signal defaults when there are no runtime policy overrides",
+    "failed": [],
+    "outcome": "pass"
+  },
+  {
+    "iteration": 4,
+    "primary_series": "write_errors",
+    "change": "Reject nil signal policies and duplicate normalized keys",
+    "failed": [],
+    "outcome": "pass"
+  },
+  {
+    "iteration": 5,
+    "primary_series": "write_errors",
+    "change": "Reject false as a signal-reset name instead of resetting all",
+    "failed": [
+      "success_p95_us"
+    ],
+    "outcome": "fail retained"
+  },
+  {
+    "iteration": 6,
+    "primary_series": "write_errors",
+    "change": "Reject Delivery names colliding with current runtime variants",
+    "failed": [],
+    "outcome": "pass"
+  },
+  {
+    "iteration": 7,
+    "primary_series": "observe_p95_us",
+    "change": "Avoid rewriting an already canonical ready power gate",
+    "failed": [
+      "export_p95_us"
+    ],
+    "outcome": "fail retained"
+  },
+  {
+    "iteration": 8,
+    "primary_series": "storage_bytes",
+    "change": "Bound retained signal names across catalogue changes",
+    "failed": [
+      "observe_p95_us"
+    ],
+    "outcome": "fail retained"
+  },
+  {
+    "iteration": 9,
+    "primary_series": "write_errors",
+    "change": "Validate custom rescue signals before business code runs",
+    "failed": [],
+    "outcome": "pass"
+  },
+  {
+    "iteration": 10,
+    "primary_series": "observe_p95_us",
+    "change": "Skip capacity-map allocation for an existing signal key",
+    "failed": [
+      "fallback_p95_us",
+      "export_p95_us"
+    ],
+    "outcome": "fail retained"
+  },
+  {
+    "iteration": 11,
+    "primary_series": "cpu_ms",
+    "change": "Reuse targeting/policy defaults and avoid repeated power scans",
+    "failed": [],
+    "outcome": "pass"
+  },
+  {
+    "iteration": 12,
+    "primary_series": "write_errors",
+    "change": "Reject unknown catalogue arms for inline delivery, and retain commit/preload fixes",
+    "gate": "delivery_final_gate.json",
+    "failed": [],
+    "outcome": "pass"
+  }
+]

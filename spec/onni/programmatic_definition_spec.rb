@@ -90,7 +90,7 @@ RSpec.describe "Programmatic feature definitions" do
       Onni.configuration.features_path = nil
       Onni.define!(:new_checkout, description: "Expired experiment", expires_at: "2000-01-01", everyone: true)
       Onni.ready!(:new_checkout)
-      expired = !Onni.visible?(:new_checkout)
+      expired = Onni.visible?(:new_checkout)
       Onni.filters!(:new_checkout, everyone: false)
       Onni.stats!(:new_checkout, enabled: false)
       Onni.define!(:new_checkout, description: "Renewed experiment", expires_at: "2099-01-01", everyone: true)
@@ -98,7 +98,7 @@ RSpec.describe "Programmatic feature definitions" do
         !Onni[:new_checkout].stats_settings.fetch("enabled")
       Onni.filters!(:new_checkout, everyone: true)
       renewed = Onni.visible?(:new_checkout)
-      counts = Onni::Stats.for(:new_checkout).sum { |row| row["skip_count"] }
+      counts = Onni::Stats.for(:new_checkout).sum { |row| row["shown_count"] }
       puts JSON.generate(expired: expired, retained: retained, renewed: renewed, skips: counts)
     RUBY
     expect(result).to eq("expired" => true, "retained" => true, "renewed" => true, "skips" => 1)
