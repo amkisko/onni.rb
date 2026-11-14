@@ -10,6 +10,8 @@
 - Verify overdue catalogue dates with `Onni.verify_expirations!` (opt-in or all)
 - Export the catalogue as YAML, JSON, or CSV; ship matching rake tasks
 - Manage experiment targeting and signal thresholds in ActiveAdmin; mark overdue or invalid expiry metadata
+- Optional ActiveAdmin GraphQL operator API for catalogue reads and named gate commands (`onni/active_admin_graphql`)
+- Document host-owned device authorization for programmatic operator clients
 
 ## 2.0.0 (2026-11-13)
 

@@ -40,8 +40,9 @@ limits. Add a setup guide with host authentication and credential-safe curl.
 
 ## Next
 
-Local implementation and validation are complete. Maintainer release review and
-real host adoption remain; no release or publication occurred in this task.
+Local implementation and validation are complete. The unpublished 3.0.0 cut
+now includes this payload. Commit the revised cut, then `make release`. Real
+host adoption (authentication, consent, client tooling) remains after publish.
 
 ## Source
 

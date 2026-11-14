@@ -32,8 +32,9 @@ Resource increases and compatibility limitations are recorded in the review.
 
 ## Next
 
-No release has been cut for this change. Review the experimental contract and
-adopt it in a host with its real authentication and client tooling.
+Folded into the unpublished 3.0.0 cut. Commit the revised cut, then
+`make release`. Adopt the experimental contract in a host with its real
+authentication and client tooling.
 
 ## Source
 

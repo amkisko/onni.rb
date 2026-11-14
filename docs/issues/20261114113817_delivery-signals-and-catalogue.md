@@ -40,8 +40,8 @@ RuboCop, RBS, locale parity, LOC gate and local gem build passed.
 
 ## Next
 
-Cut recorded as 3.0.0; deliver with `make release`. Host-specific rollout
-checks remain maintainer actions after publish.
+Included in the revised unpublished 3.0.0 cut with RFC-0012. Commit that cut,
+then `make release`. Host-specific rollout checks remain after publish.
 
 ## Source
 
