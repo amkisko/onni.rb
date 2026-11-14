@@ -41,6 +41,9 @@ RSpec.describe "Onni SQLite ActiveRecord support", type: :request do
 
   describe "pooled connections", use_transactional_tests: false do
     after do
+      # Threaded checkouts can leave SQLite write locks; clear the pool before
+      # the next example's delete_all hooks run.
+      ActiveRecord::Base.connection_pool.disconnect!
       Onni::Feature.delete_all
       Onni::Gate.delete_all
       Onni::StatBucket.delete_all
