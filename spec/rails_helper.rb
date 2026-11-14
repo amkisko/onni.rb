@@ -9,7 +9,7 @@ require_relative "dummy/config/environment"
 DUMMY_ROOT = Rails.root unless defined?(DUMMY_ROOT)
 
 ActiveRecord::Base.connection_pool.with_connection do |connection|
-  next if connection.table_exists?(:onni_features)
+  next if connection.table_exists?(:onni_features) && connection.table_exists?(:device_authorization_clients)
 
   ActiveRecord::Schema.verbose = false
   load DUMMY_ROOT.join("db", "schema.rb").to_s

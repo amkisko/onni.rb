@@ -1,0 +1,148 @@
+{
+  "comparison": "Delivery fixture boundary investigation; not GraphQL throughput",
+  "base": {
+    "started_at": "2026-11-14T12:16:01Z",
+    "finished_at": "2026-11-14T12:16:06Z",
+    "source_sha256": "bb068820608288ce353ab64b20c89be9391ea0ce0cef36cb0f4b09edfad58128",
+    "probe_sha256": "77a3233ce2857d7970b8c1fa3ba42e0c88418b8281ba8a76a280d10523cfde4f",
+    "worktree": "uncommitted implementation",
+    "adapter": "active_record",
+    "revision": "bc3c737e84fd9df6a7514fb330fca060fedf326c",
+    "machine": "arm64-darwin24",
+    "memory": "process_lifetime",
+    "network": "not_in_scope",
+    "energy_proxy": "cpu_ms",
+    "writers": 8,
+    "operations": 100,
+    "samples": [
+      {
+        "wall_ms": 1389.7020000003977,
+        "cpu_ms": 1386.295,
+        "write_errors": 0,
+        "level_error": 0,
+        "storage_bytes": 4214288,
+        "shipped_source_bytes": 143786,
+        "success_p95_us": 96.0000033956021,
+        "fallback_p95_us": 1057.0000013103709,
+        "observe_p95_us": 987.9999997792765,
+        "export_p95_us": 104.9999991664663,
+        "rss_bytes": 73367552
+      },
+      {
+        "wall_ms": 1373.729999999341,
+        "cpu_ms": 1370.086,
+        "write_errors": 0,
+        "level_error": 0,
+        "storage_bytes": 4214288,
+        "shipped_source_bytes": 143786,
+        "success_p95_us": 93.99999544257298,
+        "fallback_p95_us": 1107.9999967478216,
+        "observe_p95_us": 921.9999992637895,
+        "export_p95_us": 101.99999815085903,
+        "rss_bytes": 72908800
+      },
+      {
+        "wall_ms": 1382.6669999980368,
+        "cpu_ms": 1379.761,
+        "write_errors": 0,
+        "level_error": 0,
+        "storage_bytes": 4214288,
+        "shipped_source_bytes": 143786,
+        "success_p95_us": 96.0000033956021,
+        "fallback_p95_us": 1133.9999982737936,
+        "observe_p95_us": 994.0000018104911,
+        "export_p95_us": 103.99999882793054,
+        "rss_bytes": 75055104
+      }
+    ],
+    "max": {
+      "wall_ms": 1389.7020000003977,
+      "cpu_ms": 1386.295,
+      "write_errors": 0,
+      "level_error": 0,
+      "storage_bytes": 4214288,
+      "shipped_source_bytes": 143786,
+      "success_p95_us": 96.0000033956021,
+      "fallback_p95_us": 1133.9999982737936,
+      "observe_p95_us": 994.0000018104911,
+      "export_p95_us": 104.9999991664663,
+      "rss_bytes": 75055104
+    },
+    "failed": []
+  },
+  "expanded_host_fixture": {
+    "started_at": "2026-11-14T12:13:04Z",
+    "finished_at": "2026-11-14T12:13:10Z",
+    "source_sha256": "a0abb2c6d8034d672a14ff7842de937b27b780713a670405eef22d89b9c3a41d",
+    "probe_sha256": "77a3233ce2857d7970b8c1fa3ba42e0c88418b8281ba8a76a280d10523cfde4f",
+    "worktree": "uncommitted implementation",
+    "adapter": "active_record",
+    "revision": "bc3c737e84fd9df6a7514fb330fca060fedf326c",
+    "machine": "arm64-darwin24",
+    "memory": "process_lifetime",
+    "network": "not_in_scope",
+    "energy_proxy": "cpu_ms",
+    "writers": 8,
+    "operations": 100,
+    "samples": [
+      {
+        "wall_ms": 1459.9720000041998,
+        "cpu_ms": 1456.812,
+        "write_errors": 0,
+        "level_error": 0,
+        "storage_bytes": 4275728,
+        "shipped_source_bytes": 160035,
+        "success_p95_us": 98.99999713525176,
+        "fallback_p95_us": 1204.0000001434237,
+        "observe_p95_us": 1073.999999789521,
+        "export_p95_us": 116.00000289035961,
+        "rss_bytes": 74039296
+      },
+      {
+        "wall_ms": 1439.393000000564,
+        "cpu_ms": 1436.1960000000001,
+        "write_errors": 0,
+        "level_error": 0,
+        "storage_bytes": 4275728,
+        "shipped_source_bytes": 160035,
+        "success_p95_us": 96.99999645818025,
+        "fallback_p95_us": 1168.9999955706298,
+        "observe_p95_us": 991.0000007948838,
+        "export_p95_us": 114.0000022132881,
+        "rss_bytes": 73777152
+      },
+      {
+        "wall_ms": 1442.8640000041923,
+        "cpu_ms": 1439.581,
+        "write_errors": 0,
+        "level_error": 0,
+        "storage_bytes": 4275728,
+        "shipped_source_bytes": 160035,
+        "success_p95_us": 102.99999848939478,
+        "fallback_p95_us": 1178.9999989559874,
+        "observe_p95_us": 1039.999995555263,
+        "export_p95_us": 115.999995614402,
+        "rss_bytes": 74088448
+      }
+    ],
+    "max": {
+      "wall_ms": 1459.9720000041998,
+      "cpu_ms": 1456.812,
+      "write_errors": 0,
+      "level_error": 0,
+      "storage_bytes": 4275728,
+      "shipped_source_bytes": 160035,
+      "success_p95_us": 102.99999848939478,
+      "fallback_p95_us": 1204.0000001434237,
+      "observe_p95_us": 1073.999999789521,
+      "export_p95_us": 116.00000289035961,
+      "rss_bytes": 74088448
+    },
+    "failed": [
+      "fallback_p95_us",
+      "export_p95_us"
+    ]
+  },
+  "unchanged_limits": "benchmarks/delivery_active_record_ceilings.json",
+  "restored_core_fixture_result": "benchmarks/agent_graphql_active_record_gate.json"
+}

@@ -51,7 +51,7 @@ module DeliveryPressure
       @database_directory = Dir.mktmpdir("onni-delivery-pressure-")
       ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: File.join(@database_directory, "pressure.sqlite3"), pool: 16, timeout: 5000)
       ActiveRecord::Schema.verbose = false
-      load File.expand_path("../spec/dummy/db/schema.rb", __dir__)
+      load File.expand_path("../spec/dummy/db/onni_schema.rb", __dir__)
       Onni.configuration.adapter = :active_record
       Onni.reset_adapter!
     end

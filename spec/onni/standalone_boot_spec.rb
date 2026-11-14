@@ -21,7 +21,7 @@ RSpec.describe "Onni standard-library core" do
       result = isolated_ruby(<<~RUBY, file.path, coverage_name: "standalone")
         module FrameworkRequireGuard
           def require(name)
-            if %w[active_support active_record activeadmin rails csv].include?(name.split("/").first)
+            if %w[active_support active_record activeadmin rails csv graphql].include?(name.split("/").first)
               raise LoadError, "Framework required by core: " + name
             end
             super

@@ -1,32 +1,46 @@
 # frozen_string_literal: true
 
-ActiveRecord::Schema.define(version: 20_261_112_000_000) do
-  create_table :onni_features, force: :cascade do |t|
-    t.string :key, null: false
-    t.timestamps
-  end
-  add_index :onni_features, :key, unique: true
+load File.expand_path("onni_schema.rb", __dir__)
 
-  create_table :onni_feature_gates, force: :cascade do |t|
-    t.string :feature_key, null: false
-    t.string :key, null: false
-    t.text :value, null: false
-    t.timestamps
+ActiveRecord::Schema.define do
+  create_table "admin_users", force: :cascade do |table|
+    table.boolean "active", default: true, null: false
+    table.boolean "can_write", default: false, null: false
   end
-  add_index :onni_feature_gates, [:feature_key, :key, :value],
-    unique: true, name: "index_onni_feature_gates_unique"
 
-  create_table :onni_feature_stat_buckets, force: :cascade do |t|
-    t.string :feature_key, null: false
-    t.string :period, null: false, default: "hour"
-    t.datetime :period_start, null: false
-    t.bigint :shown_count, null: false, default: 0
-    t.bigint :skip_count, null: false, default: 0
-    t.timestamps
+  create_table "device_authorization_clients", force: :cascade do |table|
+    table.string "client_id", null: false
+    table.boolean "enabled", default: true, null: false
+    table.json "allowed_scopes", default: [], null: false
+    table.index ["client_id"], unique: true
   end
-  add_index :onni_feature_stat_buckets, [:feature_key, :period, :period_start],
-    unique: true, name: "index_onni_feature_stats_unique"
-  add_index :onni_feature_stat_buckets, :period_start,
-    name: "index_onni_feature_stats_on_period_start"
+
+  create_table "device_authorization_grants", force: :cascade do |table|
+    table.references "device_authorization_client", null: false, foreign_key: true
+    table.references "admin_user", foreign_key: true
+    table.string "device_code_digest", null: false
+    table.string "user_code", null: false
+    table.string "status", default: "pending", null: false
+    table.json "requested_scopes", default: [], null: false
+    table.json "granted_scopes", default: [], null: false
+    table.datetime "challenge_expires_at", null: false
+    table.datetime "last_poll_at"
+    table.integer "poll_interval_seconds"
+    table.integer "absolute_ttl_seconds"
+    table.index ["user_code"], unique: true
+    table.index ["device_authorization_client_id", "device_code_digest"], unique: true, name: "index_device_grant_digest"
+  end
+
+  create_table "device_authorization_access_tokens", force: :cascade do |table|
+    table.references "device_authorization_client", null: false, foreign_key: true
+    table.references "admin_user", null: false, foreign_key: true
+    table.references "device_authorization_grant", null: false, foreign_key: true, index: {unique: true}
+    table.string "token_digest", null: false
+    table.json "scopes", default: [], null: false
+    table.datetime "absolute_expires_at", null: false
+    table.datetime "last_used_at", null: false
+    table.datetime "revoked_at"
+    table.index ["token_digest"], unique: true
+  end
+
 end
-

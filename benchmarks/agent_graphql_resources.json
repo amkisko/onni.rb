@@ -1,0 +1,101 @@
+{
+  "started_at": "2026-11-14T12:22:46Z",
+  "finished_at": "2026-11-14T12:22:52Z",
+  "base": "pre-task working-tree snapshot",
+  "head": "current working tree",
+  "base_source_sha256": "ee79aa33d8698b2812984e9777055d5cf26907879042b30985f048a8371fcaac",
+  "head_source_sha256": "9b800c65290c4e233a8c6197003791a85a760a6297417cc8d5a5779942d960bb",
+  "revision": "bc3c737e84fd9df6a7514fb330fca060fedf326c",
+  "machine": "arm64-darwin24",
+  "ruby": "4.0.2",
+  "probe": "dummy ActiveAdmin boot",
+  "memory": "process_lifetime",
+  "energy_proxy": "cpu_ms",
+  "network": "not_in_scope",
+  "warmup": "fresh process, no warmup",
+  "samples": {
+    "base": [
+      {
+        "cpu_ms": 739.702,
+        "wall_ms": 740.5370000051335,
+        "graph_bytes": 87109748,
+        "package_count": 113,
+        "runtime_dependency_count": 0,
+        "peak_rss_bytes": 127877120
+      },
+      {
+        "cpu_ms": 718.46,
+        "wall_ms": 719.5030000002589,
+        "graph_bytes": 87109748,
+        "package_count": 113,
+        "runtime_dependency_count": 0,
+        "peak_rss_bytes": 127795200
+      },
+      {
+        "cpu_ms": 729.8280000000001,
+        "wall_ms": 730.8530000009341,
+        "graph_bytes": 87109748,
+        "package_count": 113,
+        "runtime_dependency_count": 0,
+        "peak_rss_bytes": 126779392
+      }
+    ],
+    "head": [
+      {
+        "cpu_ms": 774.501,
+        "wall_ms": 775.1699999935227,
+        "graph_bytes": 89708323,
+        "package_count": 117,
+        "runtime_dependency_count": 0,
+        "peak_rss_bytes": 133693440
+      },
+      {
+        "cpu_ms": 783.997,
+        "wall_ms": 784.8429999939981,
+        "graph_bytes": 89708323,
+        "package_count": 117,
+        "runtime_dependency_count": 0,
+        "peak_rss_bytes": 138477568
+      },
+      {
+        "cpu_ms": 798.8980000000001,
+        "wall_ms": 799.8629999929108,
+        "graph_bytes": 89708323,
+        "package_count": 117,
+        "runtime_dependency_count": 0,
+        "peak_rss_bytes": 140083200
+      }
+    ]
+  },
+  "medians": {
+    "base": {
+      "cpu_ms": 729.8280000000001,
+      "wall_ms": 730.8530000009341,
+      "graph_bytes": 87109748,
+      "package_count": 113,
+      "runtime_dependency_count": 0,
+      "peak_rss_bytes": 127795200
+    },
+    "head": {
+      "cpu_ms": 783.997,
+      "wall_ms": 784.8429999939981,
+      "graph_bytes": 89708323,
+      "package_count": 117,
+      "runtime_dependency_count": 0,
+      "peak_rss_bytes": 138477568
+    }
+  },
+  "compressed_gem_bytes": {
+    "base": 63488,
+    "head": 67584
+  },
+  "delta": {
+    "cpu_ms": 54.16899999999987,
+    "wall_ms": 53.989999993063975,
+    "graph_bytes": 2598575,
+    "package_count": 4,
+    "runtime_dependency_count": 0,
+    "peak_rss_bytes": 10682368
+  },
+  "gem_delta_bytes": 4096
+}

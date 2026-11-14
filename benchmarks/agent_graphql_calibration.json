@@ -1,0 +1,11 @@
+{
+  "calibration": "pass",
+  "known_p95_us": {
+    "success": 11.0,
+    "fallback": 23.0,
+    "observe": 37.0,
+    "export": 53.0
+  },
+  "direct_stage_us": 7525.000000896398,
+  "aggregate_wall_us": 7530.000002589077
+}

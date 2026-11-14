@@ -61,6 +61,12 @@ GEM
       kaminari (>= 1.2.1)
       railties (>= 7.2)
       ransack (>= 4.0)
+    activeadmin-device_authorization (0.2.0)
+      activeadmin (>= 4.0.0.beta19, < 5)
+      rails (>= 7.2.3.2)
+    activeadmin-graphql (0.4.1)
+      activeadmin (>= 3.2)
+      graphql (>= 2.6.9)
     activejob (8.1.4.1)
       activesupport (= 8.1.4.1)
       globalid (>= 0.3.6)
@@ -111,11 +117,16 @@ GEM
     drb (2.2.3)
     erb (6.0.7)
     erubi (1.13.1)
+    fiber-storage (1.0.1)
     formtastic (6.0.0)
       actionpack (>= 7.2.0)
     formtastic_i18n (0.7.0)
     globalid (1.4.0)
       activesupport (>= 6.1)
+    graphql (2.6.15)
+      base64
+      fiber-storage
+      logger
     has_scope (0.9.0)
       actionpack (>= 7.0)
       activesupport (>= 7.0)
@@ -381,9 +392,12 @@ PLATFORMS
 
 DEPENDENCIES
   activeadmin (>= 4.0.0.beta23, = 4.0.0.beta23, < 5)
+  activeadmin-device_authorization (~> 0.2.0)
+  activeadmin-graphql (~> 0.4.1)
   appraisal (~> 2)
   bundler (>= 2)
   bundler-audit (~> 0.9)
+  graphql (>= 2.6.15, < 3)
   importmap-rails
   onni!
   polyrun (>= 3.0.0)
@@ -409,6 +423,8 @@ CHECKSUMS
   actiontext (8.1.4.1) sha256=fb59611dc16e2b6bbfcec66793acfae6cdd64b1e35ef3f9175424f31e62c38da
   actionview (8.1.4.1) sha256=d25b4d9cf8d0c0195ffcfe8b2cf3fcbe6fea54fd7c17f1a9cb8182881463f12b
   activeadmin (4.0.0.beta23) sha256=bfa37e8dcb2288495260d1a13070f1d43d997096db53b085a2c21c4277f8deab
+  activeadmin-device_authorization (0.2.0) sha256=f20693c6508c239501377e4b9ff005d246f79e270a6d4bb70fb1b5ed4d9b016e
+  activeadmin-graphql (0.4.1) sha256=a3a4987a83e3bddb27af581d94884a5a0b25ac6e5cb017c753a03e0e9006232f
   activejob (8.1.4.1) sha256=82c4c9311ea1016d5f7f134a0c5f9b6527cad5a6237f5f3f60aa17984ef36229
   activemodel (8.1.4.1) sha256=063caf105372fbc98b2d789e4be23de63ac5c043f7d9330f04e2caddb7012805
   activerecord (8.1.4.1) sha256=bd65599ca0b5d210937f835d42c7aff69d271741c75aab022730be6cbce67e87
@@ -431,9 +447,11 @@ CHECKSUMS
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   erb (6.0.7) sha256=c5ca6dc25b0ef974a44dc8f59fe847577122483b1968a38dec305c60bf91ee92
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
+  fiber-storage (1.0.1) sha256=f48e5b6d8b0be96dac486332b55cee82240057065dc761c1ea692b2e719240e1
   formtastic (6.0.0) sha256=c398906b65978fec3d045d6792f82cf9641f086ac9f17357b2b382f723126165
   formtastic_i18n (0.7.0) sha256=ecef51c9e9030c00f19e69d2483b77f4515c9587d74268b76cf4b6e7988c8e78
   globalid (1.4.0) sha256=037f12fbf1d9d7a014d501c2d5c77356fd4ddd96d7a7991d6700bba96706f427
+  graphql (2.6.15) sha256=b978f938a0d169669d98ba591af28e6b96da65080429dfa4652cdb86bb9d9604
   has_scope (0.9.0) sha256=783a93006cf898525bb4899696f1d088c0f6ff897d6df2bf03fdbbe0d0b5124c
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   importmap-rails (2.2.3) sha256=7101be2a4dc97cf1558fb8f573a718404c5f6bcfe94f304bf1f39e444feeb16a

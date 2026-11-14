@@ -19,6 +19,8 @@ the durable probe. shipped_source_bytes is uncompressed lib/app/sig; the built
 gem's compressed size is recorded separately in the work note.
 
 ADAPTER=active_record selects local disposable SQLite with the same loop.
+It loads spec/dummy/db/onni_schema.rb (the original three Onni tables). Device
+authentication tables belong to the integration host, not this core fixture.
 No production database is configured or used. Both adapters must finish with
 zero write_errors and level_error. A distinct process correctness probe is
 `BUNDLE_IGNORE_CONFIG=1 bundle exec ruby benchmarks/delivery_processes.rb`.
@@ -36,8 +38,10 @@ limits use max observed across the ten iterations plus the five final noise
 samples, with an explicit allow-raise decision in the live-work note. The RSS
 limit remains the initial pressure ceiling. Wall and CPU use the final five
 noise samples times 1.15, lower than the initial ceilings. The fixture storage
-limit is 90 bytes and shipped-source ceiling 148000 bytes, deliberately lower
-than their initial limits. Durable adapter ceilings use its three pressure
+limit is 90 bytes. The original shipped-source ceiling was 148000 bytes,
+deliberately lower than its initial limit. RFC-0012 adds 16407 optional source
+bytes; its explicit scope allowance sets the memory ceiling to 164407 bytes.
+The durable source ceiling and all performance ceilings remain unchanged. Durable adapter ceilings use its three pressure
 samples times 1.15. Minimum cooker iterations: 10; 12 have run, including
 failed proves summarized in delivery_iterations.json. Final gates are separate.
 
@@ -56,3 +60,8 @@ No base-repository or cross-machine speed improvement is claimed.
 Stop: final gates green after the recorded repairs; no high-confidence
 first-party candidate for this fixture remains. PostgreSQL, host cache backends,
 long-duration retention and real host callbacks require host-specific runs.
+
+RFC-0012 follow-up gates are agent_graphql_core_gate.json and
+agent_graphql_active_record_gate.json. The earlier final reports remain frozen
+evidence for their source hash. Dependency boot/graph/artifact deltas are in
+agent_graphql_resources.json; they do not measure GraphQL request throughput.

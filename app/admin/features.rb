@@ -3,6 +3,7 @@
 require "onni/admin/flags_query"
 
 ActiveAdmin.register_page "Features" do
+  Onni::Admin::GraphQL.register_page!(self) if defined?(Onni::Admin::GraphQL)
   menu priority: 3, label: proc { I18n.t("onni.menu", default: "Flags") },
     if: proc { instance_exec(&Onni.configuration.admin_authorized) }
 

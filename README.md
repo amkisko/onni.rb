@@ -67,8 +67,9 @@ remain required for every mutation.
 
 Extensions ship in the same gem. Install their external dependencies in the
 host application and load the extension explicitly. An installed framework
-does not change the behavior of `require "onni"`. There is no GraphQL-ruby
-extension; wire `visible?`, `Onni::Flag`, and the registry from the host schema
+does not change the behavior of `require "onni"`. An optional
+[ActiveAdmin operator GraphQL API](docs/activeadmin-agent-access.md) supports
+programmatic administration. Public product schemas remain host-owned
 ([cookbook](docs/plans/20261113184244_graphql-ruby-no-first-class-extension.md)).
 
 For Rails with ActiveRecord, load both integrations before application initialization:
@@ -127,6 +128,19 @@ ActiveAdmin's sources. The chart itself renders as SVG. For a styled local
 preview, see [the contribution guide](CONTRIBUTING.md#local-checks-and-admin-preview).
 
 Host apps that authorize ActiveAdmin page actions by name need `ready?` and `park?` rules for power commands, plus `stats?`, `feature?`, and `update_feature?` when those are checked. These are host policy methods; `Onni.visible?` remains a rollout evaluation.
+
+## Programmatic ActiveAdmin access
+
+For agent, CLI, MCP-adapter, curl or script clients, opt into
+`onni/active_admin_graphql` alongside `activeadmin-graphql` and the host's
+`activeadmin-device_authorization` setup. The typed `onni` catalogue query and
+named mutations reuse the Ruby domain API and host page authorization. Device
+consent and bearer authentication stay in the host; unauthenticated callers
+must not receive introspection.
+
+See the [setup, queries and credential-safe curl example](docs/activeadmin-agent-access.md).
+GraphQL and the device gem are development/test dependencies here, with no new
+runtime dependency on the standard-library core.
 
 ## Programmatic definitions
 

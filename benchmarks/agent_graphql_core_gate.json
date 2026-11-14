@@ -1,0 +1,70 @@
+{
+  "started_at": "2026-11-14T12:22:53Z",
+  "finished_at": "2026-11-14T12:22:53Z",
+  "source_sha256": "f63f5aa43749a21e14d9beac91ecd6511d02aa642abc54615360911ee1d32b73",
+  "probe_sha256": "61d4afc5152e48a9d8d22160f32522bb2b79f9c638cad5a5528f08edde4196ca",
+  "worktree": "uncommitted implementation",
+  "adapter": "memory",
+  "revision": "bc3c737e84fd9df6a7514fb330fca060fedf326c",
+  "machine": "arm64-darwin24",
+  "memory": "process_lifetime",
+  "network": "not_in_scope",
+  "energy_proxy": "cpu_ms",
+  "writers": 8,
+  "operations": 100,
+  "samples": [
+    {
+      "wall_ms": 27.38099999987753,
+      "cpu_ms": 27.465000000000003,
+      "write_errors": 0,
+      "level_error": 0,
+      "storage_bytes": 89,
+      "shipped_source_bytes": 160193,
+      "success_p95_us": 4.0000013541430235,
+      "fallback_p95_us": 11.999996786471456,
+      "observe_p95_us": 7.999995432328433,
+      "export_p95_us": 11.999996786471456,
+      "rss_bytes": 34095104
+    },
+    {
+      "wall_ms": 29.630000004544854,
+      "cpu_ms": 29.698,
+      "write_errors": 0,
+      "level_error": 0,
+      "storage_bytes": 89,
+      "shipped_source_bytes": 160193,
+      "success_p95_us": 4.0000013541430235,
+      "fallback_p95_us": 12.999997125007212,
+      "observe_p95_us": 8.000002708286047,
+      "export_p95_us": 11.999996786471456,
+      "rss_bytes": 30277632
+    },
+    {
+      "wall_ms": 27.71500000380911,
+      "cpu_ms": 27.794999999999987,
+      "write_errors": 0,
+      "level_error": 0,
+      "storage_bytes": 89,
+      "shipped_source_bytes": 160193,
+      "success_p95_us": 4.0000013541430235,
+      "fallback_p95_us": 12.00000406242907,
+      "observe_p95_us": 7.999995432328433,
+      "export_p95_us": 12.00000406242907,
+      "rss_bytes": 33193984
+    }
+  ],
+  "max": {
+    "wall_ms": 29.630000004544854,
+    "cpu_ms": 29.698,
+    "write_errors": 0,
+    "level_error": 0,
+    "storage_bytes": 89,
+    "shipped_source_bytes": 160193,
+    "success_p95_us": 4.0000013541430235,
+    "fallback_p95_us": 12.999997125007212,
+    "observe_p95_us": 8.000002708286047,
+    "export_p95_us": 12.00000406242907,
+    "rss_bytes": 34095104
+  },
+  "failed": []
+}

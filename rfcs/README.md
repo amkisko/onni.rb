@@ -18,5 +18,7 @@ rule or separate RFC-only test suite.
 - [RFC-0010: Delivery experiments](0010-delivery-experiments.md)
 - [RFC-0011: Catalogue export](0011-catalogue-export.md)
 
+- [RFC-0012: ActiveAdmin GraphQL operator API](0012-activeadmin-graphql-operator-api.md)
+
 Use [the template](0000-template.md), omit unused sections, and preserve existing
 identifiers. Implementation changes cite their RFC and prove behavior with specs.

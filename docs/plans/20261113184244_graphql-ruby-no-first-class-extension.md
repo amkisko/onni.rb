@@ -8,7 +8,11 @@ Andrei Makarov.
 
 ## Decisions
 
-Do not ship a first-class `graphql-ruby` extension. No `onni/graphql` types,
+Scope clarification, 2026-11-14: [RFC-0012](../../rfcs/0012-activeadmin-graphql-operator-api.md)
+specifies a first-class opt-in ActiveAdmin operator schema. This decision still
+applies to general public product schemas, whose contract belongs to the host.
+
+Do not ship a general public-client `graphql-ruby` extension. No `onni/graphql` types,
 enums, query fields, or gem dependency on `graphql`. GraphQL schemas stay in the
 host. Onni keeps a Ruby evaluation and registry surface that hosts wire into
 their own schema.
@@ -56,7 +60,8 @@ Extensions so hosts find the cookbook.
 
 ## Next
 
-Keep GraphQL integration in host apps. Open an issue only if a measured gap
+Keep public product GraphQL integration in host apps. The separate operator
+work is tracked in RFC-0012. Open an issue only if a measured gap
 appears that the Ruby API cannot cover for shared hosts.
 
 ## Source

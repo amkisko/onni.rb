@@ -1,0 +1,8 @@
+module Onni
+  module Admin
+    module GraphQL
+      def self.install!: (untyped schema) -> untyped
+      def self.register_page!: (untyped page) -> untyped
+    end
+  end
+end

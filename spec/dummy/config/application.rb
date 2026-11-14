@@ -16,7 +16,10 @@ else
 end
 
 require "activeadmin"
+require "activeadmin/graphql"
+require "activeadmin-device_authorization"
 require "onni/active_admin"
+require "onni/active_admin_graphql"
 
 module Dummy
   class Application < Rails::Application
