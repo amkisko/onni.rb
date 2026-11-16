@@ -3,6 +3,17 @@ module Onni
     module GraphQL
       def self.install!: (untyped schema) -> untyped
       def self.register_page!: (untyped page) -> untyped
+
+      module Access
+        def self.map_capabilities: (
+            untyped scopes,
+            ?read: untyped,
+            ?write: untyped
+          ) -> Array[String]
+        def self.allowed?: (untyped context, untyped action) -> bool
+        def self.capable?: (untyped context, untyped action) -> bool
+        def self.authorize!: (untyped context, untyped action) -> true
+      end
     end
   end
 end

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Ship the ActiveAdmin agent-access guide inside the gem and add a host cutover checklist
+- Map host device scopes to `onni:read` / `onni:write` with `Onni::Admin::GraphQL::Access.map_capabilities`
+- Document that Features vanity routes keep auth on the ActiveAdmin page controller
+
 ## 3.0.0 (2026-11-14)
 
 - Deliver experiments with `Onni::Delivery` / `Onni.deliver`, a required parked path, and ordered targeting

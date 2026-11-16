@@ -13,7 +13,7 @@ Andrei Makarov.
 Replace exclusive one-type-per-flag evaluate with composable audience filters on
 one power switch. A single flag may combine a boolean everyone-opener, include
 groups, include actors, excludes, and a percentage ramp without a YAML type
-rewrite. This is the needed change after prior multi-gate cutover friction.
+rewrite. This is the needed change after prior multi-gate cutover difficulty.
 
 Contract shape: AND of filters that are set (omit unset clauses). Default
 audience closed when no positive opener is set. Not prior-library OR parity:

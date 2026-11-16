@@ -41,15 +41,71 @@ Onni does not define them. They must retain normal admin sign-in for the UI
 and consent, and use validated bearer authentication for the GraphQL route.
 The example expects the authenticated host principal to expose the scopes of
 this request's validated token. The host may instead map its own permission
-names to `onni:read` and `onni:write`. Keep any existing schema customization in
-the same hook. Installation preserves unrelated fields and can be called again.
-Name collisions fail before any Onni command is added.
+names to `onni:read` and `onni:write` with
+`Onni::Admin::GraphQL::Access.map_capabilities` (see the cutover checklist).
+Keep any existing schema customization in the same hook. Installation preserves
+unrelated fields and can be called again. Name collisions fail before any Onni
+command is added.
 
 `preload: false` allows the hook to add a mutation root after the namespace has
 configured visibility. With a capability callback, activeadmin-graphql uses
 per-request dynamic visibility. Use its resource opt-in settings when the
 namespace should expose only explicitly registered host resources; Onni does
 not register raw feature, gate or stat tables as editable resources.
+
+## Host cutover checklist
+
+Complete these before treating missing GraphQL fields as an Onni bug.
+
+1. Gemfile floors match activation. Load `onni/active_admin_graphql` only with
+   `activeadmin-graphql >= 0.4.1, < 0.5` and `graphql >= 2.6.15, < 3` declared in
+   the host Gemfile, then update the lock for those gems. The loader activates
+   the same floors; an older locked `graphql` can leave two trees under
+   `vendor/bundle` while Bundler still reports the stale pin.
+2. Set `graphql_visibility = {preload: false}` before
+   `Onni::Admin::GraphQL.install!`. A bare `true` (or preload-enabled profile)
+   raises at install time.
+3. Capability names are `onni:read` and `onni:write`. Map host device scopes in
+   `graphql_capabilities`, for example:
+
+```ruby
+admin.graphql_capabilities = lambda do |context|
+  Onni::Admin::GraphQL::Access.map_capabilities(
+    context[:current_user].scopes,
+    read: %w[desk:read],
+    write: %w[desk:write]
+  )
+end
+```
+
+Commands still require both `onni:read` and `onni:write`. Map a read host
+scope whenever a write scope is granted, or issue both Onni capabilities.
+
+4. Features page policy methods must cover GraphQL actions `:read`, `:ready`,
+   `:park`, `:clear`, and `:update_feature`. The HTML dashboard also uses
+   `:feature` and `:stats` where the host checks those page actions. The host
+   authorization adapter must resolve custom actions to callable policy methods
+   (symbols such as `:ready?`, not only CRUD verbs or string action names).
+5. Fail-closed bearer allowlists that inspect `graphql_schema_visible` /
+   `graphql_field_visible` metadata must allow:
+   - Query page field kind `:query_page_field` named `onni` (catalogue root);
+   - Mutation fields whose GraphQL names start with `onni_`;
+   - Object and input types whose GraphQL names start with `Onni`.
+   Capability grants alone are not enough when the host omits those kinds or
+   type prefixes. Introspection then looks empty even though scopes are correct.
+6. Keep device consent, bearer validation, CSRF rules and rate limits in the
+   host. A write capability does not replace page policy or
+   `Onni.configuration.admin_authorized`.
+
+The catalogue query stays a Features page `graphql_field` so it remains
+available when generic resource or policy queries are disabled. Named commands
+are root Mutation fields installed through `SchemaField` with capability
+metadata. Unifying the catalogue onto the same root capability path is an open
+design choice for a later minor; hosts should keep the page-field allowlist
+until that lands.
+
+This guide ships inside the gem package (`docs/activeadmin-agent-access.md`).
+After `bundle show onni`, open that path under the installed gem root.
 
 ## Authenticate the transport
 
@@ -149,7 +205,8 @@ Delivery bodies or provide raw record CRUD.
 Power commands authorize the Features page's `ready`, `park` or `clear` action.
 Settings and observations authorize `update_feature`. Reads authorize `read`.
 The existing Onni admin callback runs against the actual request controller.
-Keep the normal host policy methods for these actions.
+Keep host policy methods for these actions, including `clear?` for GraphQL
+clear commands.
 
 `OnniSignedInteger` accepts signed 64-bit integers. Send decimal strings for
 values beyond a client's exact numeric range. Floats, malformed strings and

@@ -6,6 +6,19 @@ module Onni
       module Access
         module_function
 
+        # Map host OAuth or device scopes onto Onni capability names for
+        # graphql_capabilities. Native onni:read / onni:write scopes pass through.
+        def map_capabilities(scopes, read: [], write: [])
+          present = Array(scopes).filter_map { |scope|
+            name = scope.to_s.strip
+            name unless name.empty?
+          }
+          mapped = []
+          mapped << "onni:read" if present.include?("onni:read") || Array(read).any? { |scope| present.include?(scope.to_s) }
+          mapped << "onni:write" if present.include?("onni:write") || Array(write).any? { |scope| present.include?(scope.to_s) }
+          mapped
+        end
+
         def allowed?(context, action)
           capable?(context, action) && host_authorized?(context) && page_authorized?(context, action)
         end

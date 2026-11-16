@@ -112,7 +112,17 @@ then select `Onni.configuration.adapter = :custom`. Factories execute outside th
 registration lock. The existing `Onni.adapter = instance` assignment also accepts
 a host-owned adapter instance.
 
-After `ActiveAdmin.routes(self)`, draw the feature detail path (`/admin/features/:key`):
+Register the Features page through `onni/active_admin` so `ActiveAdmin.routes`
+owns the index, stats, ready/park, and feature page actions on an
+`ActiveAdmin::BaseController`. Authentication uses the namespace
+`authentication_method`; authorization uses the host adapter and
+`Onni.configuration.admin_authorized`. `ActiveAdmin.routes` is not a block gems
+can enter; it only draws registered resources and pages.
+
+After that draw, optionally add the vanity feature detail path
+(`/admin/features/:key`). Placement after `ActiveAdmin.routes` is for helper and
+page-controller availability. It does not inherit ActiveAdmin config by itself;
+the target remains `admin/features#feature`:
 
 ```ruby
 ActiveAdmin.routes(self)
@@ -127,20 +137,25 @@ Use the host's ActiveAdmin stylesheet and JavaScript setup. Include Onni's
 ActiveAdmin's sources. The chart itself renders as SVG. For a styled local
 preview, see [the contribution guide](CONTRIBUTING.md#local-checks-and-admin-preview).
 
-Host apps that authorize ActiveAdmin page actions by name need `ready?` and `park?` rules for power commands, plus `stats?`, `feature?`, and `update_feature?` when those are checked. These are host policy methods; `Onni.visible?` remains a rollout evaluation.
+Host apps that authorize ActiveAdmin page actions by name need `ready?`,
+`park?`, and `clear?` rules for power commands, plus `stats?`, `feature?`, and
+`update_feature?` when those are checked. GraphQL uses the same Features page
+actions (`read`, `ready`, `park`, `clear`, `update_feature`). These are host
+policy methods; `Onni.visible?` remains a rollout evaluation.
 
 ## Programmatic ActiveAdmin access
 
 For agent, CLI, MCP-adapter, curl or script clients, opt into
-`onni/active_admin_graphql` alongside `activeadmin-graphql` and the host's
-`activeadmin-device_authorization` setup. The typed `onni` catalogue query and
-named mutations reuse the Ruby domain API and host page authorization. Device
-consent and bearer authentication stay in the host; unauthenticated callers
-must not receive introspection.
+`onni/active_admin_graphql` alongside `activeadmin-graphql` (`~> 0.4.1`) and
+`graphql` (`>= 2.6.15, < 3`) plus the host's `activeadmin-device_authorization`
+setup. The typed `onni` catalogue query and named mutations reuse the Ruby
+domain API and host page authorization. Device consent and bearer authentication
+stay in the host; unauthenticated callers must not receive introspection.
 
-See the [setup, queries and credential-safe curl example](docs/activeadmin-agent-access.md).
-GraphQL and the device gem are development/test dependencies here, with no new
-runtime dependency on the standard-library core.
+See the [setup, host cutover checklist, queries and credential-safe curl
+example](docs/activeadmin-agent-access.md). That guide ships in the gem package
+next to `lib/`. GraphQL and the device gem are development/test dependencies
+here, with no new runtime dependency on the standard-library core.
 
 ## Programmatic definitions
 
@@ -672,7 +687,10 @@ Onni.configure do |config|
 end
 ```
 
-Hosts should also authorize ActiveAdmin page actions (`ready?`, `park?`, `feature?`, `update_feature?`) for the Features page. Park is a command name; `Onni.parked?` is the power-state predicate.
+Hosts should also authorize ActiveAdmin page actions (`ready?`, `park?`,
+`clear?`, `feature?`, `update_feature?`, and `stats?` when used) for the
+Features page. Park is a command name; `Onni.parked?` is the power-state
+predicate.
 
 ## Upgrading to terminology v1
 

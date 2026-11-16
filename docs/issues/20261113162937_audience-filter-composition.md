@@ -12,7 +12,7 @@ Keep variants behind the same visibility expression. Keep statistics at feature
 level. Per-group percentages remain design-only.
 
 Contrary pass before the claim ledger: composition alone cannot solve restart
-friction because park currently destroys overrides. Empty and absent include
+breakage because park currently destroys overrides. Empty and absent include
 lists need different meanings or removing a cohort can accidentally widen the
 audience. Experiment weights currently open visibility without an actor, while
 assignment needs an actor. No prior-store runtime or host trace is available to

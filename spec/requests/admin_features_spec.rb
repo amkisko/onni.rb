@@ -91,6 +91,11 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     get admin_features_stats_path
     expect(response).to have_http_status(:forbidden)
 
+    get admin_feature_path("demo")
+    expect(response).to have_http_status(:forbidden)
+    get admin_features_feature_path(key: "demo")
+    expect(response).to have_http_status(:forbidden)
+
     post admin_features_ready_path(key: "demo")
     expect(response).to have_http_status(:forbidden)
     post admin_features_park_path(key: "demo")

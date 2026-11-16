@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 module Onni
-  # Draw after `ActiveAdmin.routes(self)` so `/admin/features/:key` reaches the
-  # Features page show action. Reserved page_action names stay on their AA paths.
+  # Optional vanity path for the Features page show action.
+  #
+  # Auth and authorization stay on the ActiveAdmin Features controller
+  # (BaseController + page policy / admin_authorized). Drawing this route next
+  # to or under an admin namespace does not inherit ActiveAdmin config by itself.
+  # Call after `ActiveAdmin.routes(self)` so the page controller and helpers exist.
+  # Reserved page_action names stay on their ActiveAdmin paths.
   module ActiveAdminRoutes
     RESERVED_KEYS = %w[ready park pending visible show skip feature update_feature stats].freeze
     KEY_PATTERN = /[A-Za-z0-9_.:-]+/

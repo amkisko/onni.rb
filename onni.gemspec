@@ -42,6 +42,7 @@ Gem::Specification.new do |spec|
       LICENSE.md
       README.md
       SECURITY.md
+      docs/activeadmin-agent-access.md
       onni.gemspec
     ].select { |path| File.file?(path) } +
       Dir["{app,config,lib,sig}/**/*"]
