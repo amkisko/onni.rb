@@ -21,20 +21,21 @@ module Onni
     def draw(router, namespace: :admin)
       ns = active_admin_namespace(namespace)
       ensure_features_page!(ns)
-      prefix = path_prefix(ns)
-      controller = controller_action(ns)
-      route_name = route_helper_name(ns)
+      draw_vanity_feature(router, path_prefix(ns), controller_action(ns), route_helper_name(ns))
+    end
 
+    def draw_vanity_feature(router, prefix, controller, route_name)
       router.instance_eval do
         get "#{prefix}/features/:key",
           to: controller,
           as: route_name,
-          constraints: ->(req) {
-            key = req.path_parameters[:key].to_s
-            Onni::ActiveAdminRoutes::KEY_PATTERN.match?(key) &&
-              !Onni::ActiveAdminRoutes::RESERVED_KEYS.include?(key)
-          }
+          constraints: ->(req) { Onni::ActiveAdminRoutes.vanity_feature_key?(req) }
       end
+    end
+
+    def vanity_feature_key?(req)
+      key = req.path_parameters[:key].to_s
+      KEY_PATTERN.match?(key) && !RESERVED_KEYS.include?(key)
     end
 
     def feature_path_helper(view, key, namespace: :admin, **options)
@@ -87,8 +88,8 @@ module Onni
     def vanity_helper?(view, namespace)
       view.respond_to?(vanity_helper_name(namespace))
     end
-    private_class_method :active_admin_namespace, :ensure_features_page!, :path_prefix,
-      :controller_action, :route_helper_name, :vanity_helper_name, :page_feature_helper_name,
-      :vanity_helper?
+    private_class_method :draw_vanity_feature, :active_admin_namespace, :ensure_features_page!,
+      :path_prefix, :controller_action, :route_helper_name, :vanity_helper_name,
+      :page_feature_helper_name, :vanity_helper?
   end
 end
