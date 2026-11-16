@@ -111,6 +111,8 @@ module Onni
     def pending?: () -> bool
     def parked?: () -> bool
     def type: () -> String?
+    def delivery?: () -> bool
+    def assignment: () -> String
     def filters: () -> Hash[String, untyped]
     def stats_settings: () -> Hash[String, untyped]?
     def level: () -> Integer

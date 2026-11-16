@@ -116,21 +116,22 @@ Register the Features page through `onni/active_admin` so `ActiveAdmin.routes`
 owns the index, stats, ready/park, and feature page actions on an
 `ActiveAdmin::BaseController`. Authentication uses the namespace
 `authentication_method`; authorization uses the host adapter and
-`Onni.configuration.admin_authorized`. `ActiveAdmin.routes` is not a block gems
-can enter; it only draws registered resources and pages.
-
-After that draw, optionally add the vanity feature detail path
-(`/admin/features/:key`). Placement after `ActiveAdmin.routes` is for helper and
-page-controller availability. It does not inherit ActiveAdmin config by itself;
-the target remains `admin/features#feature`:
+`Onni.configuration.admin_authorized`. Hosts need no Onni lines in
+`config/routes.rb` beyond:
 
 ```ruby
 ActiveAdmin.routes(self)
-Onni::ActiveAdminRoutes.draw(self)
 ```
 
+`ActiveAdmin.routes` is not a block gems can enter; it only draws registered
+resources and pages. Detail links use the Features page action
+(`/admin/features/feature?key=`). That is enough for the dashboard; Onni does
+not need a separate routes declaration. `Onni::ActiveAdminRoutes.draw` remains
+only if a host wants the non-ActiveAdmin path shape `/admin/features/:key` as
+sugar onto the same Features page action.
+
 `/admin/features` is the Flags index (search, filters, pagination, All/Ready/Pending/Parked scopes).
-Stats storage is at `/admin/features/stats`. The older `/admin/features/feature?key=` page action remains available.
+Stats storage is at `/admin/features/stats`.
 
 Use the host's ActiveAdmin stylesheet and JavaScript setup. Include Onni's
 `app/admin` and `app/views` directories in the host's Tailwind sources alongside

@@ -23,9 +23,9 @@ packaged guide. Capability mapping helper and focused specs land under
 
 ## Next
 
-Release a patch that ships the packaged guide. Revisit a root catalogue field
-with the same SchemaField capability path only if a second host still needs
-page-field allowlist exceptions after the checklist.
+Shipped in 3.0.1. Revisit a root catalogue field with the same SchemaField
+capability path only if a second host still needs page-field allowlist
+exceptions after the checklist.
 
 ## Source
 

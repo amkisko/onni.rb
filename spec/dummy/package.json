@@ -3,6 +3,7 @@
   "private": true,
   "devDependencies": {
     "@tailwindcss/cli": "4.3.5",
+    "playwright-core": "1.64.0",
     "tailwindcss": "4.3.5"
   }
 }

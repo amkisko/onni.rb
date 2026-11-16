@@ -23,6 +23,14 @@ are excluded from the gem.
 Run `bundle exec rspec` for the suite and `make lint` for quality checks. CI builds
 the same assets before request specs; `make test` includes the asset build.
 
+System specs use a browser driver under the `:railsfi` name (Rails
+`driven_by :playwright` would replace the registration and float Chromium).
+After `make admin-assets`, install browsers once with
+`./spec/dummy/node_modules/.bin/playwright-core install chromium` (the dummy app
+pins `playwright-core` to the version expected by `playwright-ruby-client`).
+When the CLI or Chromium install is missing, system examples skip with that
+install hint.
+
 ### Reporting issues
 
 Verify the facts before filing. Use issue templates for goals, constraints, and reproduction steps.

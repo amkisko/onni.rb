@@ -18,7 +18,7 @@ paths fail closed with `admin_authorized`.
 
 ## Next
 
-Fold into `CHANGELOG.md` Unreleased for the next patch.
+Shipped in 3.0.1.
 
 ## Source
 

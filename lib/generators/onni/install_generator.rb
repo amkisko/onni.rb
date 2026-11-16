@@ -35,8 +35,7 @@ module Onni
 
       def remind_host_wiring
         say "Onni install notes:", :green
-        say "  - After ActiveAdmin.routes(self), add Onni::ActiveAdminRoutes.draw(self)"
-        say "  - Vanity /admin/features/:key auth stays on the Features page controller"
+        say "  - ActiveAdmin.routes(self) is enough; Features page_actions own the dashboard"
         say "  - Tailwind @source the gem app/admin and app/views paths with ActiveAdmin"
         say "  - Stats: template buffers evaluations and collects all calls"
         say "  - Prior-library import: Onni::Migrator::ActiveRecordTables or Snapshot; see README"

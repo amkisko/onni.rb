@@ -140,7 +140,7 @@ ActiveAdmin.register_page "Features" do
               end
             end
             column("Status") { |flag| status_tag(flag.power_state.to_s.capitalize) }
-            column("Assignment") { |flag| (flag.type == "experiment") ? "Experiment" : "None" }
+            column("Assignment") { |flag| flag.assignment }
             column("Actions") do |flag|
               if flag.ready?
                 button_to "Park", admin_features_park_path(key: flag.name),

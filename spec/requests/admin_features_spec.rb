@@ -14,6 +14,11 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     expect(response.body).to include("index-button-selected")
     expect(response.body).to include("scopes-count")
     expect(response.body).to include("paginated-collection")
+    document = Nokogiri::HTML(response.body)
+    demo_row = document.css("a").find { |link| link.text == "demo" }&.ancestors("tr")&.first
+    search_row = document.css("a").find { |link| link.text == "search_v2" }&.ancestors("tr")&.first
+    expect(demo_row.text).to include("Experiment")
+    expect(search_row.text).to include("None")
     expect(response.body).not_to include("not an authorization system")
     expect(response.body).not_to include("Enable Disable")
     expect(response.body).not_to include("matching ·")
@@ -71,7 +76,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     Onni.park!(:demo)
     Onni.visible?(:demo)
 
-    get admin_feature_path("demo")
+    get admin_features_feature_path(key: "demo")
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("demo")
@@ -91,8 +96,6 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     get admin_features_stats_path
     expect(response).to have_http_status(:forbidden)
 
-    get admin_feature_path("demo")
-    expect(response).to have_http_status(:forbidden)
     get admin_features_feature_path(key: "demo")
     expect(response).to have_http_status(:forbidden)
 
@@ -133,11 +136,11 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
   it "configures filters independently of power and preserves them across park and ready" do
     Onni.register_group(:staff) { |_actor, _| true }
     post admin_features_update_feature_path(key: "search_v2"), params: {filter: "level", value: "40"}
-    expect(response).to redirect_to(admin_feature_path("search_v2"))
+    expect(response).to redirect_to(admin_features_feature_path(key: "search_v2"))
     expect(Onni.level(:search_v2)).to eq(40)
 
     post admin_features_update_feature_path(key: "demo"), params: {variants: {control: "30", treatment: "70"}}
-    expect(response).to redirect_to(admin_feature_path("demo"))
+    expect(response).to redirect_to(admin_features_feature_path(key: "demo"))
     expect(Onni.variants(:demo)).to eq("control" => 30, "treatment" => 70)
 
     post admin_features_update_feature_path(key: "audience"), params: {filter: "groups", value: "staff"}
@@ -165,18 +168,18 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     Onni.level!(:search_v2, 0)
     get admin_features_path
     document = Nokogiri::HTML(response.body)
-    row = document.at_css('a[href$="/admin/features/search_v2"]').ancestors("tr").first
+    row = document.css("a").find { |link| link.text == "search_v2" }&.ancestors("tr")&.first
     expect(row.at_css("button[type=submit]").text).to eq("Park")
     expect(row.text).to include("Ready")
 
-    get admin_feature_path("search_v2")
+    get admin_features_feature_path(key: "search_v2")
     document = Nokogiri::HTML(response.body)
     status = document.css("tr").find { |entry| entry.at_css("th")&.text == "Power" }
     expect(status.at_css("td").text.strip).to eq("Ready")
   end
 
   it "renders editable filters for ordinary flags and experiments" do
-    get admin_feature_path("search_v2")
+    get admin_features_feature_path(key: "search_v2")
     document = Nokogiri::HTML(response.body)
     expect(document.at_css('input[name="value"][type="number"]')).to be_present
     expect(document.at_css('textarea[name="value"]')).to be_present
@@ -185,7 +188,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
 
   it "preserves custom variant names when editing an experiment" do
     Onni.variants!(:demo, blue: 20, green: 80)
-    get admin_feature_path("demo")
+    get admin_features_feature_path(key: "demo")
     document = Nokogiri::HTML(response.body)
     expect(document.at_css('input[name="variants[blue]"]')["value"]).to eq("20")
     expect(document.at_css('input[name="variants[green]"]')["value"]).to eq("80")
@@ -213,8 +216,8 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
 
     document = Nokogiri::HTML(response.body)
     expect(response).to have_http_status(:ok)
-    demo_row = document.at_css("a[href$=\"/admin/features/demo\"]")&.ancestors("tr")&.first
-    search_row = document.at_css("a[href$=\"/admin/features/search_v2\"]")&.ancestors("tr")&.first
+    demo_row = document.css("a").find { |link| link.text == "demo" }&.ancestors("tr")&.first
+    search_row = document.css("a").find { |link| link.text == "search_v2" }&.ancestors("tr")&.first
     expect(demo_row.at_css("button[type=submit]").text).to eq("Park")
     expect(demo_row.at_css("button[type=submit]").text).not_to eq("Ready")
     expect(search_row.at_css("button[type=submit]").text).to eq("Ready")

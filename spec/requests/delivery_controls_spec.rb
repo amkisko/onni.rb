@@ -15,6 +15,18 @@ RSpec.describe "Delivery operator controls", type: :request do
     end
   end
 
+  it "labels a Delivery feature on the Flags index and detail overview" do
+    get admin_features_path
+    document = Nokogiri::HTML(response.body)
+    row = document.css("a").find { |link| link.text == "new_checkout" }&.ancestors("tr")&.first
+    expect(row.text).to include("Delivery")
+
+    get admin_features_feature_path(key: "new_checkout")
+    expect(response).to have_http_status(:ok)
+    overview = Nokogiri::HTML(response.body).css("tr").find { |entry| entry.at_css("th")&.text == "Assignment" }
+    expect(overview.at_css("td").text.strip).to eq("Delivery")
+  end
+
   it "edits experiment targeting, thresholds and resets without readying power" do
     path = admin_features_update_feature_path(key: "new_checkout")
     post path, params: {experiment: "new_flow", filter: "level", value: "25"}

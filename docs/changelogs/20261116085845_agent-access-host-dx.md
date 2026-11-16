@@ -19,7 +19,7 @@ actions, and fail-closed bearer allowlists. Add a scope-mapping helper.
 
 ## Next
 
-Include in the next patch release notes from `CHANGELOG.md` Unreleased.
+Shipped in 3.0.1.
 
 ## Source
 

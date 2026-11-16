@@ -19,6 +19,7 @@ div class: "main-content-container" do
       h2 "Overview", class: "text-lg font-bold text-gray-700 dark:text-gray-200 mb-4"
       attributes_table_for(flag) do
         row("Power") { status_tag(flag.power_state.to_s.capitalize) }
+        row("Assignment") { flag.assignment }
         row("Expiry review") { flag.expiration_status.to_s.capitalize }
         row("Expires") do
           if flag.expires_summary

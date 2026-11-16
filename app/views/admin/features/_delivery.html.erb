@@ -3,7 +3,7 @@
   <section aria-labelledby="delivery-title">
     <h2 id="delivery-title" class="text-lg font-bold mb-4">Delivery experiments</h2>
     <p>Ready power allows the first matching experiment. Pending or parked power always runs the parked path. No matching experiment also runs the parked path.</p>
-    <p>Each experiment has its own audience. Visibility checks and variant assignment use the separate feature audience.</p>
+    <p>One Delivery owns this feature. Each experiment has its own audience. Visibility checks and variant assignment use the separate feature audience.</p>
     <% if owner.experiments.empty? %>
       <p>No delivery experiments are declared. The parked path always runs.</p>
     <% end %>

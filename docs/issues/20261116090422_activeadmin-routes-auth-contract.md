@@ -22,8 +22,10 @@ path and the query-string feature path when `admin_authorized` fails.
 
 ## Next
 
-Ship with the next patch that already carries the agent-access host DX notes.
-No further route API change planned.
+Shipped in 3.0.1. Host wiring defaults continue under
+[zero route lines](20261116092620_activeadmin-zero-route-lines.md): vanity draw
+stays optional; dashboard needs no Onni `routes.rb` line. Authz ownership on
+the Features controller remains.
 
 ## Source
 

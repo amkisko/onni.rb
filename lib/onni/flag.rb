@@ -38,6 +38,18 @@ module Onni
       Settings.type(definition)
     end
 
+    def delivery?
+      Delivery.entries.key?(name)
+    end
+
+    # Operator label for Flags index/detail: Delivery binding, A/B experiment, or none.
+    def assignment
+      return "Delivery" if delivery?
+      return "Experiment" if type == "experiment"
+
+      "None"
+    end
+
     def level
       Settings.level(definition, gates)
     end

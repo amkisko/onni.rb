@@ -15,6 +15,11 @@ ActiveRecord::Base.connection_pool.with_connection do |connection|
 end
 
 require "rspec/rails"
+require "capybara/rails"
+require "capybara/rspec"
+require "capybara-playwright-driver"
+
+Dir[File.expand_path("support/**/*.rb", __dir__)].sort.each { |path| require path }
 
 Onni.configure do |config|
   config.features_path = DUMMY_ROOT.join("config/features.yml")
@@ -55,5 +60,16 @@ RSpec.configure do |config|
     Onni.configuration.cache = nil
     Onni.configuration.admin_authorized = -> { true }
     Onni.reset_request!
+  end
+
+  # Request specs default to www.example.com; dummy config.hosts only allows rails.fi / loopback.
+  config.before(:each, type: :request) do
+    host! "onni.rails.fi"
+  end
+
+  config.before(:each, type: :system) do
+    skip PlaywrightEnv.hint unless PlaywrightEnv.ready?
+
+    driven_by Capybara.javascript_driver
   end
 end

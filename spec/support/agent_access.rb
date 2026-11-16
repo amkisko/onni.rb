@@ -3,6 +3,10 @@
 module AgentAccess
   Principal = Data.define(:owner, :scopes)
 
+  class << self
+    attr_accessor :browser_graphql_bearer
+  end
+
   module BearerAuthentication
     def authenticate_onni_agent!
       return if @onni_agent
@@ -38,14 +42,31 @@ module AgentAccess
   end
 
   def with_agent_namespace
+    configure_agent_namespace(authentication: true) { yield }
+  end
+
+  # Browser e2e: GraphQL requires bearer; HTML ActiveAdmin keeps the dummy's open auth
+  # so the same origin can load Flags then fetch /admin/graphql with a token.
+  def with_browser_agent_graphql
+    configure_agent_namespace(authentication: false) do
+      AgentAccess.browser_graphql_bearer = true
+      yield
+    ensure
+      AgentAccess.browser_graphql_bearer = false
+    end
+  end
+
+  def configure_agent_namespace(authentication:)
     namespace = ActiveAdmin.application.namespaces[:admin]
     keys = %i[graphql authentication_method current_user_method authorization_adapter graphql_visibility
       graphql_capabilities graphql_configure_schema]
     previous = keys.to_h { |key| [key, namespace.public_send(key)] }
     namespace.graphql = true
-    namespace.authentication_method = :authenticate_onni_agent!
+    if authentication
+      namespace.authentication_method = :authenticate_onni_agent!
+      namespace.authorization_adapter = Authorization
+    end
     namespace.current_user_method = :current_onni_agent
-    namespace.authorization_adapter = Authorization
     namespace.graphql_visibility = {preload: false}
     namespace.graphql_capabilities = ->(context) { context[:current_user]&.scopes }
     namespace.graphql_configure_schema = ->(schema) { Onni::Admin::GraphQL.install!(schema) }
@@ -90,9 +111,15 @@ module AgentAccess
   end
 end
 
+# BaseController needs current_onni_agent when browser e2e sets current_user_method
+# without flipping authentication_method (GraphqlController is not a BaseController).
+ActiveAdmin::BaseController.include(AgentAccess::BearerAuthentication)
 ActiveAdmin::GraphqlController.include(AgentAccess::BearerAuthentication)
 ActiveAdmin::GraphqlController.prepend_before_action :authenticate_onni_agent!,
-  if: -> { active_admin_namespace.authentication_method == :authenticate_onni_agent! }
+  if: -> {
+    active_admin_namespace.authentication_method == :authenticate_onni_agent! ||
+      AgentAccess.browser_graphql_bearer
+  }
 ActiveAdmin::GraphqlController.skip_forgery_protection if: -> { current_onni_agent.present? }
 
 RSpec.shared_context "with device-authorized Onni" do

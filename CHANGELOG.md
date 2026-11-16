@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+## 3.0.1 (2026-11-16)
+
 - Ship the ActiveAdmin agent-access guide inside the gem and add a host cutover checklist
 - Map host device scopes to `onni:read` / `onni:write` with `Onni::Admin::GraphQL::Access.map_capabilities`
 - Document that Features vanity routes keep auth on the ActiveAdmin page controller
+- Make ActiveAdmin Features dashboard work with zero Onni `routes.rb` lines; vanity draw stays optional
+- Show Delivery on the Features Assignment column and detail overview when a Delivery owns the flag
+- Normalize vanity route path prefixes and avoid a bare root `feature` helper name
 
 ## 3.0.0 (2026-11-14)
 

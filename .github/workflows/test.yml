@@ -54,10 +54,13 @@ jobs:
           ruby-version: ${{ matrix.ruby_version }}
           bundler-cache: true
 
-      - name: Run tests
+      - name: Install Playwright Chromium
         run: |
           make admin-assets
-          bundle exec polyrun parallel-rspec --workers 5 --merge-failures
+          ./spec/dummy/node_modules/.bin/playwright-core install chromium --with-deps
+
+      - name: Run tests
+        run: bundle exec polyrun parallel-rspec --workers 5 --merge-failures
 
   coverage:
     runs-on: ubuntu-latest
@@ -73,9 +76,11 @@ jobs:
         with:
           ruby-version: "3.4"
           bundler-cache: true
-      - run: |
+      - name: Install Playwright Chromium
+        run: |
           make admin-assets
-          POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
+          ./spec/dummy/node_modules/.bin/playwright-core install chromium --with-deps
+      - run: POLYRUN_COVERAGE=1 bundle exec polyrun parallel-rspec --workers 5 --merge-failures
       - name: Report coverage for Sonar/Codecov
         run: |
           test -f coverage/merged.json
