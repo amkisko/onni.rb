@@ -27,7 +27,7 @@ module Onni
         end
       end
     rescue => error
-      Onni.configuration.logger&.warn("Onni stats failed: #{error.class}: #{error.message}")
+      Instrumenter.warn("Onni stats failed: #{error.class}: #{error.message}")
     end
 
     def for(name, period: "hour", from: Time.now - 86_400, to: Time.now)

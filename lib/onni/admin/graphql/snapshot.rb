@@ -17,7 +17,7 @@ module Onni
           definitions = Registry.config
           keys = definitions.keys.sort
           names, more = page_keys(keys, first, after)
-          gates = read_many(names)
+          gates = Store.gates_for_many(names)
           {items: names.map { |name| build(name, definitions.fetch(name), gates.fetch(name)) },
            next_cursor: more ? names.last : nil, total_count: keys.length}
         end
@@ -26,13 +26,6 @@ module Onni
           start = after ? (keys.bsearch_index { |key| key > after } || keys.length) : 0
           names = keys.slice(start, first + 1) || []
           [names.first(first), names.length > first]
-        end
-
-        def read_many(names)
-          adapter = Onni.adapter
-          return adapter.gates_for_many(names) if adapter.respond_to?(:gates_for_many)
-
-          names.to_h { |name| [name, adapter.gates_for(name)] }
         end
 
         def build(name, definition, gates)

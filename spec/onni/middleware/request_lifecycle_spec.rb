@@ -88,6 +88,20 @@ RSpec.describe Onni::Middleware::RequestLifecycle do
     expect(Onni::RequestStore.stats_buffer).to be_nil
   end
 
+  it "preserves the application failure when the stats store and logger both fail" do
+    logger = instance_double(Logger)
+    allow(Onni.configuration).to receive(:logger).and_return(logger)
+    allow(logger).to receive(:warn).and_raise(IOError, "log unavailable")
+    allow(Onni.adapter).to receive(:record_stats_batch).and_raise(IOError, "stats unavailable")
+    app = lambda do |_env|
+      Onni::Stats.record("demo", shown: true)
+      raise "application failed"
+    end
+
+    expect { call_middleware(app) }.to raise_error(RuntimeError, "application failed")
+    expect(Onni::RequestStore.stats_buffer).to be_nil
+  end
+
   it "skips preload when request_preload is disabled" do
     Onni.configuration.request_preload = false
     expect(Onni).not_to receive(:preload!)

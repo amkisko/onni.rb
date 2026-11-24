@@ -14,5 +14,11 @@ module Onni
         yield(payload)
       end
     end
+
+    def warn(message)
+      Onni.configuration.logger&.warn(message)
+    rescue
+      nil
+    end
   end
 end

@@ -56,4 +56,15 @@ RSpec.describe Onni::Stats do
     expect { described_class.record("demo", shown: true) }.not_to raise_error
     expect(logger).to have_received(:warn).with(/Onni stats failed/)
   end
+
+  it "preserves the visibility decision when the stats store and logger both fail" do
+    logger = instance_double(Logger)
+    Onni.configuration.logger = logger
+    allow(logger).to receive(:warn).and_raise(IOError, "log unavailable")
+    allow(Onni.adapter).to receive(:record_stat).and_raise(IOError, "stats unavailable")
+    allow(Onni::Registry).to receive(:config).and_return("demo" => {"everyone" => true})
+    Onni.ready!(:demo)
+
+    expect(Onni.visible?(:demo)).to be(true)
+  end
 end

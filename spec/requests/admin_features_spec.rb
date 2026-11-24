@@ -47,7 +47,7 @@ RSpec.describe "Onni ActiveAdmin Features page", type: :request do
     queries = 0
     subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*arguments|
       payload = arguments.last
-      queries += 1 if payload[:name] == "Onni::Gate Load" && !payload[:cached]
+      queries += 1 if payload[:name] != "SCHEMA" && !payload[:cached] && payload[:sql].include?(Onni::Gate.table_name)
     end
     [false, true].each do |preload|
       Onni.configuration.request_preload = preload

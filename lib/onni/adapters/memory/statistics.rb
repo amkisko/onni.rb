@@ -26,57 +26,49 @@ module Onni
         def stats_for(key, period: "hour", from: Time.now - 86_400, to: Time.now)
           return [] unless period == "hour"
 
+          requested_key = key.to_s
+          hours = epoch_hours(from).ceil..epoch_hours(to).floor
           @lock.synchronize do
-            @stats.filter_map do |bucket_key, counts|
-              feature_key, hour = bucket_key
-              next unless feature_key == key.to_s
-
-              started = Time.at(hour * 3600).utc
-              next unless started.between?(from, to)
-
-              {
-                "period_start" => started,
-                "period" => period,
-                "shown_count" => counts[:shown_count],
-                "skip_count" => counts[:skip_count]
-              }
+            @stats.filter_map do |(feature_key, hour), counts|
+              stat_row(hour, period, counts) if feature_key == requested_key && hours.cover?(hour)
             end
           end.sort_by { |bucket| bucket.fetch("period_start") }
         end
 
         def purge_stats_batch(older_than:, batch_size:, after_id: 0)
+          cutoff_hour = epoch_hours(older_than).ceil
           @lock.synchronize do
-            matching = older_stat_keys(older_than)
-            slice = matching.first(batch_size)
-            slice.each { |bucket_key| @stats.delete(bucket_key) }
-            return {deleted: 0, last_id: nil} if slice.empty?
+            expired = @stats.each_key.lazy.select { |key| key.last < cutoff_hour }.first(batch_size)
+            expired.each { |bucket_key| @stats.delete(bucket_key) }
+            return {deleted: 0, last_id: nil} if expired.empty?
 
-            {deleted: slice.size, last_id: (slice.size == batch_size) ? (after_id + slice.size) : nil}
+            {deleted: expired.size, last_id: (expired.size == batch_size) ? (after_id + expired.size) : nil}
           end
         end
 
         def stats_overview
           @lock.synchronize do
-            starts = @stats.keys.filter_map { |bucket_key|
-              _feature_key, hour = bucket_key
-              Time.at(hour * 3600).utc
-            }
+            oldest = @stats.each_key.min_by(&:last)
             {
               bucket_count: @stats.size,
-              oldest_period_start: starts.min
+              oldest_period_start: oldest && Time.at(oldest.last * 3600).utc
             }
           end
         end
 
         private
 
-        def older_stat_keys(older_than)
-          @stats.keys.select { |_feature_key, hour| Time.at(hour * 3600).utc < older_than }.sort
+        def epoch_hours(time)
+          time.to_time.to_r / 3600
+        end
+
+        def stat_row(hour, period, counts)
+          {"period_start" => Time.at(hour * 3600).utc, "period" => period,
+           "shown_count" => counts[:shown_count], "skip_count" => counts[:skip_count]}
         end
 
         def stat_bucket_key(key)
-          feature_key = key.is_a?(Symbol) ? key.to_s.freeze : key.to_s.dup.freeze
-          [feature_key, Time.now.to_i / 3600]
+          [-key.to_s, Time.now.to_i / 3600]
         end
       end
     end

@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+## 3.0.2 (2026-11-24)
+
 - Require `graphql` `>= 2.6.16` for the optional ActiveAdmin GraphQL operator API
+- Reject non-positive stats purge batch sizes so a bad page size cannot wipe eligible rows
+- Keep request and park outcomes when warning delivery fails after stats or cache cleanup
+- Load runtime catalogue export gates in bulk instead of one query per flag
 
 ## 3.0.1 (2026-11-16)
 

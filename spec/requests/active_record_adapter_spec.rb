@@ -90,6 +90,23 @@ RSpec.describe "Onni ActiveRecord adapter integration", type: :request do
     expect(adapter.feature_keys).to include("demo", "gate_only")
   end
 
+  it "exports the runtime state of multiple flags with one gates query" do
+    Onni.ready!(:demo)
+    Onni.park!(:search_v2)
+    gate_queries = 0
+    count_gate_queries = lambda do |_name, _start, _finish, _id, payload|
+      gate_queries += 1 if payload[:name] != "SCHEMA" && payload[:sql].include?(Onni::Gate.table_name)
+    end
+
+    output = ActiveSupport::Notifications.subscribed(count_gate_queries, "sql.active_record") do
+      Onni.export_catalogue(format: :json, runtime: true)
+    end
+    powers = JSON.parse(output).to_h { |item| [item.fetch("name"), item.dig("runtime", "power")] }
+
+    expect(powers).to include("demo" => "ready", "search_v2" => "parked", "selected" => "pending")
+    expect(gate_queries).to eq(1)
+  end
+
   it "replaces all gates for a feature in one transaction" do
     adapter = Onni::Adapters::ActiveRecord.new
     adapter.add_gate("demo", "boolean", "true")

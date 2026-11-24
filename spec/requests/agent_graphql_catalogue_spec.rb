@@ -9,7 +9,8 @@ RSpec.describe "Onni GraphQL catalogue and settings", type: :request do
   it "pages the catalogue through one bounded gate read without recording evaluations" do
     queries = []
     subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |event|
-      queries << event.payload[:name] if event.payload[:name] == "Onni::Gate Load"
+      payload = event.payload
+      queries << payload[:sql] if payload[:name] != "SCHEMA" && payload[:sql].include?(Onni::Gate.table_name)
     end
     data = graphql("{ onni { features(first: 2) { items { name power } next_cursor total_count } } }")
     expect(data["errors"]).to be_nil

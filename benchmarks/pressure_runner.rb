@@ -35,9 +35,11 @@ module PressureRunner
   end
 
   def summary(rows)
-    %w[cpu_s wall_s allocated_objects peak_rss_bytes store_bytes source_bytes].to_h do |metric|
+    metrics = %w[cpu_s wall_s allocated_objects peak_rss_bytes store_bytes source_bytes]
+    metrics.concat(%w[queries store_rows] & rows.first.keys)
+    metrics.to_h do |metric|
       values = rows.map { |row| row.fetch(metric) }.sort
-      value = %w[peak_rss_bytes store_bytes source_bytes].include?(metric) ? values.last : values.fetch(values.size / 2)
+      value = %w[peak_rss_bytes store_bytes source_bytes store_rows].include?(metric) ? values.last : values.fetch(values.size / 2)
       [metric, value]
     end
   end

@@ -88,6 +88,13 @@ module Onni
       RequestStore.gates_context = context
     end
 
+    def gates_for_many(keys)
+      adapter = Onni.adapter
+      return adapter.gates_for_many(keys) if adapter.respond_to?(:gates_for_many)
+
+      keys.to_h { |key| [key, adapter.gates_for(key)] }
+    end
+
     def gate_read_context
       adapter = Onni.adapter
       adapter.respond_to?(:gate_read_context) ? adapter.gate_read_context : adapter
@@ -109,7 +116,7 @@ module Onni
         begin
           cache.delete(old_key)
         rescue => error
-          Onni.configuration.logger&.warn("Onni cache cleanup failed: #{error.class}")
+          Instrumenter.warn("Onni cache cleanup failed: #{error.class}")
         end
       end
       RequestStore.gates&.delete(key)

@@ -102,4 +102,16 @@ RSpec.describe Onni::Adapters::Memory do
     expect(adapter.stats_for("demo", period: "day")).to eq([])
     expect(adapter.stats_for("demo").sum { |row| row.fetch("shown_count") }).to eq(1)
   end
+
+  it "honors fractional hour boundaries for history and deletion" do
+    hour = Time.utc(1969, 12, 31, 23)
+    travel_to(hour) { adapter.record_stat("demo", shown: true) }
+    travel_to(hour + 3600) { adapter.record_stat("demo", shown: false) }
+
+    expect(adapter.stats_for("demo", from: hour + 0.5, to: hour + 3600).map { |row| row.fetch("period_start") })
+      .to eq([hour + 3600])
+    expect(adapter.purge_stats_batch(older_than: hour, batch_size: 10)).to include(deleted: 0)
+    expect(adapter.purge_stats_batch(older_than: hour + 0.5, batch_size: 10)).to include(deleted: 1)
+    expect(adapter.stats_overview).to eq(bucket_count: 1, oldest_period_start: hour + 3600)
+  end
 end

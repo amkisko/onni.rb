@@ -5,7 +5,9 @@ module Onni
     attr_reader :filters, :stats
 
     def self.wrap(gates)
-      gates.is_a?(self) ? gates : new(gates)
+      return gates if gates.is_a?(self)
+
+      gates.empty? ? EMPTY : new(gates)
     end
 
     def initialize(gates)
@@ -34,7 +36,8 @@ module Onni
     end
 
     def legacy_list(key)
-      override = find { |gate| gate["key"] == "#{key}_override" }
+      override_key = "#{key}_override"
+      override = find { |gate| gate["key"] == override_key }
       return parse_list(override["value"]) if override
 
       values = select { |gate| gate["key"] == key }.map { |gate| gate["value"].dup }
@@ -58,5 +61,8 @@ module Onni
     rescue JSON::ParserError, ArgumentError
       {"groups" => []}
     end
+
+    EMPTY = new([])
+    private_constant :EMPTY
   end
 end

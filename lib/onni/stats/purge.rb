@@ -13,6 +13,8 @@ module Onni
       end
 
       def initialize(older_than: nil, batch_size: DEFAULT_BATCH_SIZE, after_id: 0, processed_count: 0, enqueue: nil)
+        raise ArgumentError, "batch_size must be a positive integer" unless batch_size.is_a?(Integer) && batch_size.positive?
+
         @older_than = older_than
         @batch_size = batch_size
         @after_id = after_id

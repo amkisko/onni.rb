@@ -70,4 +70,14 @@ RSpec.describe "Gate cache consistency" do
     expect { Onni.park!(:new_checkout) }.not_to raise_error
     expect(Onni.visible?(:new_checkout, record_stats: false)).to be(false)
   end
+
+  it "keeps a committed park successful when cache cleanup and logging both fail" do
+    logger = instance_double(Logger)
+    allow(Onni.configuration).to receive(:logger).and_return(logger)
+    allow(logger).to receive(:warn).and_raise(IOError, "log unavailable")
+    allow(Onni.configuration.cache).to receive(:delete).and_raise(IOError, "cache unavailable")
+
+    expect(Onni.park!(:new_checkout)).to be(true)
+    expect(Onni.visible?(:new_checkout, record_stats: false)).to be(false)
+  end
 end

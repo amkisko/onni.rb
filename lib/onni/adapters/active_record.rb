@@ -33,15 +33,17 @@ module Onni
       end
 
       def gates_for(key)
-        ::Onni::Gate.where(feature_key: key.to_s).map { |gate| {"key" => gate.key, "value" => gate.value} }
+        ::Onni::Gate.where(feature_key: key.to_s).pluck(:key, :value).map do |gate_key, value|
+          {"key" => gate_key, "value" => value}
+        end
       end
 
       def gates_for_many(keys)
-        keys = keys.map(&:to_s)
-        grouped = ::Onni::Gate.where(feature_key: keys).group_by(&:feature_key)
-        keys.each_with_object({}) do |key, loaded|
-          loaded[key] = Array(grouped[key]).map { |gate| {"key" => gate.key, "value" => gate.value} }
+        loaded = keys.to_h { |key| [key.to_s, []] }
+        ::Onni::Gate.where(feature_key: loaded.keys).pluck(:feature_key, :key, :value).each do |feature_key, gate_key, value|
+          loaded.fetch(feature_key) << {"key" => gate_key, "value" => value}
         end
+        loaded
       end
 
       def replace_gates(key, gates)
@@ -76,12 +78,12 @@ module Onni
 
       def stats_for(key, period: "hour", from: 24.hours.ago, to: Time.current)
         ::Onni::StatBucket.where(feature_key: key.to_s, period: period, period_start: from..to)
-          .order(:period_start).map do |bucket|
+          .order(:period_start).pluck(:period_start, :period, :shown_count, :skip_count).map do |starts_at, stored_period, shown, skipped|
           {
-            "period_start" => bucket.period_start,
-            "period" => bucket.period,
-            "shown_count" => bucket.shown_count,
-            "skip_count" => bucket.skip_count
+            "period_start" => starts_at,
+            "period" => stored_period,
+            "shown_count" => shown,
+            "skip_count" => skipped
           }
         end
       end

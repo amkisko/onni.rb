@@ -44,4 +44,12 @@ RSpec.describe "Onni stats purge ActiveRecord", type: :request do
     expect(second[:processed_count]).to eq(3)
     expect(Onni::StatBucket.count).to eq(0)
   end
+
+  it "rejects a negative batch size before deleting eligible buckets" do
+    old_bucket = create_bucket(40.days.ago)
+
+    expect { Onni.purge_stats!(older_than: 30.days.ago, batch_size: -1) }
+      .to raise_error(ArgumentError, /batch_size/)
+    expect(Onni::StatBucket.exists?(old_bucket.id)).to be(true)
+  end
 end

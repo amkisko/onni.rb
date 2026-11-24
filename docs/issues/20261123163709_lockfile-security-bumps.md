@@ -21,6 +21,7 @@ line is patched or retired; do not treat the Makefile skip as a clean audit.
 
 ## Next
 
+- Ship with 3.0.2 (`docs/reviews/20261124095700_prepare-3-0-2.md`).
 - Revisit Rails 7.2 disposition in
   docs/dependencies/20261113120312_rails72-advisory-matches.md
 

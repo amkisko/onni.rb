@@ -8,21 +8,22 @@ module Onni
       format = format.to_s
       raise ArgumentError, "Catalogue format must be yaml, json or csv" unless %w[yaml json csv].include?(format)
 
-      rows = Registry.config.sort.map { |name, definition| row(name, definition, runtime: runtime) }
+      definitions = Registry.config
+      gates = Store.gates_for_many(definitions.keys) if runtime
+      rows = definitions.sort.map { |name, definition| row(name, definition, gates: gates&.fetch(name)) }
       output = encode(rows, format)
       io ? io.write(output) : output
     end
 
-    def row(name, definition, runtime:)
+    def row(name, definition, gates:)
       owner = Sync.synchronize { Delivery.entries[name] }
       item = {"name" => name, "definition" => definition.except("expires_at_time"),
               "experiments" => owner ? owner.experiments : {}}
-      item["runtime"] = snapshot(name, definition, owner) if runtime
+      item["runtime"] = snapshot(name, definition, owner, gates) if gates
       item
     end
 
-    def snapshot(name, definition, owner)
-      gates = Onni.adapter.gates_for(name)
+    def snapshot(name, definition, owner, gates)
       {"power" => Settings.power_state(gates, definition).to_s,
        "filters" => Settings.filters(definition, gates).slice(*Registry::Validation::FILTER_KEYS).compact,
        "variants" => Settings.variants(definition, gates), "stats" => Stats::Policy.settings(definition, gates),

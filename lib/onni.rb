@@ -143,12 +143,7 @@ module Onni
     def preload!(*names)
       keys = names.flatten.map!(&:to_s)
       keys = Registry.config.keys.map(&:to_s) if keys.empty?
-      loaded =
-        if adapter.respond_to?(:gates_for_many)
-          adapter.gates_for_many(keys)
-        else
-          keys.each_with_object({}) { |key, hash| hash[key] = adapter.gates_for(key) }
-        end
+      loaded = Store.gates_for_many(keys)
       loaded.transform_values! { |gates| GateSnapshot.wrap(gates) }
       Store.store_preloaded!(loaded)
       loaded.size
@@ -161,7 +156,7 @@ module Onni
     def reset_request!
       Stats::Buffer.flush!
     rescue => error
-      configuration.logger&.warn("Onni stats flush failed: #{error.class}")
+      Instrumenter.warn("Onni stats flush failed: #{error.class}")
     ensure
       RequestStore.clear!
     end
