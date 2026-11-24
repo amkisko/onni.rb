@@ -2,7 +2,7 @@
 
 require "onni/active_admin"
 gem "activeadmin-graphql", ">= 0.4.1", "< 0.5"
-gem "graphql", ">= 2.6.15", "< 3"
+gem "graphql", ">= 2.6.16", "< 3"
 require "activeadmin/graphql"
 require "onni/admin/graphql/access"
 require "onni/admin/graphql/field"

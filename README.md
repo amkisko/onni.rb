@@ -148,7 +148,7 @@ policy methods; `Onni.visible?` remains a rollout evaluation.
 
 For agent, CLI, MCP-adapter, curl or script clients, opt into
 `onni/active_admin_graphql` alongside `activeadmin-graphql` (`~> 0.4.1`) and
-`graphql` (`>= 2.6.15, < 3`) plus the host's `activeadmin-device_authorization`
+`graphql` (`>= 2.6.16, < 3`) plus the host's `activeadmin-device_authorization`
 setup. The typed `onni` catalogue query and named mutations reuse the Ruby
 domain API and host page authorization. Device consent and bearer authentication
 stay in the host; unauthenticated callers must not receive introspection.

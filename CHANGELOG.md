@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Require `graphql` `>= 2.6.16` for the optional ActiveAdmin GraphQL operator API
+
 ## 3.0.1 (2026-11-16)
 
 - Ship the ActiveAdmin agent-access guide inside the gem and add a host cutover checklist

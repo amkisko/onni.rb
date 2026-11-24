@@ -11,7 +11,7 @@ identity, device consent, token storage, authentication and authorization.
 # Gemfile
 gem "activeadmin", "4.0.0.beta23"
 gem "activeadmin-graphql", "~> 0.4.1"
-gem "graphql", ">= 2.6.15", "< 3"
+gem "graphql", ">= 2.6.16", "< 3"
 gem "activeadmin-device_authorization", "~> 0.2.0"
 gem "onni", require: "onni/active_admin_graphql"
 ```
@@ -58,7 +58,7 @@ not register raw feature, gate or stat tables as editable resources.
 Complete these before treating missing GraphQL fields as an Onni bug.
 
 1. Gemfile floors match activation. Load `onni/active_admin_graphql` only with
-   `activeadmin-graphql >= 0.4.1, < 0.5` and `graphql >= 2.6.15, < 3` declared in
+   `activeadmin-graphql >= 0.4.1, < 0.5` and `graphql >= 2.6.16, < 3` declared in
    the host Gemfile, then update the lock for those gems. The loader activates
    the same floors; an older locked `graphql` can leave two trees under
    `vendor/bundle` while Bundler still reports the stale pin.
